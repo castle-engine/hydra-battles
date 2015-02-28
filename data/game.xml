@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<game>
+  <!--
+    TODO: Props must be 1 tile for now.
+
+    Pivot (what image pixel corresponds to the middle of tile)
+    is at pivot_x, pivot_y (default: half the image).
+    pivot_y is measured from image top (like in GIMP).
+  -->
+  <props>
+    <hq url="hq.png" editor_shortcut="h" pivot_y="92" />
+    <barracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" />
+    <tree url="tree.png" editor_shortcut="t" pivot_y="70" />
+    <mountain_1 url="mountain_1.png" editor_shortcut="1" />
+    <mountain_2 url="mountain_2.png" editor_shortcut="2" />
+    <mountain_3 url="mountain_3.png" editor_shortcut="3" />
+    <mountain_4 url="mountain_4.png" editor_shortcut="4" />
+    <mountain_5 url="mountain_5.png" editor_shortcut="5" />
+    <mountain_6 url="mountain_6.png" editor_shortcut="6" />
+    <mountain_7 url="mountain_7.png" editor_shortcut="7" />
+    <mountain_8 url="mountain_8.png" editor_shortcut="8" />
+    <grass url="grass.png" pivot_y="28" editor_shortcut="g" />
+    <cursor url="cursor.png" pivot_y="28" />
+    <!-- TODO: mines? -->
+  </props>
+  <map background="tileable-img_0062.png">
+    <tile_1_1 name="tree" />
+  </map>
+  <npcs>
+    <humans>
+      <peasant url="goblin_lumberjack_blue.png" tiles_x="38">
+        <idle anim_start="1" anim_length="4" />
+        <walk anim_start="5" anim_length="8" />
+        <walk_wood anim_start="9" anim_length="8" />
+        <!-- TODO: walk with gold -->
+        <die anim_start="33" anim_length="6" />
+      </peasant>
+      <warrior url="isometric_hero/complete.png" tiles_x="32">
+        <idle anim_start="1" anim_length="4" />
+        <walk anim_start="5" anim_length="8" />
+        <attack anim_start="9" anim_length="4" />
+        <die anim_start="15" anim_length="6" />
+      </warrior>
+    </humans>
+
+    <monsters>
+      <peasant url="goblin_lumberjack_red.png" tiles_x="38">
+        <idle anim_start="1" anim_length="4" />
+        <walk anim_start="5" anim_length="8" />
+        <walk_wood anim_start="9" anim_length="8" />
+        <!-- TODO: walk with gold -->
+        <die anim_start="33" anim_length="6" />
+      </peasant>
+      <warrior url="minotaur_alpha.png" tiles_x="24">
+        <idle anim_start="1" anim_length="4" />
+        <walk anim_start="5" anim_length="8" />
+        <attack anim_start="9" anim_length="4" />
+        <die anim_start="19" anim_length="6" />
+      </warrior>
+    </monsters>
+  </npcs>
+</game>
