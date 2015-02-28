@@ -8,20 +8,20 @@
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <hq url="hq.png" editor_shortcut="h" pivot_y="92" />
-    <barracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" />
+    <humanHeadquarters url="hq.png" editor_shortcut="h" pivot_y="92" />
+    <humanBarracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" />
+    <!-- TODO: mines? -->
     <tree url="tree.png" editor_shortcut="t" pivot_y="70" />
-    <mountain_1 url="mountain_1.png" editor_shortcut="1" />
-    <mountain_2 url="mountain_2.png" editor_shortcut="2" />
-    <mountain_3 url="mountain_3.png" editor_shortcut="3" />
-    <mountain_4 url="mountain_4.png" editor_shortcut="4" />
-    <mountain_5 url="mountain_5.png" editor_shortcut="5" />
-    <mountain_6 url="mountain_6.png" editor_shortcut="6" />
-    <mountain_7 url="mountain_7.png" editor_shortcut="7" />
-    <mountain_8 url="mountain_8.png" editor_shortcut="8" />
     <grass url="grass.png" pivot_y="28" editor_shortcut="g" />
     <cursor url="cursor.png" pivot_y="28" />
-    <!-- TODO: mines? -->
+    <mountain1 url="mountain_1.png" editor_shortcut="1" />
+    <mountain2 url="mountain_2.png" editor_shortcut="2" />
+    <mountain3 url="mountain_3.png" editor_shortcut="3" />
+    <mountain4 url="mountain_4.png" editor_shortcut="4" />
+    <mountain5 url="mountain_5.png" editor_shortcut="5" />
+    <mountain6 url="mountain_6.png" editor_shortcut="6" />
+    <mountain7 url="mountain_7.png" editor_shortcut="7" />
+    <mountain8 url="mountain_8.png" editor_shortcut="8" />
   </props>
   <map background="tileable-img_0062.png">
     <tile_1_1 name="tree" />
