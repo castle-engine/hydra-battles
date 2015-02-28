@@ -1,7 +1,6 @@
 sailor-tents
 http://opengameart.org/content/tents-hunter-lumberjack-pavilion-storage-unknown-horizons-2d
 
-
 bSpearman
 http://opengameart.org/content/spearman-bleeds-game-art
 
