@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <game>
   <!--
     TODO: Props have constant size in map tiles for now: 1.
@@ -8,62 +8,68 @@
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <humanHeadquarters url="hq.png" editor_shortcut="h" pivot_y="92" />
-    <humanBarracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="110" />
+    <humanHeadquarters url="hq.png" pivot_y="92" editor_shortcut="h"/>
+    <humanBarracks url="medieval_building_thumb.png" pivot_y="110" editor_shortcut="b"/>
     <!-- TODO: mines? -->
-    <humanMine url="gold_mine_1.png" editor_shortcut="m" />
+    <humanMine url="gold_mine_1.png" editor_shortcut="m"/>
     <!-- <monsterMine url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" /> -->
-    <tree url="tree.png" editor_shortcut="t" pivot_y="70" />
-    <grass url="grass.png" pivot_y="28" editor_shortcut="g" />
-    <water url="water.png" editor_shortcut="w" />
-    <mountain1 url="mountain_1.png" editor_shortcut="1" />
-    <mountain2 url="mountain_2.png" editor_shortcut="2" />
-    <mountain3 url="mountain_3.png" editor_shortcut="3" />
-    <mountain4 url="mountain_4.png" editor_shortcut="4" />
-    <mountain5 url="mountain_5.png" editor_shortcut="5" />
-    <mountain6 url="mountain_6.png" editor_shortcut="6" />
-    <mountain7 url="mountain_7.png" editor_shortcut="7" />
-    <mountain8 url="mountain_8.png" editor_shortcut="8" />
+    <tree url="tree.png" pivot_y="70" editor_shortcut="t"/>
+    <grass url="grass.png" pivot_y="28" editor_shortcut="g"/>
+    <water url="water.png" editor_shortcut="w"/>
+    <mountain1 url="mountain_1.png" editor_shortcut="1"/>
+    <mountain2 url="mountain_2.png" editor_shortcut="2"/>
+    <mountain3 url="mountain_3.png" editor_shortcut="3"/>
+    <mountain4 url="mountain_4.png" editor_shortcut="4"/>
+    <mountain5 url="mountain_5.png" editor_shortcut="5"/>
+    <mountain6 url="mountain_6.png" editor_shortcut="6"/>
+    <mountain7 url="mountain_7.png" editor_shortcut="7"/>
+    <mountain8 url="mountain_8.png" editor_shortcut="8"/>
     <!-- special props -->
-    <cursor url="cursor.png" />
-    <tileFrame url="tile_frame.png" />
+    <cursor url="cursor.png"/>
+    <tileFrame url="tile_frame.png"/>
   </props>
   <map background="tileable-img_0062.png">
-    <tile_0_0 name="tree" />
-    <tile_2_2 name="tree" />
-    <tile_4_4 name="tree" />
-    <tile_10_10 name="tree" />
+    <tile_0_0 name="tree"/>
+    <tile_2_2 name="tree"/>
+    <tile_4_4 name="tree"/>
+    <tile_10_10 name="tree"/>
+    <tile_0_4 name="mountain3"/>
+    <tile_0_5 name="mountain6"/>
+    <tile_0_6 name="mountain5"/>
+    <tile_0_7 name="mountain6"/>
+    <tile_0_8 name="mountain5"/>
+    <tile_0_9 name="mountain2"/>
+    <tile_0_10 name="mountain8"/>
   </map>
   <npcs>
     <humans>
       <peasant url="goblin_lumberjack_blue.png" tiles_x="38">
-        <idle anim_start="1" anim_length="4" />
-        <walk anim_start="5" anim_length="8" />
-        <walk_wood anim_start="9" anim_length="8" />
+        <idle anim_start="1" anim_length="4"/>
+        <walk anim_start="5" anim_length="8"/>
+        <walk_wood anim_start="9" anim_length="8"/>
         <!-- TODO: walk with gold -->
-        <die anim_start="33" anim_length="6" />
+        <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="isometric_hero/complete.png" tiles_x="32">
-        <idle anim_start="1" anim_length="4" />
-        <walk anim_start="5" anim_length="8" />
-        <attack anim_start="9" anim_length="4" />
-        <die anim_start="15" anim_length="6" />
+        <idle anim_start="1" anim_length="4"/>
+        <walk anim_start="5" anim_length="8"/>
+        <attack anim_start="9" anim_length="4"/>
+        <die anim_start="15" anim_length="6"/>
       </warrior>
     </humans>
-
     <monsters>
       <peasant url="goblin_lumberjack_red.png" tiles_x="38">
-        <idle anim_start="1" anim_length="4" />
-        <walk anim_start="5" anim_length="8" />
-        <walk_wood anim_start="9" anim_length="8" />
+        <idle anim_start="1" anim_length="4"/>
+        <walk anim_start="5" anim_length="8"/>
+        <walk_wood anim_start="9" anim_length="8"/>
         <!-- TODO: walk with gold -->
-        <die anim_start="33" anim_length="6" />
+        <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="minotaur_alpha.png" tiles_x="24">
-        <idle anim_start="1" anim_length="4" />
-        <walk anim_start="5" anim_length="8" />
-        <attack anim_start="9" anim_length="4" />
-        <die anim_start="19" anim_length="6" />
+        <idle anim_start="1" anim_length="4"/>
+        <walk anim_start="5" anim_length="8"/>
+        <attack anim_start="9" anim_length="4"/>
+        <die anim_start="19" anim_length="6"/>
       </warrior>
     </monsters>
   </npcs>

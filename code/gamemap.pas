@@ -98,6 +98,7 @@ type
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
     procedure Render; override;
+    procedure SaveToFile;
   end;
 
 function PropTypeFromName(const AName: string): TPropType;
@@ -106,7 +107,7 @@ implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleRectangles,
+  CastleColors, CastleUtils, CastleStringUtils, CastleRectangles, CastleLog,
   GameUtils;
 
 const
@@ -290,7 +291,6 @@ begin
   { Map width, height assuming that tile width = 1.0. }
   MapW := MapWidth - 1.0; { cut off 0.5 margin from left/right side }
   MapH := MapHeight / 2 - 0.5;
-//  if not Odd(MapHeight) then MapH -= ;
   MapH /= TileWidthToHeight;
   ContainerW := ContainerWidth - 2 * SideControlWidth; // leave some space for controls on screen sides
   ContainerH := ContainerHeight;
@@ -332,7 +332,23 @@ begin
     RenderProp(EditCursor[0], EditCursor[1], Props[ptCursor]);
 
   ScissorDisable;
+end;
 
+procedure TMap.SaveToFile;
+var
+  X, Y: Integer;
+  PropName: string;
+begin
+  for X := 0 to MapWidth - 1 do
+    for Y := 0 to MapHeight - 1 do
+    begin
+      if Map[X, Y] <> nil then
+        PropName := Map[X, Y].Name else
+        PropName := '';
+      GameConf.SetDeleteValue(Format('map/tile_%d_%d/name', [X, Y]), PropName, '');
+    end;
+  WritelnLog('Map', 'Saved to file ' + GameConf.URL);
+  GameConf.Flush;
 end;
 
 end.
