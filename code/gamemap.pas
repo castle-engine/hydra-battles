@@ -99,8 +99,9 @@ type
     procedure GLContextClose; override;
     procedure Render; override;
     procedure SaveToFile;
-    function ValidTile(const X, Y: Integer): boolean; override;
+    function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; override;
     procedure SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);
+    procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
   end;
 
 function PropTypeFromName(const AName: string): TPropType;
@@ -380,15 +381,18 @@ begin
   GameConf.Flush;
 end;
 
-function TMap.ValidTile(const X, Y: Integer): boolean;
+function TMap.ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean;
 var
   I: Integer;
 begin
   { TODO: allow attacking enemies here }
   if MapProps[X, Y] <> nil then Exit(false);
-  if MapNpcs[X, Y] <> nil then Exit(false);
+  if (MapNpcs[X, Y] <> nil) and
+     (MapNpcs[X, Y] <> OmitNpcInstance) then
+    Exit(false);
   for I := 0 to NpcInstances.Count - 1 do
-    if NpcInstances[I].Path <> nil then
+    if (NpcInstances[I] <> OmitNpcInstance) and
+       (NpcInstances[I].Path <> nil) then
       if not NpcInstances[I].Path.ValidTile(X, Y) then
         Exit(false);
   Result := true;
@@ -410,6 +414,28 @@ begin
   begin
     NpcInstances.Add(NewNpcInstance);
     MapNpcs[X, Y] := NewNpcInstance;
+    NewNpcInstance.X := X;
+    NewNpcInstance.Y := Y;
+  end;
+end;
+
+procedure TMap.Update(const SecondsPassed: Single; var HandleInput: boolean);
+var
+  I: Integer;
+  NI: TNpcInstance;
+  OldX, OldY: Integer;
+begin
+  for I := 0 to NpcInstances.Count - 1 do
+  begin
+    NI := NpcInstances[I];
+    OldX := NI.X;
+    OldY := NI.Y;
+    NI.Update(SecondsPassed, @ValidTile);
+    if (OldX <> NI.X) or (OldY <> NI.Y) then
+    begin
+      MapNpcs[OldX, OldY] := nil;
+      MapNpcs[NI.X, NI.Y] := NI;
+    end;
   end;
 end;
 

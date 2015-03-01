@@ -121,7 +121,7 @@ begin
 
   if (LastX <> -1) and (LastY <> -1) and not Map.Neighbors(LastX, LastY, X, Y) then
     Exit(false);
-  if (not AssumeValid) and (not Map.ValidTile(X, Y)) then
+  if (not AssumeValid) and (not Map.ValidTile(X, Y, nil)) then
     Exit(false);
 
   MapRect := Map.Rect;

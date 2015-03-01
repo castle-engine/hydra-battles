@@ -68,6 +68,11 @@ type
   { Directions, corresponding to dirs (from bottom to top) in sprte sheet file. }
   TDirection = (dirSW, dirS,  dirSE, dirE, dirNE, dirN, dirNW, dirW);
 
+  TNpcInstance = class;
+
+  TValidTileEvent = function (const X, Y: Integer;
+    const OmitNpcInstance: TObject): boolean of object;
+
   TNpcInstance = class
   private
     FNpc: TNpc;
@@ -80,6 +85,8 @@ type
   public
     { Moves along this path now. }
     Life: Single;
+    { Positon on map. Synchronized with Map.MapNpcs. }
+    X, Y: Integer;
     property Npc: TNpc read FNpc;
     { Current path of this npc. Asssigning automatically frees previous path.
       Note that this instance owns (will free) the TPath instance. }
@@ -87,8 +94,11 @@ type
     constructor Create(const ANpc: TNpc; const ADirection: TDirection);
     destructor Destroy; override;
     procedure StartAnimation(const AnimType: TAnimationType);
-    procedure Draw(const ScreenRectangle: TRectangle);
-    procedure Update(const SecondsPassed: Single);
+    procedure Draw(ScreenRectangle: TRectangle);
+    { Update, called every frame.
+      This is the only place where you can change position (X, Y) of this NPC,
+      but inly to places allowed by TValidTileEvent. }
+    procedure Update(const SecondsPassed: Single; const ValidTile: TValidTileEvent);
   end;
 
   TNpcInstanceList = specialize TFPGObjectList<TNpcInstance>;
@@ -268,11 +278,12 @@ begin
   FAnimationStart := GameTime;
 end;
 
-procedure TNpcInstance.Draw(const ScreenRectangle: TRectangle);
+procedure TNpcInstance.Draw(ScreenRectangle: TRectangle);
 var
   AnimFrame: Integer;
   AnimLength: Cardinal;
   ImageX, ImageY: Integer;
+  Diff, Shift: TVector2Single;
 begin
   AnimLength := Npc.Animations[FAnimation].Length;
   AnimFrame := Trunc(Npc.Animations[FAnimation].Fps * (GameTime - FAnimationStart));
@@ -281,6 +292,16 @@ begin
     Clamp(AnimFrame, 0, AnimLength - 1);
   ImageX := (AnimFrame + (Npc.Animations[FAnimation].Start - 1)) * Npc.TileWidth;
   ImageY := Ord(Direction) * Npc.TileHeight;
+
+  Shift := ZeroVector2Single;
+  if (FPath <> nil) and (FPath.Count > 1) and (Trunc(PathProgress) < FPath.Count - 1) then
+  begin
+    Diff := FPath.PointsVector(Trunc(PathProgress), Trunc(PathProgress) + 1);
+    Shift := Diff * Frac(PathProgress);
+  end;
+  ScreenRectangle.Left += Round(Shift[0]);
+  ScreenRectangle.Bottom += Round(Shift[1]);
+
   Npc.GLImage.Draw(ScreenRectangle, ImageX, ImageY, Npc.TileWidth, Npc.TileHeight);
 end;
 
@@ -292,12 +313,12 @@ begin
       FreeAndNil(FPath);
     FPath := Value;
     PathProgress := 0.0;
-    // TODO: move along path, from TMap.Update
+    if FPath <> nil then
+      StartAnimation(atWalk);
   end;
 end;
 
-// TODO: call this
-procedure TNpcInstance.Update(const SecondsPassed: Single);
+procedure TNpcInstance.Update(const SecondsPassed: Single; const ValidTile: TValidTileEvent);
 
   { update Direction now, if moving along the path }
   procedure UpdateDirection;
@@ -306,15 +327,42 @@ procedure TNpcInstance.Update(const SecondsPassed: Single);
     Diff: TVector2Single;
     Angle: Float;
   begin
-    PreviousPointIndex := Max(Trunc(PathProgress), 0);
-    NextPointIndex := Min(FPath.Count - 1, Trunc(PathProgress) + 1);
+    PreviousPointIndex := Clamped(Trunc(PathProgress), 0, FPath.Count - 1);
+    NextPointIndex := Clamped(Trunc(PathProgress) + 1, 0, FPath.Count - 1);
     Diff := FPath.PointsVector(PreviousPointIndex, NextPointIndex);
     Angle := ArcTan2(Diff[1], Diff[0]);
     // TODO: update Direction from Angle
   end;
 
+var
+  OldPathProgress: Single;
+  NextPoint: TVector2SmallInt;
+  NextPointIndex: Integer;
 begin
-  if (FPath <> nil) and (FPath.Count <> 0) then
+  if (FPath <> nil) and (FPath.Count > 1) then
+  begin
+    OldPathProgress := PathProgress;
+    PathProgress += Npc.Animations[FAnimation].MoveSpeed * SecondsPassed;
+
+    if Trunc(OldPathProgress) <> Trunc(PathProgress) then
+    begin
+      NextPointIndex := Clamped(Trunc(PathProgress), 0, FPath.Count - 1);
+      NextPoint := FPath[NextPointIndex];
+      if (NextPoint[0] <> X) or (NextPoint[1] <> Y) then
+      begin
+        if ValidTile(NextPoint[0], NextPoint[1], Self) then
+        begin
+          X := NextPoint[0];
+          Y := NextPoint[1];
+          if NextPointIndex = FPath.Count - 1 then
+            Path := nil; // end of path
+        end else
+          Path := nil;
+      end;
+    end;
+  end;
+
+  if (FPath <> nil) and (FPath.Count > 1) then
     UpdateDirection;
 end;
 

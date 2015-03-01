@@ -35,6 +35,7 @@ type
     Map: TMap;
     Npcs: TNpcs;
     CurrentPaths: TCurrentPaths;
+    function NpcFromPath(const Path: TPath): TNpcInstance;
   public
     StartMapName: string;
     constructor Create(AOwner: TComponent); override;
@@ -207,37 +208,52 @@ begin
     CurrentPaths.Remove(Event.FingerIndex);
 end;
 
+function TStatePlay.NpcFromPath(const Path: TPath): TNpcInstance;
+var
+  I: Integer;
+begin
+  for I := 0 to Map.NpcInstances.Count - 1 do
+    if Map.NpcInstances[I].Path = Path then
+      Exit(Map.NpcInstances[I]);
+  Exit(nil);
+end;
+
 procedure TStatePlay.Motion(const Event: TInputMotion);
 
-  { Remove (freeing) current Path, under Event.FingerIndex. }
-  procedure BreakPath(const Path: TPath);
-  var
-    I: Integer;
+  { Remove (freeing) current Path, under Event.FingerIndex, and with given npc. }
+  procedure BreakPath(const Path: TPath; const PathNpc: TNpcInstance);
   begin
     CurrentPaths.Remove(Event.FingerIndex);
-    for I := 0 to Map.NpcInstances.Count - 1 do
-      if Map.NpcInstances[I].Path = Path then
-        Map.NpcInstances[I].Path := nil;
+    PathNpc.Path := nil;
   end;
 
 var
   X, Y, PathUnderFingerIndex: Integer;
   MapRect: TRectangle;
   CurrentPath: TPath;
+  PathNpc: TNpcInstance;
 begin
   inherited;
   PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
   if PathUnderFingerIndex <> -1 then
   begin
     CurrentPath := CurrentPaths.Data[PathUnderFingerIndex];
-    MapRect := Map.Rect;
-    if not Map.PositionToTile(MapRect, Event.Position, X, Y) then
-      BreakPath(CurrentPath) else
+    PathNpc := NpcFromPath(CurrentPath);
+    if PathNpc = nil then
+      { TODO: ugly to detect it like this.
+        This means that Path was already freed in TNpcInstance,
+        and CurrentPaths contains reference to invalid object. }
+      CurrentPaths.Remove(Event.FingerIndex) else
     begin
-      Map.EditCursor[0] := X;
-      Map.EditCursor[1] := Y;
-      if not CurrentPath.Add(X, Y) then
-        BreakPath(CurrentPath);
+      MapRect := Map.Rect;
+      if not Map.PositionToTile(MapRect, Event.Position, X, Y) then
+        BreakPath(CurrentPath, PathNpc) else
+      begin
+        Map.EditCursor[0] := X;
+        Map.EditCursor[1] := Y;
+        if not CurrentPath.Add(X, Y) then
+          BreakPath(CurrentPath, PathNpc);
+      end;
     end;
   end;
 end;
