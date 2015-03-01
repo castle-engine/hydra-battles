@@ -30,6 +30,7 @@ type
 
   TNpcAnimation = class
     Start, Length, Fps: Cardinal;
+    MoveSpeed: Single;
   end;
 
   TNpc = class
@@ -70,17 +71,27 @@ type
   TNpcInstance = class
   private
     FNpc: TNpc;
+    FPath: TPath;
     FAnimation: TAnimationType;
     FAnimationStart: TFloatTime;
     Direction: TDirection;
+    PathProgress: Single;
+    procedure SetPath(const Value: TPath);
   public
+    { Moves along this path now. }
     Life: Single;
     property Npc: TNpc read FNpc;
+    { Current path of this npc. Asssigning automatically frees previous path.
+      Note that this instance owns (will free) the TPath instance. }
+    property Path: TPath read FPath write SetPath;
     constructor Create(const ANpc: TNpc; const ADirection: TDirection);
     destructor Destroy; override;
     procedure StartAnimation(const AnimType: TAnimationType);
     procedure Draw(const ScreenRectangle: TRectangle);
+    procedure Update(const SecondsPassed: Single);
   end;
+
+  TNpcInstanceList = specialize TFPGObjectList<TNpcInstance>;
 
 function RandomFaction: TFaction;
 function RandomNpcType: TNpcType;
@@ -158,6 +169,7 @@ begin
       Animations[AnimType].Start := AnimStart;
       Animations[AnimType].Length := AnimLength;
       Animations[AnimType].Fps := GameConf.GetValue(AnimConfPath + '/fps', DefaultFps);
+      Animations[AnimType].MoveSpeed := GameConf.GetFloat(AnimConfPath + '/move_speed', 0.0);
       WritelnLog('Npc', Format('Npc "%s" has animation "%s" with %d, %d', [Name, AnimationName[AnimType], AnimStart, AnimLength]));
     end;
   end;
@@ -244,6 +256,7 @@ end;
 
 destructor TNpcInstance.Destroy;
 begin
+  FreeAndNil(FPath);
   inherited;
 end;
 
@@ -269,6 +282,40 @@ begin
   ImageX := (AnimFrame + (Npc.Animations[FAnimation].Start - 1)) * Npc.TileWidth;
   ImageY := Ord(Direction) * Npc.TileHeight;
   Npc.GLImage.Draw(ScreenRectangle, ImageX, ImageY, Npc.TileWidth, Npc.TileHeight);
+end;
+
+procedure TNpcInstance.SetPath(const Value: TPath);
+begin
+  if FPath <> Value then
+  begin
+    if FPath <> nil then
+      FreeAndNil(FPath);
+    FPath := Value;
+    PathProgress := 0.0;
+    // TODO: move along path, from TMap.Update
+  end;
+end;
+
+// TODO: call this
+procedure TNpcInstance.Update(const SecondsPassed: Single);
+
+  { update Direction now, if moving along the path }
+  procedure UpdateDirection;
+  var
+    PreviousPointIndex, NextPointIndex: Integer;
+    Diff: TVector2Single;
+    Angle: Float;
+  begin
+    PreviousPointIndex := Max(Trunc(PathProgress), 0);
+    NextPointIndex := Min(FPath.Count - 1, Trunc(PathProgress) + 1);
+    Diff := FPath.PointsVector(PreviousPointIndex, NextPointIndex);
+    Angle := ArcTan2(Diff[1], Diff[0]);
+    // TODO: update Direction from Angle
+  end;
+
+begin
+  if (FPath <> nil) and (FPath.Count <> 0) then
+    UpdateDirection;
 end;
 
 end.

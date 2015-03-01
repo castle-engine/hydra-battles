@@ -31,20 +31,25 @@ type
     LineSet: TLineSetNode;
     Coordinate: TCoordinateNode;
     property Map: TAbstractMap read FMap;
+    //property Visualization: T2DScene read FVisualization;
   public
-    property Visualization: T2DScene read FVisualization;
-    constructor Create(const AMap: TAbstractMap; const VisualizationSceneManager: T2DSceneManager);
-    function Add(const X, Y: SmallInt): boolean;
+    { Start a new path. Note that position under PathStartX, PathStartY
+      is assumed to be always Ok (otherwise we would collide with starting npc...). }
+    constructor Create(const AMap: TAbstractMap; const PathStartX, PathStartY: Integer);
+    destructor Destroy; override;
+    function Add(const X, Y: SmallInt; const AssumeValid: boolean = false): boolean;
     function ValidTile(const X, Y: Integer): boolean;
+    function PointsVector(const FromIndex, ToIndex: Integer): TVector2Single;
   end;
 
   TPathList = specialize TFPGObjectList<TPath>;
 
 implementation
 
-uses CastleRectangles;
+uses CastleRectangles,
+  GameUtils;
 
-constructor TPath.Create(const AMap: TAbstractMap; const VisualizationSceneManager: T2DSceneManager);
+constructor TPath.Create(const AMap: TAbstractMap; const PathStartX, PathStartY: Integer);
 
   procedure CreateVisualization;
   var
@@ -90,9 +95,18 @@ begin
   LastLastX := -1;
   LastLastY := -1;
   CreateVisualization;
+  Add(PathStartX, PathStartY, true);
 end;
 
-function TPath.Add(const X, Y: SmallInt): boolean;
+destructor TPath.Destroy;
+begin
+  if (FVisualization <> nil) and
+     (VisualizationSceneManager <> nil) then
+    VisualizationSceneManager.Items.Remove(FVisualization);
+  inherited;
+end;
+
+function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
 const
   PathZ = 1;
 var
@@ -107,7 +121,7 @@ begin
 
   if (LastX <> -1) and (LastY <> -1) and not Map.Neighbors(LastX, LastY, X, Y) then
     Exit(false);
-  if not Map.ValidTile(X, Y) then
+  if (not AssumeValid) and (not Map.ValidTile(X, Y)) then
     Exit(false);
 
   MapRect := Map.Rect;
@@ -157,6 +171,18 @@ begin
     if (Items[I][0] = X) and (Items[I][1] = Y) then
      Exit(false);
   Result := true;
+end;
+
+function TPath.PointsVector(const FromIndex, ToIndex: Integer): TVector2Single;
+var
+  PFrom, PTo: TVector3Single;
+begin
+  { note that Coordinate.FdPoint contains points as 3d, and moved by MapRect.Left/Bottom.
+    But it all cancels out when we just need a difference vector. }
+  PFrom := Coordinate.FdPoint.Items.Items[FromIndex];
+  PTo := Coordinate.FdPoint.Items.Items[ToIndex];
+  Result[0] := PTo[0] - PFrom[0];
+  Result[1] := PTo[1] - PFrom[1];
 end;
 
 end.
