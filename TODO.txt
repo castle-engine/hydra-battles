@@ -1,11 +1,12 @@
-put buildings from sidebar
-destroy buildings
+todo:
+destroy buildings and npcs
+traininig npcs
+game over
 
 gameplay:
 Hm, albo mine będzie wspólne na środku planszy dla obu graczy?
 only your own paths are uncrossable? or enemy too?
 tryb "na zmiane", 5 sek na ruch
-
 
 gfx:
 water is ugly
@@ -13,6 +14,8 @@ water is ugly
 large map bg better
 visualize line flow dir, Konrad ideas
 zgliszcza po zniszczeniu budynków
+plansze moga zawiera duze elementy gfx, jak specjalna rzeźna albo arena, murki, krainy w stylu diablo etc.
+  ogolnie, znajdz dowolny set isometric, i można się bawić...
 
 code cleanup:
 TState can be just TUIControl at the bottom.
