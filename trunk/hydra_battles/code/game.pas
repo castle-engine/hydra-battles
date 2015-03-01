@@ -110,6 +110,18 @@ begin
   TState.Current.Motion(Event);
 end;
 
+procedure WindowOpen(Container: TUIContainer);
+begin
+  if TState.Current <> nil then
+    TState.Current.GLContextOpen;
+end;
+
+procedure WindowClose(Container: TUIContainer);
+begin
+  if TState.Current <> nil then
+    TState.Current.GLContextClose;
+end;
+
 function MyGetApplicationName: string;
 begin
   Result := 'hydra_battles';
@@ -132,6 +144,8 @@ initialization
   Window.OnPress := @WindowPress;
   Window.OnRelease := @WindowRelease;
   Window.OnMotion := @WindowMotion;
+  Window.OnOpen := @WindowOpen;
+  Window.OnClose := @WindowClose;
 finalization
   TState.Current := nil;
 end.
