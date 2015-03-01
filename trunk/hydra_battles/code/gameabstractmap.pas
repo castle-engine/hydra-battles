@@ -25,6 +25,9 @@ const
   TileWidthToHeight = 64 / 36;
 
 type
+  { Directions, corresponding to dirs (from bottom to top) in sprte sheet file. }
+  TDirection = (dirSW, dirS,  dirSE, dirE, dirNE, dirN, dirNW, dirW);
+
   TAbstractMap = class(TUIControl)
   private
     FWidth, FHeight: Cardinal;
@@ -41,6 +44,8 @@ type
     function PositionToTile(const MapRect: TRectangle;
       ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
     function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+    function Neighbors(const X1, Y1, X2, Y2: Cardinal;  out Dir: TDirection): boolean;
+    function Neighbors(const P1, P2: TVector2SmallInt;  out Dir: TDirection): boolean;
     function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; virtual; abstract;
   end;
 
@@ -156,19 +161,42 @@ begin
             (Y >= 0) and (Y < Height);
 end;
 
-function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal;
+  out Dir: TDirection): boolean;
 begin
-  Result :=
-                      ((X1 + 1 = X2) and (Y1     = Y2)) or
-                      ((X1 - 1 = X2) and (Y1     = Y2)) or
-                      ((X1     = X2) and (Y1 + 1 = Y2)) or
-                      ((X1     = X2) and (Y1 - 1 = Y2)) or
-                      ((X1     = X2) and (Y1 + 2 = Y2)) or
-                      ((X1     = X2) and (Y1 - 2 = Y2)) or
-    (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 - 1 = Y2)) or
-    (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 + 1 = Y2)) or
-    ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 - 1 = Y2)) or
-    ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 + 1 = Y2));
+  Result := false;
+  if                    ((X1 + 1 = X2) and (Y1     = Y2)) then
+    begin Result := true; Dir := dirE; end else
+  if                    ((X1 - 1 = X2) and (Y1     = Y2)) then
+    begin Result := true; Dir := dirW; end else
+  if                    ((X1     = X2) and (Y1 + 1 = Y2)) then
+    begin Result := true; if Odd(Y1) then Dir := dirNW else Dir := dirNE; end else
+  if                    ((X1     = X2) and (Y1 - 1 = Y2)) then
+    begin Result := true; if Odd(Y1) then Dir := dirSW else Dir := dirSE; end else
+  if                    ((X1     = X2) and (Y1 + 2 = Y2)) then
+    begin Result := true; Dir := dirN; end else
+  if                    ((X1     = X2) and (Y1 - 2 = Y2)) then
+    begin Result := true; Dir := dirS; end else
+  if  (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 - 1 = Y2)) then
+    begin Result := true; Dir := dirSE; end else
+  if  (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 + 1 = Y2)) then
+    begin Result := true; Dir := dirNE; end else
+  if  ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 - 1 = Y2)) then
+    begin Result := true; Dir := dirSW; end else
+  if  ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 + 1 = Y2)) then
+    begin Result := true; Dir := dirNW; end;
+end;
+
+function TAbstractMap.Neighbors(const P1, P2: TVector2SmallInt; out Dir: TDirection): boolean;
+begin
+  Result := Neighbors(P1[0], P1[1], P2[0], P2[1], Dir);
+end;
+
+function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+var
+  Dir: TDirection;
+begin
+  Result := Neighbors(X1, Y1, X2, Y2, Dir);
 end;
 
 end.

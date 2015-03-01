@@ -185,7 +185,7 @@ begin
     if Event.IsKey('N') then
     begin
       Map.SetNpcInstance(Map.EditCursor[0], Map.EditCursor[1],
-        TNpcInstance.Create(Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection));
+        TNpcInstance.Create(Npcs.Npcs[RandomFaction, npcPeasant], RandomDirection));
     end;
   end;
 

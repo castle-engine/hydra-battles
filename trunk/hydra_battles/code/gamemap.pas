@@ -223,6 +223,9 @@ begin
     GameConf.GetValue(ConfPath + '/height', 10)
   );
 
+  EditMode := true;
+  EditCursor := Vector2Integer(Width div 2, Height div 2);
+
   SetLength(MapProps, Width, Height);
   SetLength(MapNpcs, Width, Height);
 
@@ -430,7 +433,7 @@ begin
     NI := NpcInstances[I];
     OldX := NI.X;
     OldY := NI.Y;
-    NI.Update(SecondsPassed, @ValidTile);
+    NI.Update(SecondsPassed, Self);
     if (OldX <> NI.X) or (OldY <> NI.Y) then
     begin
       MapNpcs[OldX, OldY] := nil;

@@ -244,14 +244,14 @@
     <humans>
       <peasant url="goblin_lumberjack_blue.png" tiles_x="38" initial_life="10">
         <idle anim_start="1" anim_length="4"/>
-        <walk anim_start="5" anim_length="8" move_speed="3" />
+        <walk anim_start="5" anim_length="8" move_speed="2" />
         <walk_wood anim_start="9" anim_length="8" move_speed="2" />
         <!-- TODO: walk with gold -->
         <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="isometric_hero/complete.png" tiles_x="32" initial_life="100">
         <idle anim_start="1" anim_length="4"/>
-        <walk anim_start="5" anim_length="8" move_speed="5" />
+        <walk anim_start="5" anim_length="8" move_speed="2" />
         <attack anim_start="9" anim_length="4"/>
         <die anim_start="15" anim_length="6"/>
       </warrior>
@@ -259,14 +259,14 @@
     <monsters>
       <peasant url="goblin_lumberjack_red.png" tiles_x="38" initial_life="10">
         <idle anim_start="1" anim_length="4"/>
-        <walk anim_start="5" anim_length="8" move_speed="3" />
+        <walk anim_start="5" anim_length="8" move_speed="2" />
         <walk_wood anim_start="9" anim_length="8" move_speed="2" />
         <!-- TODO: walk with gold -->
         <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="minotaur_alpha.png" tiles_x="24" initial_life="100">
         <idle anim_start="1" anim_length="4"/>
-        <walk anim_start="5" anim_length="8" move_speed="5" />
+        <walk anim_start="5" anim_length="8" move_speed="2" />
         <attack anim_start="9" anim_length="4"/>
         <die anim_start="19" anim_length="6"/>
       </warrior>
