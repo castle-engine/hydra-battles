@@ -328,12 +328,17 @@ procedure TMap.Update(const SecondsPassed: Single; var HandleInput: boolean);
   procedure PackNpcs;
   var
     J: Integer;
+    NI: TNpcInstance;
   begin
     J := 0;
     while J < NpcInstances.Count do
     begin
       if NpcInstances[J].RemoveFromMap then
-        NpcInstances.Delete(J) else
+      begin
+        NI := NpcInstances[J];
+        MapNpcs[NI.X, NI.Y] := nil;
+        NpcInstances.Delete(J);
+      end else
         Inc(J);
     end;
   end;

@@ -76,7 +76,8 @@ procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
   const Amount: Single);
 begin
   DrawRectangle(R, BgColor);
-  R := R.Grow(-2);
+  if R.Height > 2 then
+    R := R.Grow(-1);
   R.Width := Max(0, Round(R.Width * Amount));
   DrawRectangle(R, FillColor);
 end;
