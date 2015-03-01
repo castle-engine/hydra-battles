@@ -21,7 +21,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
-  CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles;
+  CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
+  GameUtils;
 
 type
   { All possible prop types.
@@ -55,6 +56,8 @@ type
     FGLImage: TGLImage;
     FCostWood, FRewardWood: Single;
     FInitialLife: Single;
+    FNeutral: boolean;
+    FFaction: TFaction;
   public
     property GLImage: TGLImage read FGLImage;
     { Pivot, in image coords (0,0 is bottom-left). }
@@ -85,8 +88,7 @@ implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog,
-  GameUtils;
+  CastleColors, CastleUtils, CastleStringUtils, CastleLog;
 
 const
   PropName: array [TPropType] of string =
@@ -120,6 +122,9 @@ begin
   FCostWood := GameConf.GetFloat(ConfPath + '/cost_wood', 0.0);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 0.0);
   FRewardWood := GameConf.GetFloat(ConfPath + '/reward_wood', 0.0);
+  FNeutral := GameConf.GetValue(ConfPath + '/neutral', true);
+  if not FNeutral then
+    FFaction := FactionFromName(GameConf.GetValue(ConfPath + '/faction', ''));
   if Length(EditorShortcutStr) > 1 then
     raise Exception.CreateFmt('Invalid prop editor shortcut (too long, this should be 1 char or nothing): %s', [EditorShortcutStr]);
   if Length(EditorShortcutStr) = 1 then

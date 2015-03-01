@@ -21,11 +21,10 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
-  GamePath, GameAbstractMap;
+  GamePath, GameAbstractMap, GameUtils;
 
 type
   TNpcType = (npcPeasant, npcWarrior);
-  TFaction = (ftHumans, ftMonsters);
   TAnimationType = (atIdle, atWalk, atWalkWood, atAttack, atDie);
 
   TNpcAnimation = class
@@ -109,14 +108,11 @@ implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils, CastleWarnings,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog,
-  GameUtils;
+  CastleColors, CastleUtils, CastleStringUtils, CastleLog;
 
 const
   NpcName: array [TNpcType] of string =
   ('peasant', 'warrior');
-  FactionName: array [TFaction] of string =
-  ('humans', 'monsters');
   AnimationName: array [TAnimationType] of string =
   ('idle', 'walk', 'walk_wood', 'attack', 'die');
   AnimationLooping: array [TAnimationType] of boolean =
