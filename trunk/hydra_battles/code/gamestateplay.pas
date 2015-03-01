@@ -20,16 +20,18 @@ interface
 
 uses Classes,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
-  GameStates, GameMap, GameNpcs;
+  GameStates, GameMap, GameNpcs, GamePath;
 
 type
   TStatePlay = class(TState)
   private
     Status: TCastleLabel;
-    FirstStart: boolean;
     Props: TProps;
     Map: TMap;
     Npcs: TNpcs;
+    SceneManager: T2DSceneManager;
+    Paths: TPathList;
+    CurrentPath: TPath;
   public
     StartMapName: string;
     constructor Create(AOwner: TComponent); override;
@@ -38,6 +40,8 @@ type
     procedure Resize; override;
     procedure Update(const SecondsPassed: Single); override;
     procedure Press(const Event: TInputPressRelease); override;
+    procedure Release(const Event: TInputPressRelease); override;
+    procedure Motion(const Event: TInputMotion); override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
   end;
@@ -50,7 +54,7 @@ implementation
 uses SysUtils,
   CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
   CastleColors, CastleUIControls, CastleUtils, CastleGLUtils,
-  CastleGLImages, CastleStringUtils,
+  CastleGLImages, CastleStringUtils, CastleRectangles,
   GameUtils, GameStateMainMenu;
 
 { TStatePlay ----------------------------------------------------------------- }
@@ -58,58 +62,57 @@ uses SysUtils,
 constructor TStatePlay.Create(AOwner: TComponent);
 begin
   inherited;
-  { In the 1st start, controls will be created and added to Window.Controls,
-    to initialize resources (non-GL and GL) only then.
-    Later, controls will be kept on Window.Controls list,
-    to not reinitialize GL resources without need. }
-  FirstStart := true;
 end;
 
 procedure TStatePlay.Start;
-
-  procedure CreateControls;
-  begin
-    Status := TCastleLabel.Create(Self);
-    Status.Padding := 5;
-    Status.Color := White;
-    Status.Left := 10;
-    Status.Bottom := 10;
-    Status.Frame := false;
-    Status.Alignment := prRight;
-    Window.Controls.InsertFront(Status);
-  end;
-
 begin
   inherited;
 
-  if FirstStart then
-  begin
-    CreateControls;
-    FirstStart := false;
-  end else
-  begin
-    Status.Exists := true;
-  end;
-
   GameTime := 0;
+
   Props := TProps.Create;
   Npcs := TNpcs.Create;
+  Paths := TPathList.Create;
   Map := TMap.Create(StartMapName, Props, Npcs);
   Window.Controls.InsertFront(Map);
+
+  SceneManager := T2DSceneManager.Create(Self);
+  SceneManager.FullSize :=false;
+  SceneManager.Transparent := true;
+  Window.Controls.InsertFront(SceneManager);
+
+  Status := TCastleLabel.Create(Self);
+  Status.Padding := 5;
+  Status.Color := White;
+  Status.Left := 10;
+  Status.Bottom := 10;
+  Status.Frame := false;
+  Status.Alignment := prRight;
+  Window.Controls.InsertFront(Status);
 end;
 
 procedure TStatePlay.Finish;
 begin
-  Status.Exists := false;
+  FreeAndNil(Status);
+  FreeAndNil(SceneManager);
   FreeAndNil(Map);
   FreeAndNil(Props);
   FreeAndNil(Npcs);
+  FreeAndNil(Paths);
   inherited;
 end;
 
 procedure TStatePlay.Resize;
+var
+  R: TRectangle;
 begin
   inherited;
+
+  R := Map.Rect;
+  SceneManager.Left := R.Left;
+  SceneManager.Bottom := R.Bottom;
+  SceneManager.Width := R.Width;
+  SceneManager.Height := R.Height;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single);
@@ -178,6 +181,33 @@ begin
       Map.MapNpcs[Map.EditCursor[0], Map.EditCursor[1]] := TNpcInstance.Create(
         Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection);
     end;
+  end;
+
+  if Event.IsMouseButton(mbLeft) then
+  begin
+    writeln('Event.IsMouseButton');
+    CurrentPath := TPath.Create(Map, SceneManager);
+    Paths.Add(CurrentPath);
+  end;
+end;
+
+procedure TStatePlay.Release(const Event: TInputPressRelease);
+begin
+  inherited;
+  CurrentPath := nil;
+end;
+
+procedure TStatePlay.Motion(const Event: TInputMotion);
+var
+  X, Y: Integer;
+  MapRect: TRectangle;
+begin
+  inherited;
+  if CurrentPath <> nil then
+  begin
+    MapRect := Map.Rect;
+    if Map.PositionToTile(MapRect, Event.Position, X, Y) then
+      CurrentPath.Add(X, Y);
   end;
 end;
 

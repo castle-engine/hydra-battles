@@ -35,6 +35,8 @@ type
     procedure Resize; virtual;
     procedure Update(const SecondsPassed: Single); virtual;
     procedure Press(const Event: TInputPressRelease); virtual;
+    procedure Release(const Event: TInputPressRelease); virtual;
+    procedure Motion(const Event: TInputMotion); virtual;
     procedure GLContextOpen; virtual;
     procedure GLContextClose; virtual;
   end;
@@ -86,6 +88,14 @@ begin
 end;
 
 procedure TState.Press(const Event: TInputPressRelease);
+begin
+end;
+
+procedure TState.Release(const Event: TInputPressRelease);
+begin
+end;
+
+procedure TState.Motion(const Event: TInputMotion);
 begin
 end;
 

@@ -8,3 +8,5 @@ water is ugly
 2 laters, to allow water/grass under props like trees?
 
 large map bg better
+
+TState can be just TUIControl at the bottom.
