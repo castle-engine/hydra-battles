@@ -19,7 +19,7 @@ unit GamePlayerSidebar;
 interface
 
 uses Classes,
-  CastleImages, CastleUIControls, CastleGLImages, CastleRectangles,
+  CastleImages, CastleUIControls, CastleGLImages, CastleRectangles, CastleVectors,
   GameUtils, GameProps;
 
 type
@@ -34,18 +34,20 @@ type
     constructor Create(const AOwner: TComponent;
       const AFaction: TFaction; const AProps: TProps); reintroduce;
     destructor Destroy; override;
+    property Props: TProps read FProps;
     property Faction: TFaction read FFaction;
     function Rect: TRectangle; override;
     property Height: Integer read FHeight write FHeight;
     procedure Render; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
+    function StartsDragging(const ScreenPosition: TVector2Single; out Prop: TPropType): boolean;
   end;
 
 implementation
 
 uses SysUtils,
-  CastleColors, CastleFilesUtils, CastleControls, CastleVectors;
+  CastleColors, CastleFilesUtils, CastleControls, CastleGameNotifications;
 
 const
   BuildingDragHeight = 0.4;
@@ -100,14 +102,41 @@ begin
   R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
-    Format('Build Barracks (%d wood)', [FProps[Barracks[Faction]].CostWood]),
+    Format('Drag to build Barracks (%d wood)', [FProps[Barracks[Faction]].CostWood]),
     0, prMiddle, prMiddle);
 
   R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
-    Format('Build HQ (%d wood), max one', [FProps[Headquarters[Faction]].CostWood]),
+    Format('Drag to build HQ (%d wood)', [FProps[Headquarters[Faction]].CostWood]),
     0, prMiddle, prMiddle);
+end;
+
+function TPlayerSidebar.StartsDragging(const ScreenPosition: TVector2Single; out Prop: TPropType): boolean;
+var
+  BDH: Integer;
+  R: TRectangle;
+begin
+  BDH := Round(BuildingDragHeight * Height);
+  Result := false;
+
+  R := Rectangle(Left, Height - 2 * BDH, PlayerSidebarWidth, BDH);
+  if R.Contains(ScreenPosition) then
+  begin
+    Prop := Barracks[Faction];
+    if Trunc(Wood[Faction]) < Props[Prop].CostWood then
+      Notifications.Show(Format('Not enough wood to buy Barracks by faction "%s"', [FactionName[Faction]])) else
+      Result := true;
+  end;
+
+  R := Rectangle(Left, Height - BDH, PlayerSidebarWidth, BDH);
+  if R.Contains(ScreenPosition) then
+  begin
+    Prop := Headquarters[Faction];
+    if Trunc(Wood[Faction]) < Props[Prop].CostWood then
+      Notifications.Show(Format('Not enough wood to buy Headquarters by faction "%s"', [FactionName[Faction]])) else
+      Result := true;
+  end;
 end;
 
 end.

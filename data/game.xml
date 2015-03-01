@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <game>
-  <initial wood="4" />
+  <initial wood="1004" />
   <!--
     TODO: Props have constant size in map tiles for now: 1.
 
