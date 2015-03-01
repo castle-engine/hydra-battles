@@ -132,6 +132,7 @@ begin
     Map.EditMode := not Map.EditMode;
   if Event.IsKey('G') then
     Map.Grid := not Map.Grid;
+
   if Map.EditMode then
   begin
     if Event.IsKey(K_Up) then
@@ -160,6 +161,10 @@ begin
           Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
       end;
     end;
+    if Event.IsKey(' ') then
+      Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := nil;
+    if Event.IsKey('S') then
+      Map.SaveToFile;
   end;
 end;
 
