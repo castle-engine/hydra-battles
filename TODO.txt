@@ -1,6 +1,4 @@
 todo:
-destroy buildings and npcs
-traininig npcs
 game over
 
 gameplay:

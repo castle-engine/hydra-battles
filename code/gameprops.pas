@@ -299,7 +299,8 @@ procedure TPropInstance.StartTraining(const Npcs: TNpcs);
 begin
   if (not Training) and Prop.Train and
      { neutral props cannot spawn, as we could not determine the faction on spawned unit }
-     (not Prop.Neutral) then
+     (not Prop.Neutral) and
+     FactionCanMove(Prop.Faction) then
   begin
     FTrainingNpc := Npcs.Npcs[Prop.Faction, Prop.TrainNpc];
     if Trunc(Wood[Prop.Faction]) < FTrainingNpc.CostWood then

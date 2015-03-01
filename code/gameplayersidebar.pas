@@ -47,11 +47,12 @@ type
 implementation
 
 uses SysUtils,
-  CastleColors, CastleFilesUtils, CastleControls, CastleGameNotifications;
+  CastleColors, CastleFilesUtils, CastleControls, CastleGameNotifications,
+  CastleGLUtils;
 
 const
   BuildingDragHeight = 0.4;
-  FactionColor: array [TFaction] of TCastleColor = ((0.1, 0.1, 1, 1), (1, 0.1, 0.1, 1));
+  FactionColor: array [TFaction] of TCastleColor = ((0.5, 0.5, 1, 1), (1, 0.5, 0.5, 1));
 
 constructor TPlayerSidebar.Create(const AOwner: TComponent;
   const AFaction: TFaction; const AProps: TProps);
@@ -90,12 +91,23 @@ procedure TPlayerSidebar.Render;
 var
   BDH: Integer;
   R: TRectangle;
+  ColorBg, ColorText: TCastleColor;
 begin
   inherited;
   BDH := Round(BuildingDragHeight * Height);
 
   R := Rectangle(Left, Bottom, PlayerSidebarWidth, Height - BDH * 2);
-  UIFont.PrintBrokenString(R, FactionColor[Faction],
+  if FactionCanMove(Faction) then
+  begin
+    ColorBg := FactionColor[Faction];
+    ColorText := Black;
+  end else
+  begin
+    ColorBg := Black;
+    ColorText := FactionColor[Faction];
+  end;
+  DrawRectangle(R, ColorBg);
+  UIFont.PrintBrokenString(R, ColorText,
     Format('%s - %d wood', [FactionName[Faction], Trunc(Wood[Faction])]),
     0, prMiddle, prMiddle);
 

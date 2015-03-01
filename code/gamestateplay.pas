@@ -120,6 +120,9 @@ begin
   IntialWood := GameConf.GetValue('initial/wood', 0);
   Wood[ftHumans] := IntialWood;
   Wood[ftMonsters] := IntialWood;
+
+  FactionExclusiveMoves := GameConf.GetValue('faction_exclusive_moves', false);
+  FactionExclusiveMovesDuration := GameConf.GetFloat('faction_exclusive_moves_duration', 1.0);
 end;
 
 procedure TStatePlay.Finish;
@@ -207,11 +210,14 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
           CurrentDraggedProps.Delete(I);
         end;
 
-        DragProp := TDraggedProp.Create(Self);
-        DragProp.Map := Map;
-        DragProp.Prop := Props[DraggingPropType];
-        Window.Controls.InsertFront(DragProp);
-        CurrentDraggedProps[Event.FingerIndex] := DragProp;
+        if Props[DraggingPropType].Neutral or FactionCanMove(Props[DraggingPropType].Faction) then
+        begin
+          DragProp := TDraggedProp.Create(Self);
+          DragProp.Map := Map;
+          DragProp.Prop := Props[DraggingPropType];
+          Window.Controls.InsertFront(DragProp);
+          CurrentDraggedProps[Event.FingerIndex] := DragProp;
+        end;
       end;
   end;
 
@@ -272,7 +278,8 @@ begin
   if Event.IsMouseButton(mbLeft) then
   begin
     if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
-       (Map.MapNpcs[PathStartX, PathStartY] <> nil) then
+       (Map.MapNpcs[PathStartX, PathStartY] <> nil) and
+       FactionCanMove((Map.MapNpcs[PathStartX, PathStartY].Npc.Faction)) then
     begin
       Npc := Map.MapNpcs[PathStartX, PathStartY];
       NewPath := TPath.Create(Map, PathStartX, PathStartY, Npc.Npc.Faction);
