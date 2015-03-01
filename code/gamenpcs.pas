@@ -310,6 +310,10 @@ begin
   ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
   ScreenRectangle.Height := NewRectHeight;
 
+  if Npc.Animations[FAnimation] = nil then
+    raise Exception.CreateFmt('Missing animation "%s" on "%s" of faction "%s"',
+      [AnimationName[FAnimation], Npc.Name, FactionName[Npc.Faction]]);
+
   AnimLength := Npc.Animations[FAnimation].Length;
   AnimFrame := Trunc(Npc.Animations[FAnimation].Fps * (GameTime - FAnimationStart));
   if AnimationLooping[FAnimation] then
