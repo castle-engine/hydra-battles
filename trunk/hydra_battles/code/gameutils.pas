@@ -26,10 +26,15 @@ var
   Window: TCastleWindowCustom;
   ContainerWidth, ContainerHeight: Integer;
 
-//function GameScale: Single;
+function SideControlWidth: Integer;
 
 implementation
 
 uses CastleUtils;
+
+function SideControlWidth: Integer;
+begin
+  Result := Round(ContainerWidth * 0.1);
+end;
 
 end.

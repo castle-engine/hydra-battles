@@ -53,3 +53,9 @@ hq
 http://opengameart.org/content/6-isometric-buildings
 
 http://opengameart.org/content/30-grass-textures-tilable
+
+gold mine
+http://opengameart.org/content/gold-mine
+
+unknown-horizons-natural-resources-mines-prev2.png
+http://opengameart.org/content/natural-resource-deposits-and-mines-unknown-horizons-2d

@@ -113,8 +113,7 @@ var
 begin
   inherited;
 
-  S := Format( 'FPS: %f real : %f',
-    [Window.Fps.FrameTime, Window.Fps.RealTime]);
+  S := Format('FPS: %f real : %f', [Window.Fps.FrameTime, Window.Fps.RealTime]);
   Status.Text.Text := S;
   Status.AlignHorizontal(prRight, prRight);
   Status.AlignVertical(prTop, prTop);
@@ -123,8 +122,45 @@ begin
 end;
 
 procedure TStatePlay.Press(const Event: TInputPressRelease);
+var
+  PT: TPropType;
+  Prop: TProp;
+  RandomMountain: char;
 begin
   inherited;
+  if Event.IsKey('E') then
+    Map.EditMode := not Map.EditMode;
+  if Event.IsKey('G') then
+    Map.Grid := not Map.Grid;
+  if Map.EditMode then
+  begin
+    if Event.IsKey(K_Up) then
+      Map.EditCursor[1] := Map.EditCursor[1] + 1;
+    if Event.IsKey(K_Down) then
+      Map.EditCursor[1] := Map.EditCursor[1] - 1;
+    if Event.IsKey(K_Right) then
+      Map.EditCursor[0] := Map.EditCursor[0] + 1;
+    if Event.IsKey(K_Left) then
+      Map.EditCursor[0] := Map.EditCursor[0] - 1;
+    Map.EditCursor[0] := Clamped(Map.EditCursor[0], 0, MapWidth - 1);
+    Map.EditCursor[1] := Clamped(Map.EditCursor[1], 0, MapHeight - 1);
+    for PT := Low(PT) to High(PT) do
+    begin
+      Prop := Props[PT];
+      if Event.IsKey(Prop.EditorShortcut) then
+        Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+    end;
+    if Event.IsKey('0') then
+    begin
+      RandomMountain := Chr(Random(8) + Ord('1'));
+      for PT := Low(PT) to High(PT) do
+      begin
+        Prop := Props[PT];
+        if Prop.EditorShortcut = RandomMountain then
+          Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+      end;
+    end;
+  end;
 end;
 
 procedure TStatePlay.GLContextOpen;
@@ -135,7 +171,8 @@ end;
 
 procedure TStatePlay.GLContextClose;
 begin
-  Props.GLContextClose;
+  if Props <> nil then
+    Props.GLContextClose;
   inherited;
 end;
 

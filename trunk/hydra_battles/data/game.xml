@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <game>
   <!--
-    TODO: Props must be 1 tile for now.
+    TODO: Props have constant size in map tiles for now: 1.
 
     Pivot (what image pixel corresponds to the middle of tile)
     is at pivot_x, pivot_y (default: half the image).
@@ -9,11 +9,13 @@
   -->
   <props>
     <humanHeadquarters url="hq.png" editor_shortcut="h" pivot_y="92" />
-    <humanBarracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" />
+    <humanBarracks url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="110" />
     <!-- TODO: mines? -->
+    <humanMine url="gold_mine_1.png" editor_shortcut="m" />
+    <!-- <monsterMine url="medieval_building_thumb.png" editor_shortcut="b" pivot_y="125" /> -->
     <tree url="tree.png" editor_shortcut="t" pivot_y="70" />
     <grass url="grass.png" pivot_y="28" editor_shortcut="g" />
-    <cursor url="cursor.png" pivot_y="28" />
+    <water url="water.png" editor_shortcut="w" />
     <mountain1 url="mountain_1.png" editor_shortcut="1" />
     <mountain2 url="mountain_2.png" editor_shortcut="2" />
     <mountain3 url="mountain_3.png" editor_shortcut="3" />
@@ -22,9 +24,15 @@
     <mountain6 url="mountain_6.png" editor_shortcut="6" />
     <mountain7 url="mountain_7.png" editor_shortcut="7" />
     <mountain8 url="mountain_8.png" editor_shortcut="8" />
+    <!-- special props -->
+    <cursor url="cursor.png" />
+    <tileFrame url="tile_frame.png" />
   </props>
   <map background="tileable-img_0062.png">
-    <tile_1_1 name="tree" />
+    <tile_0_0 name="tree" />
+    <tile_2_2 name="tree" />
+    <tile_4_4 name="tree" />
+    <tile_10_10 name="tree" />
   </map>
   <npcs>
     <humans>
