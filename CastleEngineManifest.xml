@@ -7,4 +7,8 @@
   screen_orientation="landscape"
   author="Michalis Kamburelis">
   <version value="1.0.0" code="1" />
+  <package>
+    <include path="COPYING.GPL2.txt" />
+    <include path="README.txt" />
+  </package>
 </project>
