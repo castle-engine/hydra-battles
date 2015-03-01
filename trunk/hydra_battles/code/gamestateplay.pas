@@ -31,6 +31,7 @@ type
     Map: TMap;
     Npcs: TNpcs;
   public
+    StartMapName: string;
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Finish; override;
@@ -93,7 +94,7 @@ begin
   GameTime := 0;
   Props := TProps.Create;
   Npcs := TNpcs.Create;
-  Map := TMap.Create(Props, Npcs);
+  Map := TMap.Create(StartMapName, Props, Npcs);
   Window.Controls.InsertFront(Map);
 end;
 
@@ -149,8 +150,8 @@ begin
       Map.EditCursor[0] := Map.EditCursor[0] + 1;
     if Event.IsKey(K_Left) then
       Map.EditCursor[0] := Map.EditCursor[0] - 1;
-    Map.EditCursor[0] := Clamped(Map.EditCursor[0], 0, MapWidth - 1);
-    Map.EditCursor[1] := Clamped(Map.EditCursor[1], 0, MapHeight - 1);
+    Map.EditCursor[0] := Clamped(Map.EditCursor[0], 0, Map.Width - 1);
+    Map.EditCursor[1] := Clamped(Map.EditCursor[1], 0, Map.Height - 1);
     for PT := Low(PT) to High(PT) do
     begin
       Prop := Props[PT];
