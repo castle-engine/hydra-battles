@@ -2,17 +2,24 @@
 <game>
   <initial wood="1004" />
   <!--
-    TODO: Props have constant size in map tiles for now: 1.
-
+    Props have constant size in map tiles for now: 1.
     Pivot (what image pixel corresponds to the middle of tile)
     is at pivot_x, pivot_y (default: half the image).
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <humansHeadquarters url="hq_humans.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h" cost_wood="1000" />
-    <humansBarracks url="barracks_humans.png" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" editor_shortcut="b"/>
-    <monstersHeadquarters url="hq_monsters.png" faction="monsters" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="H" cost_wood="1000" />
-    <monstersBarracks url="barracks_monsters.png" faction="monsters" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" editor_shortcut="B"/>
+    <humansHeadquarters url="hq_humans.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h"
+      cost_wood="1000" train="peasant"
+    />
+    <humansBarracks url="barracks_humans.png" faction="humans" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="b"
+      cost_wood="10" train="warrior"
+    />
+    <monstersHeadquarters url="hq_monsters.png" faction="monsters" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="H"
+      cost_wood="1000" train="peasant"
+    />
+    <monstersBarracks url="barracks_monsters.png" faction="monsters" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="B"
+      cost_wood="10" train="warrior"
+    />
     <mine url="gold_mine_1.png" editor_shortcut="m"/>
     <tree url="tree.png" pivot_y="70" reward_wood="1" initial_life="1" editor_shortcut="t"/>
     <grass url="grass.png" pivot_y="28" editor_shortcut="g"/>
@@ -273,7 +280,6 @@
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
         <walk_wood anim_start="13" move_speed="2" anim_length="8"/>
-        <!-- TODO: walk with gold -->
         <attack anim_start="21" anim_length="6"/>
         <die anim_start="33" anim_length="6"/>
       </peasant>
@@ -289,7 +295,6 @@
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
         <walk_wood anim_start="13" move_speed="2" anim_length="8"/>
-        <!-- TODO: walk with gold -->
         <attack anim_start="21" anim_length="6"/>
         <die anim_start="33" anim_length="6"/>
       </peasant>
