@@ -74,13 +74,24 @@ type
     procedure GLContextClose;
   end;
 
+  { Render map background. On a separate layer, to be place scene manager inside. }
+  TMapBackground = class(TUIControl)
+  strict private
+    Background: TCastleImage;
+    GLBackground: TGLImage;
+  public
+    Rect: TRectangle;
+    procedure Render; override;
+    constructor Create(const AName: string); reintroduce;
+    destructor Destroy; override;
+    procedure GLContextOpen; override;
+    procedure GLContextClose; override;
+  end;
+
   TMap = class(TAbstractMap)
   strict private
     FProps: TProps;
     FNpcs: TNpcs;
-    Background: TCastleImage;
-    GLBackground: TGLImage;
-    FName: string;
     { Possible props on map. }
     property Props: TProps read FProps;
   public
@@ -92,11 +103,8 @@ type
     EditCursor: TVector2Integer;
     EditMode: boolean;
     Grid: boolean;
-    property Name: string read FName;
     constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs); reintroduce;
     destructor Destroy; override;
-    procedure GLContextOpen; override;
-    procedure GLContextClose; override;
     procedure Render; override;
     procedure SaveToFile;
     function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; override;
@@ -206,6 +214,43 @@ begin
     Data[I].GLContextClose;
 end;
 
+{ TMapBackground ------------------------------------------------------------- }
+
+constructor TMapBackground.Create(const AName: string);
+var
+  ConfPath: string;
+begin
+  Name := AName;
+  ConfPath := 'maps/' + AName;
+  inherited Create(nil);
+  Background := LoadImage(GameConf.GetURL(ConfPath + '/background'), []);
+end;
+
+destructor TMapBackground.Destroy;
+begin
+  FreeAndNil(Background);
+  inherited;
+end;
+
+procedure TMapBackground.GLContextOpen;
+begin
+  inherited;
+  if GLBackground = nil then
+    GLBackground := TGLImage.Create(Background, true);
+end;
+
+procedure TMapBackground.GLContextClose;
+begin
+  FreeAndNil(GLBackground);
+  inherited;
+end;
+
+procedure TMapBackground.Render;
+begin
+  inherited;
+  GLBackground.Draw(Rect);
+end;
+
 { TMap ----------------------------------------------------------------------- }
 
 constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs);
@@ -215,7 +260,7 @@ var
 begin
   FProps := AProps;
   FNpcs := ANpcs;
-  FName := AName;
+  Name := AName;
   ConfPath := 'maps/' + Name;
 
   inherited Create(
@@ -229,7 +274,6 @@ begin
   SetLength(MapProps, Width, Height);
   SetLength(MapNpcs, Width, Height);
 
-  Background := LoadImage(GameConf.GetURL(ConfPath + '/background'), []);
   for X := 0 to Width - 1 do
     for Y := 0 to Height - 1 do
     begin
@@ -247,24 +291,10 @@ var
   X, Y: Integer;
 begin
   FreeAndNil(NpcInstances);
-  FreeAndNil(Background);
   for Y := Height - 1 downto 0 do
     for X := 0 to Width - 1 do
       MapNpcs[X, Y] := nil;
   FreeAndNil(NpcInstances); // owns npc instances on the list, so frees them
-  inherited;
-end;
-
-procedure TMap.GLContextOpen;
-begin
-  inherited;
-  if GLBackground = nil then
-    GLBackground := TGLImage.Create(Background, true);
-end;
-
-procedure TMap.GLContextClose;
-begin
-  FreeAndNil(GLBackground);
   inherited;
 end;
 
@@ -321,8 +351,6 @@ begin
   inherited;
   { Map width, height assuming that tile width = 1.0. }
   R := Rect;
-
-  GLBackground.Draw(R);
 
   ScissorEnable(R);
 
