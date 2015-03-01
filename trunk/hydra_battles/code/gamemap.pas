@@ -78,7 +78,6 @@ type
   strict private
     FProps: TProps;
     FNpcs: TNpcs;
-    FPaths: TPathList;
     Background: TCastleImage;
     GLBackground: TGLImage;
     FName: string;
@@ -89,17 +88,19 @@ type
     MapProps: array of array of TProp;
     { Npcs on map. }
     MapNpcs: array of array of TNpcInstance;
+    NpcInstances: TNpcInstanceList;
     EditCursor: TVector2Integer;
     EditMode: boolean;
     Grid: boolean;
     property Name: string read FName;
-    constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs; const APaths: TPathList); reintroduce;
+    constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs); reintroduce;
     destructor Destroy; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
     procedure Render; override;
     procedure SaveToFile;
     function ValidTile(const X, Y: Integer): boolean; override;
+    procedure SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);
   end;
 
 function PropTypeFromName(const AName: string): TPropType;
@@ -206,15 +207,13 @@ end;
 
 { TMap ----------------------------------------------------------------------- }
 
-constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs;
-  const APaths: TPathList);
+constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs);
 var
   X, Y: Integer;
   PropName, ConfPath: string;
 begin
   FProps := AProps;
   FNpcs := ANpcs;
-  FPaths := APaths;
   FName := AName;
   ConfPath := 'maps/' + Name;
 
@@ -235,16 +234,20 @@ begin
         MapProps[X, Y] := nil else
         MapProps[X, Y] := Props[PropTypeFromName(PropName)];
     end;
+
+  NpcInstances := TNpcInstanceList.Create;
 end;
 
 destructor TMap.Destroy;
 var
   X, Y: Integer;
 begin
+  FreeAndNil(NpcInstances);
   FreeAndNil(Background);
   for Y := Height - 1 downto 0 do
     for X := 0 to Width - 1 do
-      FreeAndNil(MapNpcs[X, Y]);
+      MapNpcs[X, Y] := nil;
+  FreeAndNil(NpcInstances); // owns npc instances on the list, so frees them
   inherited;
 end;
 
@@ -384,10 +387,30 @@ begin
   { TODO: allow attacking enemies here }
   if MapProps[X, Y] <> nil then Exit(false);
   if MapNpcs[X, Y] <> nil then Exit(false);
-  for I := 0 to FPaths.Count - 1 do
-    if not FPaths[I].ValidTile(X, Y) then
-      Exit(false);
+  for I := 0 to NpcInstances.Count - 1 do
+    if NpcInstances[I].Path <> nil then
+      if not NpcInstances[I].Path.ValidTile(X, Y) then
+        Exit(false);
   Result := true;
+end;
+
+procedure TMap.SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);
+var
+  OldNpcInstance: TNpcInstance;
+begin
+  OldNpcInstance := MapNpcs[X, Y];
+  if OldNpcInstance <> nil then
+  begin
+    MapNpcs[X, Y] := nil;
+    NpcInstances.Remove(OldNpcInstance); // frees OldNpcInstance
+    // OldNpcInstance := nil; // useless
+  end;
+
+  if NewNpcInstance <> nil then
+  begin
+    NpcInstances.Add(NewNpcInstance);
+    MapNpcs[X, Y] := NewNpcInstance;
+  end;
 end;
 
 end.

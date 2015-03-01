@@ -34,8 +34,6 @@ type
     Props: TProps;
     Map: TMap;
     Npcs: TNpcs;
-    SceneManager: T2DSceneManager;
-    Paths: TPathList;
     CurrentPaths: TCurrentPaths;
   public
     StartMapName: string;
@@ -79,14 +77,13 @@ begin
 
   Props := TProps.Create;
   Npcs := TNpcs.Create;
-  Paths := TPathList.Create;
-  Map := TMap.Create(StartMapName, Props, Npcs, Paths);
+  Map := TMap.Create(StartMapName, Props, Npcs);
   Window.Controls.InsertFront(Map);
 
-  SceneManager := T2DSceneManager.Create(Self);
-  SceneManager.FullSize :=false;
-  SceneManager.Transparent := true;
-  Window.Controls.InsertFront(SceneManager);
+  VisualizationSceneManager := T2DSceneManager.Create(Self);
+  VisualizationSceneManager.FullSize :=false;
+  VisualizationSceneManager.Transparent := true;
+  Window.Controls.InsertFront(VisualizationSceneManager);
 
   Status := TCastleLabel.Create(Self);
   Status.Padding := 5;
@@ -101,11 +98,10 @@ end;
 procedure TStatePlay.Finish;
 begin
   FreeAndNil(Status);
-  FreeAndNil(SceneManager);
+  FreeAndNil(VisualizationSceneManager);
   FreeAndNil(Map);
   FreeAndNil(Props);
   FreeAndNil(Npcs);
-  FreeAndNil(Paths);
   FreeAndNil(CurrentPaths);
   inherited;
 end;
@@ -117,10 +113,10 @@ begin
   inherited;
 
   R := Map.Rect;
-  SceneManager.Left := R.Left;
-  SceneManager.Bottom := R.Bottom;
-  SceneManager.Width := R.Width;
-  SceneManager.Height := R.Height;
+  VisualizationSceneManager.Left := R.Left;
+  VisualizationSceneManager.Bottom := R.Bottom;
+  VisualizationSceneManager.Width := R.Width;
+  VisualizationSceneManager.Height := R.Height;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single);
@@ -145,6 +141,7 @@ var
   Prop: TProp;
   RandomMountain: char;
   NewPath: TPath;
+  PathStartX, PathStartY: Integer;
 begin
   inherited;
   if Event.IsKey('E') then
@@ -186,17 +183,20 @@ begin
       Map.SaveToFile;
     if Event.IsKey('N') then
     begin
-      FreeAndNil(Map.MapNpcs[Map.EditCursor[0], Map.EditCursor[1]]);
-      Map.MapNpcs[Map.EditCursor[0], Map.EditCursor[1]] := TNpcInstance.Create(
-        Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection);
+      Map.SetNpcInstance(Map.EditCursor[0], Map.EditCursor[1],
+        TNpcInstance.Create(Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection));
     end;
   end;
 
   if Event.IsMouseButton(mbLeft) then
   begin
-    NewPath := TPath.Create(Map, SceneManager);
-    CurrentPaths[Event.FingerIndex] := NewPath;
-    Paths.Add(NewPath);
+    if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
+       (Map.MapNpcs[PathStartX, PathStartY] <> nil) then
+    begin
+      NewPath := TPath.Create(Map, PathStartX, PathStartY);
+      CurrentPaths[Event.FingerIndex] := NewPath;
+      Map.MapNpcs[PathStartX, PathStartY].Path := NewPath;
+    end;
   end;
 end;
 
@@ -211,10 +211,13 @@ procedure TStatePlay.Motion(const Event: TInputMotion);
 
   { Remove (freeing) current Path, under Event.FingerIndex. }
   procedure BreakPath(const Path: TPath);
+  var
+    I: Integer;
   begin
-    SceneManager.Items.Remove(Path.Visualization);
     CurrentPaths.Remove(Event.FingerIndex);
-    Paths.Remove(Path); // this frees Path, as Paths list owns children
+    for I := 0 to Map.NpcInstances.Count - 1 do
+      if Map.NpcInstances[I].Path = Path then
+        Map.NpcInstances[I].Path := nil;
   end;
 
 var

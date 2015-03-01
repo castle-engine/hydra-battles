@@ -1,15 +1,12 @@
-gameplay ideas:
-  Hm, albo mine będzie wspólne na środku planszy dla obu graczy?
+gameplay:
+Hm, albo mine będzie wspólne na środku planszy dla obu graczy?
+only your own paths are uncrossable? or enemy too?
 
+gfx:
 water is ugly
-
 2 layers, to allow water/grass under props like trees?
-
 large map bg better
+visualize line flow dir, Konrad ideas
 
+code cleanup:
 TState can be just TUIControl at the bottom.
-
-try gameplay:
-  only your own paths are uncrossable? or enemy too?
-  
-visualize line flow dir
