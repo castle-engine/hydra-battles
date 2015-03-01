@@ -28,6 +28,8 @@ type
   { Directions, corresponding to dirs (from bottom to top) in sprte sheet file. }
   TDirection = (dirSW, dirS,  dirSE, dirE, dirNE, dirN, dirNW, dirW);
 
+  TWantsToAttack = (waNone, waHumans, waMonsters, waTrees);
+
 var
   GameConf: TCastleConfig;
   Window: TCastleWindowCustom;

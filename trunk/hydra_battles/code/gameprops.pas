@@ -50,7 +50,7 @@ type
 
   TProp = class
   strict private
-    PropType: TPropType;
+    FPropType: TPropType;
     FName: string;
     Image: TCastleImage;
     FEditorShortcut: char;
@@ -61,6 +61,7 @@ type
     FNeutral: boolean;
     FFaction: TFaction;
   public
+    property PropType: TPropType read FPropType;
     property GLImage: TGLImage read FGLImage;
     { Pivot, in image coords (0,0 is bottom-left). }
     property Pivot: TVector2Integer read FPivot;
@@ -146,7 +147,7 @@ var
   EditorShortcutStr, ConfPath: string;
 begin
   inherited Create;
-  PropType := APropType;
+  FPropType := APropType;
   FName := PropName[PropType];
   ConfPath := 'props/' + Name;
   Image := LoadImage(GameConf.GetURL(ConfPath + '/url'), []);

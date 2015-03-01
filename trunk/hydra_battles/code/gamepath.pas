@@ -110,14 +110,54 @@ begin
 end;
 
 function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
-const
-  PathZ = 1;
-var
-  MapRect, TileRect: TRectangle;
-  TileMiddle: TVector2Integer;
-  Point3D: TVector3Single;
-  Point2D: TVector2SmallInt;
-  C: Integer;
+
+  procedure AcceptPoint;
+  const
+    PathZ = 1;
+  var
+    MapRect, TileRect: TRectangle;
+    TileMiddle: TVector2Integer;
+    Point3D: TVector3Single;
+    Point2D: TVector2SmallInt;
+    C: Integer;
+  begin
+    MapRect := Map.Rect;
+    TileRect := Map.GetTileRect(MapRect, X, Y);
+    Point2D := Vector2SmallInt(X, Y);
+    TileMiddle := TileRect.Middle;
+    Point3D := Vector3Single(TileMiddle[0] - MapRect.Left, TileMiddle[1] - MapRect.Bottom, PathZ);
+
+    if (LastLastX <> -1) and (LastLastY <> -1) and Map.Neighbors(LastLastX, LastLastY, X, Y) then
+    begin
+      { do not add new line point, only replace the last one. This smooths path. }
+      Items[Count - 1] := Point2D;
+      Coordinate.FdPoint.Items.Items[Coordinate.FdPoint.Items.Count - 1] := Point3D;
+      Coordinate.FdPoint.Changed;
+
+      LastX := X;
+      LastY := Y;
+    end else
+    begin
+      inherited Add(Point2D);
+      Coordinate.FdPoint.Items.Add(Point3D);
+      Coordinate.FdPoint.Changed;
+
+      C := Coordinate.FdPoint.Items.Count;
+      if C >= 2 then
+      begin
+        if LineSet.FdVertexCount.Items.Count <> 0 then
+          LineSet.FdVertexCount.Items.Items[0] := C else
+          LineSet.FdVertexCount.Items.Add(C);
+        LineSet.FdVertexCount.Changed;
+      end;
+
+      LastLastX := LastX;
+      LastLastY := LastY;
+      LastX := X;
+      LastY := Y;
+    end;
+  end;
+
 begin
   if (X = LastX) and (Y = LastY) then
     Exit(true);
@@ -127,42 +167,7 @@ begin
   if (not AssumeValid) and (not Map.ValidTile(X, Y, nil)) then
     Exit(false);
 
-  MapRect := Map.Rect;
-  TileRect := Map.GetTileRect(MapRect, X, Y);
-  Point2D := Vector2SmallInt(X, Y);
-  TileMiddle := TileRect.Middle;
-  Point3D := Vector3Single(TileMiddle[0] - MapRect.Left, TileMiddle[1] - MapRect.Bottom, PathZ);
-
-  if (LastLastX <> -1) and (LastLastY <> -1) and Map.Neighbors(LastLastX, LastLastY, X, Y) then
-  begin
-    { do not add new line point, only replace the last one. This smooths path. }
-    Items[Count - 1] := Point2D;
-    Coordinate.FdPoint.Items.Items[Coordinate.FdPoint.Items.Count - 1] := Point3D;
-    Coordinate.FdPoint.Changed;
-
-    LastX := X;
-    LastY := Y;
-  end else
-  begin
-    inherited Add(Point2D);
-    Coordinate.FdPoint.Items.Add(Point3D);
-    Coordinate.FdPoint.Changed;
-
-    C := Coordinate.FdPoint.Items.Count;
-    if C >= 2 then
-    begin
-      if LineSet.FdVertexCount.Items.Count <> 0 then
-        LineSet.FdVertexCount.Items.Items[0] := C else
-        LineSet.FdVertexCount.Items.Add(C);
-      LineSet.FdVertexCount.Changed;
-    end;
-
-    LastLastX := LastX;
-    LastLastY := LastY;
-    LastX := X;
-    LastY := Y;
-  end;
-
+  AcceptPoint;
   Result := true;
 end;
 
