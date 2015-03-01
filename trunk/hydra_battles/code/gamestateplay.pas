@@ -198,6 +198,15 @@ begin
 end;
 
 procedure TStatePlay.Motion(const Event: TInputMotion);
+
+  procedure BreakPath;
+  begin
+    { remove (freeing) CurrentPath }
+    SceneManager.Items.Remove(CurrentPath.Visualization);
+    Paths.Remove(CurrentPath); // this frees CurrentPath
+    CurrentPath := nil;
+  end;
+
 var
   X, Y: Integer;
   MapRect: TRectangle;
@@ -206,8 +215,14 @@ begin
   if CurrentPath <> nil then
   begin
     MapRect := Map.Rect;
-    if Map.PositionToTile(MapRect, Event.Position, X, Y) then
-      CurrentPath.Add(X, Y);
+    if not Map.PositionToTile(MapRect, Event.Position, X, Y) then
+      BreakPath else
+    begin
+      Map.EditCursor[0] := X;
+      Map.EditCursor[1] := Y;
+      if not CurrentPath.Add(X, Y) then
+        BreakPath;
+    end;
   end;
 end;
 

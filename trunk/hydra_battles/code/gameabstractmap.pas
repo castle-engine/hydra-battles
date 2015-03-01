@@ -39,7 +39,8 @@ type
     function GetTileRect(const MapRect: TRectangle; const X, Y: Integer): TRectangle;
     { Convert screen position to tile (returns false if outside the map. }
     function PositionToTile(const MapRect: TRectangle;
-      const ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+      ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+    function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
   end;
 
 implementation
@@ -96,14 +97,75 @@ begin
 end;
 
 function TAbstractMap.PositionToTile(const MapRect: TRectangle;
-  const ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+  ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+var
+  TileW, TileH: Single;
+  ScreenPositionFrac: TVector2Single;
+  EvenRow: boolean;
 begin
   if not MapRect.Contains(ScreenPosition) then
     Exit(false);
   Result := true;
-  { TODO: too simple }
-  X := Clamped(Trunc(MapRange(ScreenPosition[0], MapRect.Left, MapRect.Right, 0, Width)), 0, Width - 1);
-  Y := Clamped(Trunc(MapRange(ScreenPosition[1], MapRect.Bottom, MapRect.Top, 0, Height)), 0, Height - 1);
+
+  TileW := MapRect.Width / (Width - 1);
+  TileH := TileW / TileWidthToHeight;
+
+  ScreenPosition[0] := (ScreenPosition[0] - MapRect.Left  ) / TileW;
+  ScreenPosition[1] := (ScreenPosition[1] - MapRect.Bottom) / TileH;
+  ScreenPositionFrac[0] := Frac(ScreenPosition[0]);
+  ScreenPositionFrac[1] := Frac(ScreenPosition[1]);
+  if ScreenPositionFrac[1] < 0.5 then
+  begin
+    if ScreenPositionFrac[0] < 0.5 then
+      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0, 0)) <
+                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5)) else
+      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(1, 0)) <
+                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5));
+    if EvenRow then
+    begin
+      if ScreenPositionFrac[0] < 0.5 then
+        X := Trunc(ScreenPosition[0]) else
+        X := Trunc(ScreenPosition[0]) + 1;
+      Y := Trunc(ScreenPosition[1]) * 2;
+    end else
+    begin
+      X := Trunc(ScreenPosition[0]);
+      Y := Trunc(ScreenPosition[1]) * 2 + 1;
+    end;
+  end else
+  begin
+    if ScreenPositionFrac[0] < 0.5 then
+      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0, 1)) <
+                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5)) else
+      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(1, 1)) <
+                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5));
+    if EvenRow then
+    begin
+      if ScreenPositionFrac[0] < 0.5 then
+        X := Trunc(ScreenPosition[0]) else
+        X := Trunc(ScreenPosition[0]) + 1;
+      Y := Trunc(ScreenPosition[1]) * 2 + 2;
+    end else
+    begin
+      X := Trunc(ScreenPosition[0]);
+      Y := Trunc(ScreenPosition[1]) * 2 + 1;
+    end;
+  end;
+end;
+
+function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+begin
+  Result :=
+                      ((X1 + 1 = X2) and (Y1     = Y2)) or
+                      ((X1 - 1 = X2) and (Y1     = Y2)) or
+                      ((X1     = X2) and (Y1 + 1 = Y2)) or
+                      ((X1     = X2) and (Y1 - 1 = Y2)) or
+                      ((X1     = X2) and (Y1 + 2 = Y2)) or
+                      ((X1     = X2) and (Y1 - 2 = Y2)) or
+    (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 - 1 = Y2)) or
+    (     Odd(Y1)  and (X1 + 1 = X2) and (Y1 + 1 = Y2)) or
+    ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 - 1 = Y2)) or
+    ((not Odd(Y1)) and (X1 - 1 = X2) and (Y1 + 1 = Y2));
 end;
 
 end.

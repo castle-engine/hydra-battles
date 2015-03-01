@@ -26,15 +26,15 @@ type
   TPath = class(TVector2SmallIntList)
   private
     FMap: TAbstractMap;
-    LastX, LastY: SmallInt;
+    LastX, LastY, LastLastX, LastLastY: SmallInt;
     FVisualization: T2DScene;
     LineSet: TLineSetNode;
     Coordinate: TCoordinateNode;
-    //property Visualization: T2DScene read FVisualization;
     property Map: TAbstractMap read FMap;
   public
+    property Visualization: T2DScene read FVisualization;
     constructor Create(const AMap: TAbstractMap; const VisualizationSceneManager: T2DSceneManager);
-    procedure Add(const X, Y: SmallInt);
+    function Add(const X, Y: SmallInt): boolean;
   end;
 
   TPathList = specialize TFPGObjectList<TPath>;
@@ -86,42 +86,62 @@ begin
   FMap := AMap;
   LastX := -1;
   LastY := -1;
+  LastLastX := -1;
+  LastLastY := -1;
   CreateVisualization;
 end;
 
-procedure TPath.Add(const X, Y: SmallInt);
+function TPath.Add(const X, Y: SmallInt): boolean;
 const
   PathZ = 1;
 var
-  TileRect: TRectangle;
+  MapRect, TileRect: TRectangle;
   Point: TVector2Integer;
+  Point3D: TVector3Single;
   C: Integer;
 begin
   if (X = LastX) and (Y = LastY) then
-    Exit;
-  LastX := X;
-  LastY := Y;
+    Exit(true);
 
-  TileRect := Map.GetTileRect(Map.Rect, X, Y);
+  if (LastX <> -1) and (LastY <> -1) and not Map.Neighbors(LastX, LastY, X, Y) then
+    Exit(false);
+
+  MapRect := Map.Rect;
+  TileRect := Map.GetTileRect(MapRect, X, Y);
   Point := TileRect.Middle;
-  Coordinate.FdPoint.Items.Add(Vector3Single(Point[0], Point[1], PathZ));
-  Coordinate.FdPoint.Changed;
+  Point3D := Vector3Single(Point[0] - MapRect.Left, Point[1] - MapRect.Bottom, PathZ);
 
-  C := Coordinate.FdPoint.Items.Count;
-  if C >= 2 then
+  if (LastLastX <> -1) and (LastLastY <> -1) and Map.Neighbors(LastLastX, LastLastY, X, Y) then
   begin
-    if LineSet.FdVertexCount.Items.Count <> 0 then
-      LineSet.FdVertexCount.Items.Items[0] := C else
-      LineSet.FdVertexCount.Items.Add(C);
-    LineSet.FdVertexCount.Changed;
+    { do not add new line point, only replace the last one. This smooths path. }
+    Coordinate.FdPoint.Items.Items[Coordinate.FdPoint.Items.Count - 1] := Point3D;
+    Coordinate.FdPoint.Changed;
+
+    LastX := X;
+    LastY := Y;
+  end else
+  begin
+    Coordinate.FdPoint.Items.Add(Point3D);
+    Coordinate.FdPoint.Changed;
+
+    C := Coordinate.FdPoint.Items.Count;
+    if C >= 2 then
+    begin
+      if LineSet.FdVertexCount.Items.Count <> 0 then
+        LineSet.FdVertexCount.Items.Items[0] := C else
+        LineSet.FdVertexCount.Items.Add(C);
+      LineSet.FdVertexCount.Changed;
+    end;
+
+    LastLastX := LastX;
+    LastLastY := LastY;
+    LastX := X;
+    LastY := Y;
   end;
 
-  FVisualization.ChangedAll;
+  Result := true;
 
   { TODO:
-    fix PositionToTile, since it breaks this path.
-    smooth: smooth "teeth" when possible, removing last point if new point neighbors to last-last point.
-    check is neighbor to last.
     return false if invalid (e.g. crosses prop, in future: crosses other lines). }
 end;
 
