@@ -24,8 +24,6 @@ uses Classes, FGL,
   GameNpcs;
 
 const
-  MapWidth = 10;
-  MapHeight = 20;
   { Aspect ratio of rendered tile. }
   TileWidthToHeight = 64 / 36;
 
@@ -86,17 +84,22 @@ type
     FNpcs: TNpcs;
     Background: TCastleImage;
     GLBackground: TGLImage;
+    FName: string;
+    FWidth, FHeight: Cardinal;
     { Possible props on map. }
     property Props: TProps read FProps;
   public
     { Props on map. }
-    MapProps: array [0 .. MapWidth - 1, 0 .. MapHeight - 1] of TProp;
+    MapProps: array of array of TProp;
     { Npcs on map. }
-    MapNpcs: array [0 .. MapWidth - 1, 0 .. MapHeight - 1] of TNpcInstance;
+    MapNpcs: array of array of TNpcInstance;
     EditCursor: TVector2Integer;
     EditMode: boolean;
     Grid: boolean;
-    constructor Create(const AProps: TProps; const ANpcs: TNpcs); reintroduce;
+    property Name: string read FName;
+    property Width: Cardinal read FWidth;
+    property Height: Cardinal read FHeight;
+    constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs); reintroduce;
     destructor Destroy; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
@@ -208,19 +211,27 @@ end;
 
 { TMap ----------------------------------------------------------------------- }
 
-constructor TMap.Create(const AProps: TProps; const ANpcs: TNpcs);
+constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs);
 var
   X, Y: Integer;
-  PropName: string;
+  PropName, ConfPath: string;
 begin
   inherited Create(nil);
   FProps := AProps;
   FNpcs := ANpcs;
-  Background := LoadImage(GameConf.GetURL('map/background'), []);
-  for X := 0 to MapWidth - 1 do
-    for Y := 0 to MapHeight - 1 do
+  FName := AName;
+  ConfPath := 'maps/' + Name;
+  FWidth := GameConf.GetValue(ConfPath + '/width', 10);
+  FHeight := GameConf.GetValue(ConfPath + '/height', 10);
+
+  SetLength(MapProps, Width, Height);
+  SetLength(MapNpcs, Width, Height);
+
+  Background := LoadImage(GameConf.GetURL(ConfPath + '/background'), []);
+  for X := 0 to Width - 1 do
+    for Y := 0 to Height - 1 do
     begin
-      PropName := GameConf.GetValue(Format('map/tile_%d_%d/name', [X, Y]), '');
+      PropName := GameConf.GetValue(Format(ConfPath + '/tile_%d_%d/name', [X, Y]), '');
       if PropName = '' then
         MapProps[X, Y] := nil else
         MapProps[X, Y] := Props[PropTypeFromName(PropName)];
@@ -232,8 +243,8 @@ var
   X, Y: Integer;
 begin
   FreeAndNil(Background);
-  for Y := MapHeight - 1 downto 0 do
-    for X := 0 to MapWidth - 1 do
+  for Y := Height - 1 downto 0 do
+    for X := 0 to Width - 1 do
       FreeAndNil(MapNpcs[X, Y]);
   inherited;
 end;
@@ -314,8 +325,8 @@ var
 begin
   inherited;
   { Map width, height assuming that tile width = 1.0. }
-  MapW := MapWidth - 1.0; { cut off 0.5 margin from left/right side }
-  MapH := MapHeight / 2 - 0.5;
+  MapW := Width - 1.0; { cut off 0.5 margin from left/right side }
+  MapH := Height / 2 - 0.5;
   MapH /= TileWidthToHeight;
   ContainerW := ContainerWidth - 2 * SideControlWidth; // leave some space for controls on screen sides
   ContainerH := ContainerHeight;
@@ -333,7 +344,7 @@ begin
     R.Left := (ContainerW - R.Width) div 2;
   end;
   R.Left += SideControlWidth;
-  TileW := R.Width / (MapWidth - 1);
+  TileW := R.Width / (Width - 1);
   TileH := TileW / TileWidthToHeight;
 
   GLBackground.Draw(R);
@@ -341,12 +352,12 @@ begin
   ScissorEnable(R);
 
   if Grid then
-    for Y := MapHeight - 1 downto 0 do
-      for X := 0 to MapWidth - 1 do
+    for Y := Height - 1 downto 0 do
+      for X := 0 to Width - 1 do
         RenderProp(X, Y, Props[ptTileFrame]);
 
-  for Y := MapHeight - 1 downto 0 do
-    for X := 0 to MapWidth - 1 do
+  for Y := Height - 1 downto 0 do
+    for X := 0 to Width - 1 do
     begin
       //RenderProp(X, Y, Props[ptGrass]);
       if MapProps[X, Y] <> nil then
@@ -364,15 +375,16 @@ end;
 procedure TMap.SaveToFile;
 var
   X, Y: Integer;
-  PropName: string;
+  ConfPath, PropName: string;
 begin
-  for X := 0 to MapWidth - 1 do
-    for Y := 0 to MapHeight - 1 do
+  ConfPath := 'maps/' + Name;
+  for X := 0 to Width - 1 do
+    for Y := 0 to Height - 1 do
     begin
       if MapProps[X, Y] <> nil then
         PropName := MapProps[X, Y].Name else
         PropName := '';
-      GameConf.SetDeleteValue(Format('map/tile_%d_%d/name', [X, Y]), PropName, '');
+      GameConf.SetDeleteValue(Format(ConfPath + '/tile_%d_%d/name', [X, Y]), PropName, '');
     end;
   WritelnLog('Map', 'Saved to file ' + GameConf.URL);
   GameConf.Flush;
