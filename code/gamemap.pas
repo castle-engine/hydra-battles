@@ -123,7 +123,7 @@ begin
     GameConf.GetValue(ConfPath + '/height', 10)
   );
 
-  EditMode := true;
+  //EditMode := true;
   EditCursor := Vector2Integer(Width div 2, Height div 2);
 
   SetLength(MapProps, Width, Height);

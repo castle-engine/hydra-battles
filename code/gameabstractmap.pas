@@ -18,16 +18,14 @@ unit GameAbstractMap;
 
 interface
 
-uses CastleVectors, Castle2DSceneManager, CastleUIControls, CastleRectangles;
+uses CastleVectors, Castle2DSceneManager, CastleUIControls, CastleRectangles,
+  GameUtils;
 
 const
   { Aspect ratio of rendered tile. }
   TileWidthToHeight = 64 / 36;
 
 type
-  { Directions, corresponding to dirs (from bottom to top) in sprte sheet file. }
-  TDirection = (dirSW, dirS,  dirSE, dirE, dirNE, dirN, dirNW, dirW);
-
   TAbstractMap = class(TUIControl)
   private
     FWidth, FHeight: Cardinal;
@@ -52,8 +50,7 @@ type
 implementation
 
 uses Math,
-  CastleUtils,
-  GameUtils;
+  CastleUtils;
 
 constructor TAbstractMap.Create(const AWidth, AHeight: Cardinal);
 begin
