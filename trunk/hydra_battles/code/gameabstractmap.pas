@@ -41,7 +41,7 @@ type
     function PositionToTile(const MapRect: TRectangle;
       ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
     function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
-    function ValidTile(const X, Y: Integer): boolean; virtual; abstract;
+    function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; virtual; abstract;
   end;
 
 implementation
@@ -106,7 +106,6 @@ var
 begin
   if not MapRect.Contains(ScreenPosition) then
     Exit(false);
-  Result := true;
 
   TileW := MapRect.Width / (Width - 1);
   TileH := TileW / TileWidthToHeight;
@@ -152,6 +151,9 @@ begin
       Y := Trunc(ScreenPosition[1]) * 2 + 1;
     end;
   end;
+
+  Result := (X >= 0) and (X < Width) and
+            (Y >= 0) and (Y < Height);
 end;
 
 function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
