@@ -20,7 +20,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
-  CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles;
+  CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
+  GamePath;
 
 type
   TNpcType = (npcPeasant, npcWarrior);

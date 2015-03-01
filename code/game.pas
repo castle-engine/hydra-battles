@@ -24,7 +24,7 @@ implementation
 
 uses SysUtils, CastleWindowTouch, CastleWindow, CastleScene, CastleControls,
   CastleFilesUtils, CastleSceneCore, CastleKeysMouse, CastleConfig,
-  CastleLog, CastleProgress, CastleWindowProgress, CastleUtils,
+  CastleLog, CastleProgress, CastleWindowProgress, CastleUtils, CastleSceneManager,
   GameUtils, GameStatePlay, GameStateMainMenu, GameStates;
 
 var
@@ -48,6 +48,13 @@ begin
   {$ifndef MSWINDOWS} { Under Windows, log requires stderr. }
   InitializeLog;
   {$endif}
+
+  // disable shortcuts, in particular do not let scene manager to capture clicks
+  Input_Interact.MakeClear(true);
+  Input_Attack.MakeClear(true);
+  Input_InventoryPrevious.MakeClear(true);
+  Input_InventoryNext.MakeClear(true);
+  Input_UseItem.MakeClear(true);
 
   { initialize these in case something wants to use them before WindowResize. }
   ContainerWidth := Window.Width;
@@ -93,6 +100,16 @@ begin
   TState.Current.Press(Event);
 end;
 
+procedure WindowRelease(Container: TUIContainer; const Event: TInputPressRelease);
+begin
+  TState.Current.Release(Event);
+end;
+
+procedure WindowMotion(Container: TUIContainer; const Event: TInputMotion);
+begin
+  TState.Current.Motion(Event);
+end;
+
 function MyGetApplicationName: string;
 begin
   Result := 'hydra_battles';
@@ -113,6 +130,8 @@ initialization
   Window.OnResize := @WindowResize;
   Window.OnUpdate := @WindowUpdate;
   Window.OnPress := @WindowPress;
+  Window.OnRelease := @WindowRelease;
+  Window.OnMotion := @WindowMotion;
 finalization
   TState.Current := nil;
 end.

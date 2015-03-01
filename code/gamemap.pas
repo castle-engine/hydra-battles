@@ -20,12 +20,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
-  CastleGLImages, CastleUIControls,
-  GameNpcs;
-
-const
-  { Aspect ratio of rendered tile. }
-  TileWidthToHeight = 64 / 36;
+  CastleGLImages, CastleUIControls, CastleRectangles,
+  GameNpcs, GameAbstractMap;
 
 type
   { All possible prop types.
@@ -78,14 +74,13 @@ type
     procedure GLContextClose;
   end;
 
-  TMap = class(TUIControl)
+  TMap = class(TAbstractMap)
   strict private
     FProps: TProps;
     FNpcs: TNpcs;
     Background: TCastleImage;
     GLBackground: TGLImage;
     FName: string;
-    FWidth, FHeight: Cardinal;
     { Possible props on map. }
     property Props: TProps read FProps;
   public
@@ -97,8 +92,6 @@ type
     EditMode: boolean;
     Grid: boolean;
     property Name: string read FName;
-    property Width: Cardinal read FWidth;
-    property Height: Cardinal read FHeight;
     constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs); reintroduce;
     destructor Destroy; override;
     procedure GLContextOpen; override;
@@ -113,7 +106,7 @@ implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleRectangles, CastleLog,
+  CastleColors, CastleUtils, CastleStringUtils, CastleLog,
   GameUtils;
 
 const
@@ -216,13 +209,15 @@ var
   X, Y: Integer;
   PropName, ConfPath: string;
 begin
-  inherited Create(nil);
   FProps := AProps;
   FNpcs := ANpcs;
   FName := AName;
   ConfPath := 'maps/' + Name;
-  FWidth := GameConf.GetValue(ConfPath + '/width', 10);
-  FHeight := GameConf.GetValue(ConfPath + '/height', 10);
+
+  inherited Create(
+    GameConf.GetValue(ConfPath + '/width', 10),
+    GameConf.GetValue(ConfPath + '/height', 10)
+  );
 
   SetLength(MapProps, Width, Height);
   SetLength(MapNpcs, Width, Height);
@@ -265,16 +260,6 @@ end;
 procedure TMap.Render;
 var
   R: TRectangle;
-  TileW, TileH: Single;
-
-  function GetTileRect(const X, Y: Integer): TRectangle;
-  begin
-    Result.Left := Round(R.Left + X * TileW);
-    if not Odd(Y) then Result.Left -= Round(TileW / 2);
-    Result.Bottom := Round(R.Bottom + (Y - 1) * TileH / 2);
-    Result.Width := Ceil(TileW);
-    Result.Height := Ceil(TileH);
-  end;
 
   procedure RenderProp(const X, Y: Integer; const Prop: TProp);
   var
@@ -282,7 +267,7 @@ var
     TileImage: TGLImage;
     NewTileRectHeight: Integer;
   begin
-    TileRect := GetTileRect(X, Y);
+    TileRect := GetTileRect(R, X, Y);
     //UIFont.Print(TileRect.Middle[0], TileRect.Middle[1], Black, Format('%d,%d', [X, Y]));
 
     TileImage := Prop.GLImage;
@@ -307,7 +292,7 @@ var
     TileRect: TRectangle;
     NewTileRectHeight: Integer;
   begin
-    TileRect := GetTileRect(X, Y);
+    TileRect := GetTileRect(R, X, Y);
 
     { for NPC, TileRect is uniform }
     NewTileRectHeight := TileRect.Width;
@@ -320,32 +305,11 @@ var
   end;
 
 var
-  MapW, MapH: Single;
-  X, Y, ContainerW, ContainerH: Integer;
+  X, Y: Integer;
 begin
   inherited;
   { Map width, height assuming that tile width = 1.0. }
-  MapW := Width - 1.0; { cut off 0.5 margin from left/right side }
-  MapH := Height / 2 - 0.5;
-  MapH /= TileWidthToHeight;
-  ContainerW := ContainerWidth - 2 * SideControlWidth; // leave some space for controls on screen sides
-  ContainerH := ContainerHeight;
-  if MapW / MapH > ContainerW / ContainerH then
-  begin
-    R.Left := 0;
-    R.Width := ContainerW;
-    R.Height := Round(R.Width * MapH / MapW); // adjust R.Height to aspect
-    R.Bottom := (ContainerH - R.Height) div 2;
-  end else
-  begin
-    R.Bottom := 0;
-    R.Height := ContainerH;
-    R.Width := Round(R.Height * MapW / MapH); // adjust R.Width to aspect
-    R.Left := (ContainerW - R.Width) div 2;
-  end;
-  R.Left += SideControlWidth;
-  TileW := R.Width / (Width - 1);
-  TileH := TileW / TileWidthToHeight;
+  R := Rect;
 
   GLBackground.Draw(R);
 
