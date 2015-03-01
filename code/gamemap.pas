@@ -278,7 +278,10 @@ begin
            (MapProps[X, Y].Prop.Faction = ftMonsters) then
           Exit(true);
       end;
-    waTrees: if (MapProps[X, Y] <> nil) and (MapProps[X, Y].Prop.PropType = ptTree) then Exit(true);
+    waTrees:
+      if (MapProps[X, Y] <> nil) and
+         (MapProps[X, Y].Prop.PropType in Trees) then
+        Exit(true);
   end;
   Result := false;
 end;

@@ -59,3 +59,5 @@ http://opengameart.org/content/gold-mine
 
 unknown-horizons-natural-resources-mines-prev2.png
 http://opengameart.org/content/natural-resource-deposits-and-mines-unknown-horizons-2d
+
+http://opengameart.org/content/free-isometric-plants-pack

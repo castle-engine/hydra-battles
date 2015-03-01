@@ -44,7 +44,10 @@ type
   TPropType = (
     ptHumansHeadquarters, ptHumansBarracks,
     ptMonstersHeadquarters, ptMonstersBarracks,
-    ptMine, ptTree, ptGrass, ptWater, ptCursor, ptTileFrame,
+    ptMine,
+    ptBigTree01, ptBigTree02, ptBigTree03,
+    ptHemp01, ptHemp02, ptHemp03,
+    ptGrass, ptWater, ptCursor, ptTileFrame,
     ptMountain1, ptMountain2, ptMountain3, ptMountain4,
     ptMountain5, ptMountain6, ptMountain7, ptMountain8);
 
@@ -63,6 +66,7 @@ type
     FTrain: boolean;
     FTrainNpc: TNpcType;
     FTrainDuration: Single;
+    FScale: Single;
   public
     property PropType: TPropType read FPropType;
     property GLImage: TGLImage read FGLImage;
@@ -78,6 +82,7 @@ type
     property Train: boolean read FTrain;
     property TrainNpc: TNpcType read FTrainNpc;
     property TrainDuration: Single read FTrainDuration;
+    property Scale: Single read FScale;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -129,6 +134,7 @@ function PropTypeFromName(const AName: string): TPropType;
 const
   Barracks: array [TFaction] of TPropType = (ptHumansBarracks, ptMonstersBarracks);
   Headquarters: array [TFaction] of TPropType = (ptHumansHeadquarters, ptMonstersHeadquarters);
+  Trees: set of TPropType = [ptBigTree01, ptBigTree02, ptBigTree03, ptHemp01, ptHemp02, ptHemp03];
 
 implementation
 
@@ -139,8 +145,10 @@ uses SysUtils, Math,
 const
   PropName: array [TPropType] of string =
   ( 'humansHeadquarters', 'humansBarracks',
-    'monstersHeadquarters', 'monstersBarracks',
-    'mine', 'tree', 'grass', 'water', 'cursor', 'tileFrame',
+    'monstersHeadquarters', 'monstersBarracks', 'mine',
+    'bigtree01', 'bigtree02', 'bigtree03',
+    'hemp01', 'hemp02', 'hemp03',
+    'grass', 'water', 'cursor', 'tileFrame',
     'mountain1', 'mountain2', 'mountain3', 'mountain4',
     'mountain5', 'mountain6', 'mountain7', 'mountain8');
 
@@ -182,6 +190,7 @@ begin
   if Length(EditorShortcutStr) = 1 then
     FEditorShortcut := EditorShortcutStr[1] else
     FEditorShortcut := #0;
+  FScale := GameConf.GetFloat(ConfPath + '/scale', 1.0);
 end;
 
 destructor TProp.Destroy;
@@ -200,6 +209,28 @@ end;
 procedure TProp.GLContextClose;
 begin
   FreeAndNil(FGLImage);
+end;
+
+procedure TProp.Draw(ScreenRectangle: TRectangle);
+var
+  NewRectHeight: Integer;
+begin
+  if GLImage = nil then
+    raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Name]);
+
+  ScreenRectangle := ScreenRectangle.Grow(Round(ScreenRectangle.Width * (Scale - 1)));
+
+  { now ScreenRectangle is calculated assuming that Image fills tile size (ScreenRectangle)
+    perfectly. But actually it may be a little taller, so account for this,
+    knowing that width of ScreenRectangle (tile) matches Image width. }
+  NewRectHeight := ScreenRectangle.Width * Image.Height div Image.Width;
+  ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
+  ScreenRectangle.Height := NewRectHeight;
+  { apply pivot }
+  ScreenRectangle.Left -= Round((Pivot[0] - Image.Width div 2) * ScreenRectangle.Width / Image.Width);
+  ScreenRectangle.Bottom -= Round((Pivot[1] - Image.Height div 2) * ScreenRectangle.Height / Image.Height);
+
+  GLImage.Draw(ScreenRectangle);
 end;
 
 { TProps ------------------------------------------------------------------ }
@@ -240,26 +271,6 @@ var
 begin
   for I := 0 to Count - 1 do
     Data[I].GLContextClose;
-end;
-
-procedure TProp.Draw(ScreenRectangle: TRectangle);
-var
-  NewRectHeight: Integer;
-begin
-  if GLImage = nil then
-    raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Name]);
-
-  { now ScreenRectangle is calculated assuming that Image fills tile size (ScreenRectangle)
-    perfectly. But actually it may be a little taller, so account for this,
-    knowing that width of ScreenRectangle (tile) matches Image width. }
-  NewRectHeight := ScreenRectangle.Width * Image.Height div Image.Width;
-  ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
-  ScreenRectangle.Height := NewRectHeight;
-  { apply pivot }
-  ScreenRectangle.Left -= Round((Pivot[0] - Image.Width div 2) * ScreenRectangle.Width / Image.Width);
-  ScreenRectangle.Bottom -= Round((Pivot[1] - Image.Height div 2) * ScreenRectangle.Height / Image.Height);
-
-  GLImage.Draw(ScreenRectangle);
 end;
 
 { TPropInstance -------------------------------------------------------------- }
