@@ -18,11 +18,16 @@ unit GameStatePlay;
 
 interface
 
-uses Classes,
+uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
   GameStates, GameMap, GameNpcs, GamePath;
 
 type
+  { Currently drawn paths with mouse / touch device. Support multi-touch
+    (crucial for our game to enable 2 players simultaneously drawing paths)
+    by supporting multiple paths, for different finger index. }
+  TCurrentPaths = specialize TFPGMap<TFingerIndex, TPath>;
+
   TStatePlay = class(TState)
   private
     Status: TCastleLabel;
@@ -31,7 +36,7 @@ type
     Npcs: TNpcs;
     SceneManager: T2DSceneManager;
     Paths: TPathList;
-    CurrentPath: TPath;
+    CurrentPaths: TCurrentPaths;
   public
     StartMapName: string;
     constructor Create(AOwner: TComponent); override;
@@ -70,6 +75,8 @@ begin
 
   GameTime := 0;
 
+  CurrentPaths := TCurrentPaths.Create;
+
   Props := TProps.Create;
   Npcs := TNpcs.Create;
   Paths := TPathList.Create;
@@ -99,6 +106,7 @@ begin
   FreeAndNil(Props);
   FreeAndNil(Npcs);
   FreeAndNil(Paths);
+  FreeAndNil(CurrentPaths);
   inherited;
 end;
 
@@ -136,6 +144,7 @@ var
   PT: TPropType;
   Prop: TProp;
   RandomMountain: char;
+  NewPath: TPath;
 begin
   inherited;
   if Event.IsKey('E') then
@@ -185,42 +194,47 @@ begin
 
   if Event.IsMouseButton(mbLeft) then
   begin
-    CurrentPath := TPath.Create(Map, SceneManager);
-    Paths.Add(CurrentPath);
+    NewPath := TPath.Create(Map, SceneManager);
+    CurrentPaths[Event.FingerIndex] := NewPath;
+    Paths.Add(NewPath);
   end;
 end;
 
 procedure TStatePlay.Release(const Event: TInputPressRelease);
 begin
   inherited;
-  CurrentPath := nil;
+  if Event.IsMouseButton(mbLeft) then
+    CurrentPaths.Remove(Event.FingerIndex);
 end;
 
 procedure TStatePlay.Motion(const Event: TInputMotion);
 
-  procedure BreakPath;
+  { Remove (freeing) current Path, under Event.FingerIndex. }
+  procedure BreakPath(const Path: TPath);
   begin
-    { remove (freeing) CurrentPath }
-    SceneManager.Items.Remove(CurrentPath.Visualization);
-    Paths.Remove(CurrentPath); // this frees CurrentPath
-    CurrentPath := nil;
+    SceneManager.Items.Remove(Path.Visualization);
+    CurrentPaths.Remove(Event.FingerIndex);
+    Paths.Remove(Path); // this frees Path, as Paths list owns children
   end;
 
 var
-  X, Y: Integer;
+  X, Y, PathUnderFingerIndex: Integer;
   MapRect: TRectangle;
+  CurrentPath: TPath;
 begin
   inherited;
-  if CurrentPath <> nil then
+  PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
+  if PathUnderFingerIndex <> -1 then
   begin
+    CurrentPath := CurrentPaths.Data[PathUnderFingerIndex];
     MapRect := Map.Rect;
     if not Map.PositionToTile(MapRect, Event.Position, X, Y) then
-      BreakPath else
+      BreakPath(CurrentPath) else
     begin
       Map.EditCursor[0] := X;
       Map.EditCursor[1] := Y;
       if not CurrentPath.Add(X, Y) then
-        BreakPath;
+        BreakPath(CurrentPath);
     end;
   end;
 end;
