@@ -20,7 +20,7 @@ interface
 
 uses Classes,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
-  GameStates, GameMap;
+  GameStates, GameMap, GameNpcs;
 
 type
   TStatePlay = class(TState)
@@ -29,6 +29,7 @@ type
     FirstStart: boolean;
     Props: TProps;
     Map: TMap;
+    Npcs: TNpcs;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
@@ -89,8 +90,10 @@ begin
     Status.Exists := true;
   end;
 
+  GameTime := 0;
   Props := TProps.Create;
-  Map := TMap.Create(Props);
+  Npcs := TNpcs.Create;
+  Map := TMap.Create(Props, Npcs);
   Window.Controls.InsertFront(Map);
 end;
 
@@ -99,6 +102,7 @@ begin
   Status.Exists := false;
   FreeAndNil(Map);
   FreeAndNil(Props);
+  FreeAndNil(Npcs);
   inherited;
 end;
 
@@ -117,6 +121,8 @@ begin
   Status.Text.Text := S;
   Status.AlignHorizontal(prRight, prRight);
   Status.AlignVertical(prTop, prTop);
+
+  GameTime += SecondsPassed;
 
   Window.Invalidate;
 end;
@@ -149,7 +155,7 @@ begin
     begin
       Prop := Props[PT];
       if Event.IsKey(Prop.EditorShortcut) then
-        Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+        Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
     end;
     if Event.IsKey('0') then
     begin
@@ -158,13 +164,19 @@ begin
       begin
         Prop := Props[PT];
         if Prop.EditorShortcut = RandomMountain then
-          Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+          Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
       end;
     end;
     if Event.IsKey(' ') then
-      Map.Map[Map.EditCursor[0], Map.EditCursor[1]] := nil;
+      Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := nil;
     if Event.IsKey('S') then
       Map.SaveToFile;
+    if Event.IsKey('N') then
+    begin
+      FreeAndNil(Map.MapNpcs[Map.EditCursor[0], Map.EditCursor[1]]);
+      Map.MapNpcs[Map.EditCursor[0], Map.EditCursor[1]] := TNpcInstance.Create(
+        Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection);
+    end;
   end;
 end;
 
@@ -172,12 +184,15 @@ procedure TStatePlay.GLContextOpen;
 begin
   inherited;
   Props.GLContextOpen;
+  Npcs.GLContextOpen;
 end;
 
 procedure TStatePlay.GLContextClose;
 begin
   if Props <> nil then
     Props.GLContextClose;
+  if Npcs <> nil then
+    Npcs.GLContextClose;
   inherited;
 end;
 

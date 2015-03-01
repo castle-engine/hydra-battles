@@ -75,7 +75,7 @@ end;
 procedure TStateMainMenu.Press(const Event: TInputPressRelease);
 begin
   inherited;
-  if Event.IsMouseButton(mbLeft) then
+  if Event.IsMouseButton(mbLeft) or Event.IsKey(K_Enter) or Event.IsKey(K_Escape) then
     TState.Current := StatePlay;
 end;
 

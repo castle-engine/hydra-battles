@@ -20,7 +20,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
-  CastleGLImages, CastleUIControls;
+  CastleGLImages, CastleUIControls,
+  GameNpcs;
 
 const
   MapWidth = 10;
@@ -58,7 +59,6 @@ type
     FEditorShortcut: char;
     FPivot: TVector2Integer;
     FGLImage: TGLImage;
-    Grid: boolean;
   public
     property GLImage: TGLImage read FGLImage;
     { Pivot, in image coords (0,0 is bottom-left). }
@@ -83,17 +83,20 @@ type
   TMap = class(TUIControl)
   strict private
     FProps: TProps;
+    FNpcs: TNpcs;
     Background: TCastleImage;
     GLBackground: TGLImage;
     { Possible props on map. }
     property Props: TProps read FProps;
   public
-    { Map contents. }
-    Map: array [0 .. MapWidth - 1, 0 .. MapHeight - 1] of TProp;
+    { Props on map. }
+    MapProps: array [0 .. MapWidth - 1, 0 .. MapHeight - 1] of TProp;
+    { Npcs on map. }
+    MapNpcs: array [0 .. MapWidth - 1, 0 .. MapHeight - 1] of TNpcInstance;
     EditCursor: TVector2Integer;
     EditMode: boolean;
     Grid: boolean;
-    constructor Create(const AProps: TProps); reintroduce;
+    constructor Create(const AProps: TProps; const ANpcs: TNpcs); reintroduce;
     destructor Destroy; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
@@ -205,27 +208,33 @@ end;
 
 { TMap ----------------------------------------------------------------------- }
 
-constructor TMap.Create(const AProps: TProps);
+constructor TMap.Create(const AProps: TProps; const ANpcs: TNpcs);
 var
   X, Y: Integer;
   PropName: string;
 begin
   inherited Create(nil);
   FProps := AProps;
+  FNpcs := ANpcs;
   Background := LoadImage(GameConf.GetURL('map/background'), []);
   for X := 0 to MapWidth - 1 do
     for Y := 0 to MapHeight - 1 do
     begin
       PropName := GameConf.GetValue(Format('map/tile_%d_%d/name', [X, Y]), '');
       if PropName = '' then
-        Map[X, Y] := nil else
-        Map[X, Y] := Props[PropTypeFromName(PropName)];
+        MapProps[X, Y] := nil else
+        MapProps[X, Y] := Props[PropTypeFromName(PropName)];
     end;
 end;
 
 destructor TMap.Destroy;
+var
+  X, Y: Integer;
 begin
   FreeAndNil(Background);
+  for Y := MapHeight - 1 downto 0 do
+    for X := 0 to MapWidth - 1 do
+      FreeAndNil(MapNpcs[X, Y]);
   inherited;
 end;
 
@@ -238,8 +247,8 @@ end;
 
 procedure TMap.GLContextClose;
 begin
-  inherited;
   FreeAndNil(GLBackground);
+  inherited;
 end;
 
 procedure TMap.Render;
@@ -247,40 +256,56 @@ var
   R: TRectangle;
   TileW, TileH: Single;
 
+  function GetTileRect(const X, Y: Integer): TRectangle;
+  begin
+    Result.Left := Round(R.Left + X * TileW);
+    if not Odd(Y) then Result.Left -= Round(TileW / 2);
+    Result.Bottom := Round(R.Bottom + (Y - 1) * TileH / 2);
+    Result.Width := Ceil(TileW);
+    Result.Height := Ceil(TileH);
+  end;
+
   procedure RenderProp(const X, Y: Integer; const Prop: TProp);
-
-    procedure RenderPropRect(TileRect: TRectangle; const Prop: TProp);
-    var
-      TileImage: TGLImage;
-      NewTileRectHeight: Integer;
-    begin
-      TileImage := Prop.GLImage;
-      if Prop.GLImage = nil then
-        raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Prop.Name]);
-
-      { now TileRect is calculated assuming that PropType.GLImage fills Tile size
-        perfectly. But actually it may be a little taller, so account for this,
-        knowing that width matches. }
-      NewTileRectHeight := TileRect.Width * TileImage.Height div TileImage.Width;
-      TileRect.Bottom -= (NewTileRectHeight - TileRect.Height) div 2; // keep centered
-      TileRect.Height := NewTileRectHeight;
-      { apply pivot }
-      TileRect.Left -= Round((Prop.Pivot[0] - TileImage.Width div 2) * TileRect.Width / TileImage.Width);
-      TileRect.Bottom -= Round((Prop.Pivot[1] - TileImage.Height div 2) * TileRect.Height / TileImage.Height);
-
-      TileImage.Draw(TileRect);
-    end;
-
   var
     TileRect: TRectangle;
+    TileImage: TGLImage;
+    NewTileRectHeight: Integer;
   begin
-    TileRect.Left := Round(R.Left + X * TileW);
-    if not Odd(Y) then TileRect.Left -= Round(TileW / 2);
-    TileRect.Bottom := Round(R.Bottom + (Y - 1) * TileH / 2);
-    TileRect.Width := Ceil(TileW);
-    TileRect.Height := Ceil(TileH);
+    TileRect := GetTileRect(X, Y);
     //UIFont.Print(TileRect.Middle[0], TileRect.Middle[1], Black, Format('%d,%d', [X, Y]));
-    RenderPropRect(TileRect, Prop);
+
+    TileImage := Prop.GLImage;
+    if Prop.GLImage = nil then
+      raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Prop.Name]);
+
+    { now TileRect is calculated assuming that PropType.GLImage fills Tile size
+      perfectly. But actually it may be a little taller, so account for this,
+      knowing that width matches. }
+    NewTileRectHeight := TileRect.Width * TileImage.Height div TileImage.Width;
+    TileRect.Bottom -= (NewTileRectHeight - TileRect.Height) div 2; // keep centered
+    TileRect.Height := NewTileRectHeight;
+    { apply pivot }
+    TileRect.Left -= Round((Prop.Pivot[0] - TileImage.Width div 2) * TileRect.Width / TileImage.Width);
+    TileRect.Bottom -= Round((Prop.Pivot[1] - TileImage.Height div 2) * TileRect.Height / TileImage.Height);
+
+    TileImage.Draw(TileRect);
+  end;
+
+  procedure RenderNpc(const X, Y: Integer; const N: TNpcInstance);
+  var
+    TileRect: TRectangle;
+    NewTileRectHeight: Integer;
+  begin
+    TileRect := GetTileRect(X, Y);
+
+    { for NPC, TileRect is uniform }
+    NewTileRectHeight := TileRect.Width;
+    TileRect.Bottom -= (NewTileRectHeight - TileRect.Height) div 2; // keep centered
+    TileRect.Height := NewTileRectHeight;
+
+    //TileRect := TileRect.Grow(TileRect.Width div 2);
+
+    N.Draw(TileRect);
   end;
 
 var
@@ -323,9 +348,11 @@ begin
   for Y := MapHeight - 1 downto 0 do
     for X := 0 to MapWidth - 1 do
     begin
-      if Map[X, Y] <> nil then
-        RenderProp(X, Y, Map[X, Y]);
       //RenderProp(X, Y, Props[ptGrass]);
+      if MapProps[X, Y] <> nil then
+        RenderProp(X, Y, MapProps[X, Y]);
+      if MapNpcs[X, Y] <> nil then
+        RenderNpc(X, Y, MapNpcs[X, Y]);
     end;
 
   if EditMode then
@@ -342,8 +369,8 @@ begin
   for X := 0 to MapWidth - 1 do
     for Y := 0 to MapHeight - 1 do
     begin
-      if Map[X, Y] <> nil then
-        PropName := Map[X, Y].Name else
+      if MapProps[X, Y] <> nil then
+        PropName := MapProps[X, Y].Name else
         PropName := '';
       GameConf.SetDeleteValue(Format('map/tile_%d_%d/name', [X, Y]), PropName, '');
     end;

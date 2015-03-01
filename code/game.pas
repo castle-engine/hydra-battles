@@ -76,7 +76,7 @@ end;
 
 procedure WindowUpdate(Container: TUIContainer);
 const
-  { Avoid increasing WorldTime a lot (and producing a lot of dragons)
+  { Avoid increasing GameTime a lot (and producing a lot of dragons)
     when the game was just hanging on Android for some time. }
   MaxSensibleSecondsPassed = 1;
 var
