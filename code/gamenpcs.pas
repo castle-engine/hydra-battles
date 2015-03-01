@@ -34,14 +34,17 @@ type
   end;
 
   TNpc = class
-  private
+  strict private
     FName: string;
     FNpcType: TNpcType;
     FFaction: TFaction;
     FGLImage: TGLImage;
     Image: TCastleImage;
-    TilesX, TileWidth, TileHeight: Cardinal;
+    TilesX, FTileWidth, FTileHeight: Cardinal;
     FInitialLife: Single;
+    AttackConst, AttackRandom: Single;
+    FCostWood: Single;
+  private
     Animations: array [TAnimationType] of TNpcAnimation;
   public
     property Name: string read FName;
@@ -49,6 +52,9 @@ type
     property Faction: TFaction read FFaction;
     property InitialLife: Single read FInitialLife;
     property GLImage: TGLImage read FGLImage;
+    property CostWood: Single read FCostWood;
+    property TileWidth: Cardinal read FTileWidth;
+    property TileHeight: Cardinal read FTileHeight;
     constructor Create(const AFaction: TFaction; const ANpcType: TNpcType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -149,12 +155,15 @@ begin
   Image := LoadImage(GameConf.GetURL(ConfPath + '/url'), []);
   TilesX := GameConf.GetValue(ConfPath + '/tiles_x', 1);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 1.0);
+  AttackConst := GameConf.GetFloat(ConfPath + '/attack_const', 0.0);
+  AttackRandom := GameConf.GetFloat(ConfPath + '/attack_random', 0.0);
+  FCostWood := GameConf.GetFloat(ConfPath + '/cost_wood', 0.0);
 
-  TileWidth := Image.Width div TilesX;
+  FTileWidth := Image.Width div TilesX;
   if Image.Width mod TilesX <> 0 then
     OnWarning(wtMinor, 'Npc', Format('Npc "%s" image width %d does not exactly divide into tiles_x %d',
       [Name, Image.Width, TilesX]));
-  TileHeight := Image.Height div 8;
+  FTileHeight := Image.Height div 8;
   if Image.Height mod 8 <> 0 then
     OnWarning(wtMinor, 'Npc', Format('Npc "%s" image height %d does not exactly divide into 8 directions',
       [Name, Image.Height]));

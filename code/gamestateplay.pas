@@ -20,7 +20,7 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
-  GameStates, GameMap, GameNpcs, GamePath;
+  GameStates, GameMap, GameNpcs, GamePath, GameProps;
 
 type
   { Currently drawn paths with mouse / touch device. Support multi-touch
