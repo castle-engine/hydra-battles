@@ -21,7 +21,7 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
-  GamePath;
+  GamePath, GameAbstractMap;
 
 type
   TNpcType = (npcPeasant, npcWarrior);
@@ -65,14 +65,6 @@ type
     procedure GLContextClose;
   end;
 
-  { Directions, corresponding to dirs (from bottom to top) in sprte sheet file. }
-  TDirection = (dirSW, dirS,  dirSE, dirE, dirNE, dirN, dirNW, dirW);
-
-  TNpcInstance = class;
-
-  TValidTileEvent = function (const X, Y: Integer;
-    const OmitNpcInstance: TObject): boolean of object;
-
   TNpcInstance = class
   private
     FNpc: TNpc;
@@ -98,7 +90,7 @@ type
     { Update, called every frame.
       This is the only place where you can change position (X, Y) of this NPC,
       but inly to places allowed by TValidTileEvent. }
-    procedure Update(const SecondsPassed: Single; const ValidTile: TValidTileEvent);
+    procedure Update(const SecondsPassed: Single; const Map: TAbstractMap);
   end;
 
   TNpcInstanceList = specialize TFPGObjectList<TNpcInstance>;
@@ -124,7 +116,7 @@ const
   AnimationLooping: array [TAnimationType] of boolean =
   (true, true, true, false, false);
 
-  DefaultFps = 4;
+  DefaultFps = 8;
 
 function RandomFaction: TFaction;
 begin
@@ -314,24 +306,26 @@ begin
     FPath := Value;
     PathProgress := 0.0;
     if FPath <> nil then
-      StartAnimation(atWalk);
+      StartAnimation(atWalk) else
+      StartAnimation(atIdle);
   end;
 end;
 
-procedure TNpcInstance.Update(const SecondsPassed: Single; const ValidTile: TValidTileEvent);
+procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractMap);
 
   { update Direction now, if moving along the path }
   procedure UpdateDirection;
   var
     PreviousPointIndex, NextPointIndex: Integer;
-    Diff: TVector2Single;
-    Angle: Float;
+    Dir: TDirection;
   begin
     PreviousPointIndex := Clamped(Trunc(PathProgress), 0, FPath.Count - 1);
     NextPointIndex := Clamped(Trunc(PathProgress) + 1, 0, FPath.Count - 1);
-    Diff := FPath.PointsVector(PreviousPointIndex, NextPointIndex);
-    Angle := ArcTan2(Diff[1], Diff[0]);
-    // TODO: update Direction from Angle
+    if PreviousPointIndex < NextPointIndex then
+    begin
+      if Map.Neighbors(FPath[PreviousPointIndex], FPath[NextPointIndex], Dir) then
+        Direction := Dir;
+    end;
   end;
 
 var
@@ -350,7 +344,7 @@ begin
       NextPoint := FPath[NextPointIndex];
       if (NextPoint[0] <> X) or (NextPoint[1] <> Y) then
       begin
-        if ValidTile(NextPoint[0], NextPoint[1], Self) then
+        if Map.ValidTile(NextPoint[0], NextPoint[1], Self) then
         begin
           X := NextPoint[0];
           Y := NextPoint[1];
