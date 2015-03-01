@@ -46,9 +46,10 @@ type
     property Props: TProps read FProps;
   public
     { Props on map. }
-    MapProps: array of array of TProp;
+    MapProps: array of array of TPropInstance;
     { Npcs on map. }
     MapNpcs: array of array of TNpcInstance;
+    PropInstances: TPropInstanceList;
     NpcInstances: TNpcInstanceList;
     EditCursor: TVector2Integer;
     EditMode: boolean;
@@ -59,6 +60,7 @@ type
     procedure SaveToFile;
     function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; override;
     procedure SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);
+    procedure SetPropInstance(const X, Y: Integer; const NewPropInstance: TPropInstance);
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
   end;
 
@@ -126,6 +128,9 @@ begin
   //EditMode := true;
   EditCursor := Vector2Integer(Width div 2, Height div 2);
 
+  NpcInstances := TNpcInstanceList.Create;
+  PropInstances := TPropInstanceList.Create;
+
   SetLength(MapProps, Width, Height);
   SetLength(MapNpcs, Width, Height);
 
@@ -135,21 +140,15 @@ begin
       PropName := GameConf.GetValue(Format(ConfPath + '/tile_%d_%d/name', [X, Y]), '');
       if PropName = '' then
         MapProps[X, Y] := nil else
-        MapProps[X, Y] := Props[PropTypeFromName(PropName)];
+        SetPropInstance(X, Y, TPropInstance.Create(Props[PropTypeFromName(PropName)]));
     end;
-
-  NpcInstances := TNpcInstanceList.Create;
 end;
 
 destructor TMap.Destroy;
-var
-  X, Y: Integer;
 begin
   FreeAndNil(NpcInstances);
-  for Y := Height - 1 downto 0 do
-    for X := 0 to Width - 1 do
-      MapNpcs[X, Y] := nil;
-  FreeAndNil(NpcInstances); // owns npc instances on the list, so frees them
+  FreeAndNil(PropInstances);
+  { just ignore MapNpcs and MapProps contents, they are invalid now, everything is freed }
   inherited;
 end;
 
@@ -157,47 +156,14 @@ procedure TMap.Render;
 var
   R: TRectangle;
 
-  procedure RenderProp(const X, Y: Integer; const Prop: TProp);
-  var
-    TileRect: TRectangle;
-    TileImage: TGLImage;
-    NewTileRectHeight: Integer;
+  procedure RenderProp(const X, Y: Integer; const P: TProp);
   begin
-    TileRect := GetTileRect(R, X, Y);
-    //UIFont.Print(TileRect.Middle[0], TileRect.Middle[1], Black, Format('%d,%d', [X, Y]));
-
-    TileImage := Prop.GLImage;
-    if Prop.GLImage = nil then
-      raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Prop.Name]);
-
-    { now TileRect is calculated assuming that PropType.GLImage fills Tile size
-      perfectly. But actually it may be a little taller, so account for this,
-      knowing that width matches. }
-    NewTileRectHeight := TileRect.Width * TileImage.Height div TileImage.Width;
-    TileRect.Bottom -= (NewTileRectHeight - TileRect.Height) div 2; // keep centered
-    TileRect.Height := NewTileRectHeight;
-    { apply pivot }
-    TileRect.Left -= Round((Prop.Pivot[0] - TileImage.Width div 2) * TileRect.Width / TileImage.Width);
-    TileRect.Bottom -= Round((Prop.Pivot[1] - TileImage.Height div 2) * TileRect.Height / TileImage.Height);
-
-    TileImage.Draw(TileRect);
+    P.Draw(GetTileRect(R, X, Y));
   end;
 
   procedure RenderNpc(const X, Y: Integer; const N: TNpcInstance);
-  var
-    TileRect: TRectangle;
-    NewTileRectHeight: Integer;
   begin
-    TileRect := GetTileRect(R, X, Y);
-
-    { for NPC, TileRect is uniform }
-    NewTileRectHeight := TileRect.Width;
-    TileRect.Bottom -= (NewTileRectHeight - TileRect.Height) div 2; // keep centered
-    TileRect.Height := NewTileRectHeight;
-
-    //TileRect := TileRect.Grow(TileRect.Width div 2);
-
-    N.Draw(TileRect);
+    N.Draw(GetTileRect(R, X, Y));
   end;
 
 var
@@ -219,7 +185,7 @@ begin
     begin
       //RenderProp(X, Y, Props[ptGrass]);
       if MapProps[X, Y] <> nil then
-        RenderProp(X, Y, MapProps[X, Y]);
+        RenderProp(X, Y, MapProps[X, Y].Prop);
       if MapNpcs[X, Y] <> nil then
         RenderNpc(X, Y, MapNpcs[X, Y]);
     end;
@@ -259,7 +225,7 @@ begin
     for Y := 0 to Height - 1 do
     begin
       if MapProps[X, Y] <> nil then
-        PropName := MapProps[X, Y].Name else
+        PropName := MapProps[X, Y].Prop.Name else
         PropName := '';
       GameConf.SetDeleteValue(Format(ConfPath + '/tile_%d_%d/name', [X, Y]), PropName, '');
     end;
@@ -302,6 +268,27 @@ begin
     MapNpcs[X, Y] := NewNpcInstance;
     NewNpcInstance.X := X;
     NewNpcInstance.Y := Y;
+  end;
+end;
+
+procedure TMap.SetPropInstance(const X, Y: Integer; const NewPropInstance: TPropInstance);
+var
+  OldPropInstance: TPropInstance;
+begin
+  OldPropInstance := MapProps[X, Y];
+  if OldPropInstance <> nil then
+  begin
+    MapProps[X, Y] := nil;
+    PropInstances.Remove(OldPropInstance); // frees OldPropInstance
+    // OldPropInstance := nil; // useless
+  end;
+
+  if NewPropInstance <> nil then
+  begin
+    PropInstances.Add(NewPropInstance);
+    MapProps[X, Y] := NewPropInstance;
+    NewPropInstance.X := X;
+    NewPropInstance.Y := Y;
   end;
 end;
 
