@@ -19,7 +19,8 @@ unit GameUtils;
 interface
 
 uses CastleWindow, CastleConfig,
-  CastleTimeUtils, CastleVectors, CastleRectangles, Castle2DSceneManager;
+  CastleTimeUtils, CastleVectors, CastleRectangles, Castle2DSceneManager,
+  CastleColors;
 
 type
   TFaction = (ftHumans, ftMonsters);
@@ -43,9 +44,18 @@ const
 
 function FactionFromName(const AName: string): TFaction;
 
+function BarRectFromTileRect(const R: TRectangle): TRectangle;
+
+procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
+  const Amount: Single);
+
+const
+  FactionBarColor: array [TFaction] of TCastleColor = ((0.1, 0.1, 1, 1), (1, 0.1, 0.1, 1));
+
 implementation
 
-uses SysUtils;
+uses SysUtils,
+  CastleGLUtils, CastleUtils;
 
 function PlayerSidebarWidth: Integer;
 begin
@@ -58,6 +68,23 @@ begin
     if FactionName[Result] = AName then
       Exit;
   raise Exception.CreateFmt('"%s" is not a faction name', [AName]);
+end;
+
+procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
+  const Amount: Single);
+begin
+  DrawRectangle(R, BgColor);
+  R := R.Grow(-2);
+  R.Width := Max(0, Round(R.Width * Amount));
+  DrawRectangle(R, FillColor);
+end;
+
+function BarRectFromTileRect(const R: TRectangle): TRectangle;
+begin
+  Result.Width := Round(R.Width * 0.6);
+  Result.Left := R.Left + (R.Width - Result.Width) div 2;
+  Result.Height := Round(R.Height * 0.1);
+  Result.Bottom := R.Bottom - Result.Height;
 end;
 
 end.

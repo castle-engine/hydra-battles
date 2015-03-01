@@ -281,7 +281,10 @@ var
   ImageX, ImageY: Integer;
   Diff, Shift: TVector2Single;
   NewRectHeight: Integer;
+  BarRect: TRectangle;
 begin
+  BarRect := BarRectFromTileRect(ScreenRectangle);
+
   { for NPC, rectangle to draw should uniform }
   NewRectHeight := ScreenRectangle.Width;
   ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
@@ -303,8 +306,12 @@ begin
   end;
   ScreenRectangle.Left += Round(Shift[0]);
   ScreenRectangle.Bottom += Round(Shift[1]);
+  BarRect.Left += Round(Shift[0]);
+  BarRect.Bottom += Round(Shift[1]);
 
   Npc.GLImage.Draw(ScreenRectangle, ImageX, ImageY, Npc.TileWidth, Npc.TileHeight);
+
+  RenderBar(BarRect, Black, FactionBarColor[Npc.Faction], Life / Npc.InitialLife);
 end;
 
 procedure TNpcInstance.SetPath(const Value: TPath);
