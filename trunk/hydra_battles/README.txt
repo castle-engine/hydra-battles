@@ -17,4 +17,20 @@ At the beginning, you do not have any buildings or npcs. Your only move is to bu
 
 Costs: see game.xml for now.
 
+------------------------------------------------------------------------------
+Editor is included.
+
+Editor keys:
+  E - on/off editor
+  S - save edited maps to file
+  arrows keys - move editor cursor
+  names of props, see game.xml, like "t" for tree, 1-8 for mountains
+  0 - random mountain
+  space - clear
+  N - random npc
+
+Generally useful keys:
+  F5 - save screen
+  G - on/off grid
+
 Michalis Kamburelis
