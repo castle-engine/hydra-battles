@@ -12,7 +12,6 @@ gfx:
 drops with numbers (from ds?) when hit
 water is ugly
 2 layers, to allow water/grass under props like trees?
-large map bg better
 visualize line flow dir, Konrad ideas
 zgliszcza po zniszczeniu budynków
 plansze moga zawiera duze elementy gfx, jak specjalna rzeźba albo arena, murki, krainy w stylu diablo etc.
