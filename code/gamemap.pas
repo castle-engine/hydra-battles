@@ -21,7 +21,7 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleRectangles,
-  GameNpcs, GameAbstractMap;
+  GameNpcs, GameAbstractMap, GamePath;
 
 type
   { All possible prop types.
@@ -78,6 +78,7 @@ type
   strict private
     FProps: TProps;
     FNpcs: TNpcs;
+    FPaths: TPathList;
     Background: TCastleImage;
     GLBackground: TGLImage;
     FName: string;
@@ -92,12 +93,13 @@ type
     EditMode: boolean;
     Grid: boolean;
     property Name: string read FName;
-    constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs); reintroduce;
+    constructor Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs; const APaths: TPathList); reintroduce;
     destructor Destroy; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
     procedure Render; override;
     procedure SaveToFile;
+    function ValidTile(const X, Y: Integer): boolean; override;
   end;
 
 function PropTypeFromName(const AName: string): TPropType;
@@ -204,13 +206,15 @@ end;
 
 { TMap ----------------------------------------------------------------------- }
 
-constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs);
+constructor TMap.Create(const AName: string; const AProps: TProps; const ANpcs: TNpcs;
+  const APaths: TPathList);
 var
   X, Y: Integer;
   PropName, ConfPath: string;
 begin
   FProps := AProps;
   FNpcs := ANpcs;
+  FPaths := APaths;
   FName := AName;
   ConfPath := 'maps/' + Name;
 
@@ -371,6 +375,19 @@ begin
     end;
   WritelnLog('Map', 'Saved to file ' + GameConf.URL);
   GameConf.Flush;
+end;
+
+function TMap.ValidTile(const X, Y: Integer): boolean;
+var
+  I: Integer;
+begin
+  { TODO: allow attacking enemies here }
+  if MapProps[X, Y] <> nil then Exit(false);
+  if MapNpcs[X, Y] <> nil then Exit(false);
+  for I := 0 to FPaths.Count - 1 do
+    if not FPaths[I].ValidTile(X, Y) then
+      Exit(false);
+  Result := true;
 end;
 
 end.
