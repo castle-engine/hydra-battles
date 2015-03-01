@@ -227,11 +227,11 @@ end;
 
 procedure TStatePlay.Motion(const Event: TInputMotion);
 
-  { Remove (freeing) current Path, under Event.FingerIndex, and with given npc. }
+  { Break drawing current Path under Event.FingerIndex. }
   procedure BreakPath(const Path: TPath; const PathNpc: TNpcInstance);
   begin
     CurrentPaths.Remove(Event.FingerIndex);
-    PathNpc.Path := nil;
+    // PathNpc.Path := nil; // do not cancel the path, not necessary
   end;
 
 var
