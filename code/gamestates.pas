@@ -56,6 +56,8 @@ begin
     if FCurrent <> nil then
     begin
       FCurrent.Start;
+      if FCurrent = Value then
+        FCurrent.GLContextOpen;
       { call FCurrent.Resize, just like OnResize always happens after OnOpen.
         However, check first that we're still within the same state,
         to safeguard from the fact that FCurrent.Start changed state
@@ -72,6 +74,7 @@ end;
 
 procedure TState.Finish;
 begin
+  GLContextClose;
 end;
 
 procedure TState.Resize;
