@@ -29,6 +29,8 @@ type
     by supporting multiple paths, for different finger index. }
   TCurrentPaths = specialize TFPGMap<TFingerIndex, TPath>;
 
+  TCurrentDraggedProps = specialize TFPGMap<TFingerIndex, TDraggedProp>;
+
   TStatePlay = class(TState)
   private
     Status: TCastleLabel;
@@ -37,6 +39,7 @@ type
     MapBackground: TMapBackground;
     Npcs: TNpcs;
     CurrentPaths: TCurrentPaths;
+    CurrentDraggedProps: TCurrentDraggedProps;
     Sidebar: array [TFaction] of TPlayerSidebar;
     function NpcFromPath(const Path: TPath): TNpcInstance;
   public
@@ -61,7 +64,7 @@ implementation
 uses SysUtils,
   CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
   CastleColors, CastleUIControls, CastleUtils, CastleGLUtils,
-  CastleGLImages, CastleStringUtils, CastleRectangles,
+  CastleGLImages, CastleStringUtils, CastleRectangles, CastleGameNotifications,
   GameStateMainMenu;
 
 { TStatePlay ----------------------------------------------------------------- }
@@ -81,6 +84,7 @@ begin
   GameTime := 0;
 
   CurrentPaths := TCurrentPaths.Create;
+  CurrentDraggedProps := TCurrentDraggedProps.Create;
 
   Props := TProps.Create;
   Npcs := TNpcs.Create;
@@ -111,6 +115,8 @@ begin
     Window.Controls.InsertFront(Sidebar[FT]);
   end;
 
+  Window.Controls.InsertFront(Notifications);
+
   IntialWood := GameConf.GetValue('initial/wood', 0);
   Wood[ftHumans] := IntialWood;
   Wood[ftMonsters] := IntialWood;
@@ -119,6 +125,7 @@ end;
 procedure TStatePlay.Finish;
 var
   FT: TFaction;
+  I: Integer;
 begin
   FreeAndNil(Status);
   FreeAndNil(VisualizationSceneManager);
@@ -127,8 +134,18 @@ begin
   FreeAndNil(Props);
   FreeAndNil(Npcs);
   FreeAndNil(CurrentPaths);
+  if CurrentDraggedProps <> nil then
+  begin
+    for I := 0 to CurrentDraggedProps.Count - 1 do
+    begin
+      CurrentDraggedProps.Data[I].Free;
+      CurrentDraggedProps.Data[I] := nil;
+    end;
+    FreeAndNil(CurrentDraggedProps);
+  end;
   for FT := Low(FT) to High(FT) do
     FreeAndNil(Sidebar[FT]);
+  Window.Controls.Remove(Notifications);
   inherited;
 end;
 
@@ -171,6 +188,33 @@ begin
 end;
 
 procedure TStatePlay.Press(const Event: TInputPressRelease);
+
+  procedure TryDraggingSidebar;
+  var
+    I: Integer;
+    FT: TFaction;
+    DraggingPropType: TPropType;
+    DragProp: TDraggedProp;
+  begin
+    for FT := Low(FT) to High(FT) do
+      if Sidebar[FT].StartsDragging(Event.Position, DraggingPropType) then
+      begin
+        I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
+        if I <> -1 then
+        begin
+          DragProp := CurrentDraggedProps.Data[I];
+          FreeAndNil(DragProp);
+          CurrentDraggedProps.Delete(I);
+        end;
+
+        DragProp := TDraggedProp.Create(Self);
+        DragProp.Map := Map;
+        DragProp.Prop := Props[DraggingPropType];
+        Window.Controls.InsertFront(DragProp);
+        CurrentDraggedProps[Event.FingerIndex] := DragProp;
+      end;
+  end;
+
 var
   PT: TPropType;
   Prop: TProp;
@@ -232,15 +276,61 @@ begin
       NewPath := TPath.Create(Map, PathStartX, PathStartY);
       CurrentPaths[Event.FingerIndex] := NewPath;
       Map.MapNpcs[PathStartX, PathStartY].Path := NewPath;
+      Exit;
     end;
+
+    TryDraggingSidebar;
   end;
 end;
 
 procedure TStatePlay.Release(const Event: TInputPressRelease);
+
+  procedure TryDraggingSidebar;
+  var
+    I: Integer;
+    DragProp: TDraggedProp;
+  begin
+    I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
+    if I <> -1 then
+    begin
+      DragProp := CurrentDraggedProps.Data[I];
+
+      { update DragProp.X, Y for the last time }
+      if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then
+      begin
+        DragProp.X := -1;
+        DragProp.Y := -1;
+      end;
+
+      if (DragProp.X <> -1) and
+         (DragProp.Y <> -1) then
+      begin
+        if DragProp.Prop.Neutral or (Trunc(Wood[DragProp.Prop.Faction]) > DragProp.Prop.CostWood) then
+        begin
+          if Map.ValidTile(DragProp.X, DragProp.Y, nil) then
+          begin
+            Wood[DragProp.Prop.Faction] -= DragProp.Prop.CostWood;
+            Map.SetPropInstance(DragProp.X, DragProp.Y, TPropInstance.Create(DragProp.Prop));
+          end else
+            Notifications.Show(Format('Cannot build "%s" there, position is blocked',
+              [DragProp.Prop.Name]));
+        end else
+          Notifications.Show(Format('Faction %s does not have enough wood to buy prop "%s"',
+            [FactionName[DragProp.Prop.Faction], DragProp.Prop.Name]));
+      end;
+
+      DragProp.Free;
+      CurrentDraggedProps.Delete(I);
+    end;
+  end;
+
 begin
   inherited;
   if Event.IsMouseButton(mbLeft) then
+  begin
     CurrentPaths.Remove(Event.FingerIndex);
+    TryDraggingSidebar;
+  end;
 end;
 
 function TStatePlay.NpcFromPath(const Path: TPath): TNpcInstance;
@@ -262,6 +352,25 @@ procedure TStatePlay.Motion(const Event: TInputMotion);
     // PathNpc.Path := nil; // do not cancel the path, not necessary
   end;
 
+  procedure TryDraggingSidebar;
+  var
+    I: Integer;
+    DragProp: TDraggedProp;
+  begin
+    I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
+    if I <> -1 then
+    begin
+      DragProp := CurrentDraggedProps.Data[I];
+      { update DragProp.ScreenPosition, X, Y }
+      DragProp.ScreenPosition := Event.Position;
+      if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then
+      begin
+        DragProp.X := -1;
+        DragProp.Y := -1;
+      end;
+    end;
+  end;
+
 var
   X, Y, PathUnderFingerIndex: Integer;
   MapRect: TRectangle;
@@ -269,6 +378,7 @@ var
   PathNpc: TNpcInstance;
 begin
   inherited;
+
   PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
   if PathUnderFingerIndex <> -1 then
   begin
@@ -291,6 +401,8 @@ begin
       end;
     end;
   end;
+
+  TryDraggingSidebar;
 end;
 
 procedure TStatePlay.GLContextOpen;

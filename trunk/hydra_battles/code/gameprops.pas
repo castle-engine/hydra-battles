@@ -22,7 +22,7 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
-  GameUtils;
+  GameUtils, GameAbstractMap;
 
 type
   { All possible prop types.
@@ -69,6 +69,8 @@ type
     property CostWood: Cardinal read FCostWood;
     property RewardWood: Cardinal read FRewardWood;
     property InitialLife: Single read FInitialLife;
+    property Neutral: boolean read FNeutral;
+    property Faction: TFaction read FFaction;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -99,6 +101,15 @@ type
   end;
 
   TPropInstanceList = specialize TFPGObjectList<TPropInstance>;
+
+  TDraggedProp = class(TUIControl)
+  public
+    Map: TAbstractMap;
+    Prop: TProp;
+    ScreenPosition: TVector2Single;
+    X, Y: Integer;
+    procedure Render; override;
+  end;
 
 function PropTypeFromName(const AName: string): TPropType;
 
@@ -245,6 +256,32 @@ end;
 procedure TPropInstance.Draw(ScreenRectangle: TRectangle);
 begin
   Prop.Draw(ScreenRectangle);
+end;
+
+{ TDraggedProp --------------------------------------------------------------- }
+
+procedure TDraggedProp.Render;
+var
+  R: TRectangle;
+  C: TCastleColor;
+begin
+  inherited;
+
+  if (X <> -1) and (Y <> -1) then
+  begin
+    R := Map.Rect;
+    ScissorEnable(R);
+
+    if Map.ValidTile(X, Y, nil) then
+      C := Vector4Single(0, 1, 0, 1) else
+      C := Vector4Single(1, 0, 0, 1);
+    C[3] := 0.5;
+    Prop.GLImage.Color := C;
+
+    Prop.Draw(Map.GetTileRect(R, X, Y));
+    Prop.GLImage.Color := Vector4Single(1, 1, 1, 1);
+    ScissorDisable;
+  end;
 end;
 
 end.
