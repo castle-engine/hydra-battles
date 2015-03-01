@@ -154,19 +154,7 @@ end;
 
 procedure TMap.Render;
 var
-  R: TRectangle;
-
-  procedure RenderProp(const X, Y: Integer; const P: TProp);
-  begin
-    P.Draw(GetTileRect(R, X, Y));
-  end;
-
-  procedure RenderNpc(const X, Y: Integer; const N: TNpcInstance);
-  begin
-    N.Draw(GetTileRect(R, X, Y));
-  end;
-
-var
+  R, TileRect: TRectangle;
   X, Y: Integer;
 begin
   inherited;
@@ -178,21 +166,25 @@ begin
   if Grid then
     for Y := Height - 1 downto 0 do
       for X := 0 to Width - 1 do
-        RenderProp(X, Y, Props[ptTileFrame]);
+      begin
+        TileRect := GetTileRect(R, X, Y);
+        Props[ptTileFrame].Draw(TileRect);
+      end;
 
   for Y := Height - 1 downto 0 do
     for X := 0 to Width - 1 do
     begin
-      //RenderProp(X, Y, Props[ptGrass]);
+      TileRect := GetTileRect(R, X, Y);
       if MapProps[X, Y] <> nil then
-        RenderProp(X, Y, MapProps[X, Y].Prop);
+        MapProps[X, Y].Draw(TileRect);
       if MapNpcs[X, Y] <> nil then
-        RenderNpc(X, Y, MapNpcs[X, Y]);
+        MapNpcs[X, Y].Draw(TileRect);
     end;
 
   if EditMode then
   begin
-    RenderProp(EditCursor[0], EditCursor[1], Props[ptCursor]);
+    TileRect := GetTileRect(R, EditCursor[0], EditCursor[1]);
+    Props[ptCursor].Draw(TileRect);
 
     // test our neighbors logic is sensible
     // RenderProp(EditCursor[0] + 1, EditCursor[1]    , Props[ptCursor]);

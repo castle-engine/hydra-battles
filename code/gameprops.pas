@@ -254,8 +254,14 @@ begin
 end;
 
 procedure TPropInstance.Draw(ScreenRectangle: TRectangle);
+var
+  BarRect: TRectangle;
 begin
+  BarRect := BarRectFromTileRect(ScreenRectangle);
+
   Prop.Draw(ScreenRectangle);
+  if (Prop.InitialLife <> 0) and not Prop.Neutral then
+    RenderBar(BarRect, Black, FactionBarColor[Prop.Faction], Life / Prop.InitialLife);
 end;
 
 { TDraggedProp --------------------------------------------------------------- }
