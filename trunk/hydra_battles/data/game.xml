@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <game>
-  <initial wood="1004" />
+  <initial wood="1004"/>
   <!--
     Props have constant size in map tiles for now: 1.
     Pivot (what image pixel corresponds to the middle of tile)
@@ -8,20 +8,17 @@
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <humansHeadquarters url="hq_humans.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h"
-      cost_wood="1000" train="peasant" train_duration="1"
-    />
-    <humansBarracks url="barracks_humans.png" faction="humans" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="b"
-      cost_wood="10" train="warrior" train_duration="4"
-    />
-    <monstersHeadquarters url="hq_monsters.png" faction="monsters" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="H"
-      cost_wood="1000" train="peasant" train_duration="1"
-    />
-    <monstersBarracks url="barracks_monsters.png" faction="monsters" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="B"
-      cost_wood="10" train="warrior" train_duration="4"
-    />
+    <humansHeadquarters url="hq_humans.png" train="peasant" faction="humans" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="h"/>
+    <humansBarracks url="barracks_humans.png" train="warrior" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="b"/>
+    <monstersHeadquarters url="hq_monsters.png" train="peasant" faction="monsters" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="H"/>
+    <monstersBarracks url="barracks_monsters.png" train="warrior" faction="monsters" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="B"/>
     <mine url="gold_mine_1.png" editor_shortcut="m"/>
-    <tree url="tree.png" pivot_y="70" reward_wood="1" initial_life="1" editor_shortcut="t"/>
+    <bigtree01 url="trees/bigtree01.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="t"/>
+    <bigtree02 url="trees/bigtree02.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="y"/>
+    <bigtree03 url="trees/bigtree03.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="u"/>
+    <hemp01 url="trees/hemp01.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="g"/>
+    <hemp02 url="trees/hemp02.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="h"/>
+    <hemp03 url="trees/hemp03.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="j"/>
     <grass url="grass.png" pivot_y="28" editor_shortcut="g"/>
     <water url="water.png" editor_shortcut="w"/>
     <mountain1 url="mountain_1.png" editor_shortcut="1"/>
@@ -39,28 +36,28 @@
   <maps>
     <small width="10" height="20" background="tileable-img_0062.png">
       <tile_0_0/>
-      <tile_2_2 name="tree"/>
-      <tile_4_4 name="tree"/>
-      <tile_10_10 name="tree"/>
-      <tile_0_4 name="tree"/>
-      <tile_0_5 name="tree"/>
+      <tile_2_2 name="bigtree01"/>
+      <tile_4_4 name="bigtree01"/>
+      <tile_10_10 name="bigtree01"/>
+      <tile_0_4 name="bigtree01"/>
+      <tile_0_5 name="bigtree01"/>
       <tile_0_6/>
       <tile_0_7/>
       <tile_0_8/>
       <tile_0_9/>
       <tile_0_10/>
-      <tile_0_1 name="tree"/>
-      <tile_0_2 name="tree"/>
-      <tile_0_3 name="tree"/>
-      <tile_1_1 name="tree"/>
-      <tile_1_4 name="tree"/>
+      <tile_0_1 name="bigtree01"/>
+      <tile_0_2 name="bigtree01"/>
+      <tile_0_3 name="bigtree01"/>
+      <tile_1_1 name="bigtree01"/>
+      <tile_1_4 name="bigtree01"/>
       <tile_1_19 name="mountain2"/>
-      <tile_2_1 name="tree"/>
-      <tile_2_3 name="tree"/>
-      <tile_2_4 name="tree"/>
-      <tile_2_5 name="tree"/>
-      <tile_3_3 name="tree"/>
-      <tile_3_6 name="tree"/>
+      <tile_2_1 name="bigtree01"/>
+      <tile_2_3 name="bigtree01"/>
+      <tile_2_4 name="bigtree01"/>
+      <tile_2_5 name="bigtree01"/>
+      <tile_3_3 name="bigtree01"/>
+      <tile_3_6 name="bigtree01"/>
       <tile_3_15 name="mountain3"/>
       <tile_3_16 name="mountain5"/>
       <tile_3_17 name="mountain7"/>
@@ -74,32 +71,54 @@
       <tile_5_18 name="mountain7"/>
       <tile_5_19 name="mountain8"/>
       <tile_6_18 name="mountain7"/>
-      <tile_7_0 name="tree"/>
-      <tile_7_4 name="tree"/>
-      <tile_8_0 name="tree"/>
-      <tile_8_1 name="tree"/>
-      <tile_8_3 name="tree"/>
-      <tile_8_4 name="tree"/>
-      <tile_8_5 name="tree"/>
-      <tile_8_7 name="tree"/>
-      <tile_9_2 name="tree"/>
-      <tile_9_6 name="tree"/>
-      <tile_9_7 name="tree"/>
+      <tile_7_0 name="bigtree01"/>
+      <tile_7_4 name="bigtree01"/>
+      <tile_8_0 name="bigtree01"/>
+      <tile_8_1 name="bigtree01"/>
+      <tile_8_3 name="bigtree01"/>
+      <tile_8_4 name="bigtree01"/>
+      <tile_8_5 name="bigtree01"/>
+      <tile_8_7 name="bigtree01"/>
+      <tile_9_2 name="bigtree01"/>
+      <tile_9_6 name="bigtree01"/>
+      <tile_9_7 name="bigtree01"/>
       <tile_5_10 name="mine"/>
       <tile_4_14 name="mountain1"/>
       <tile_5_16 name="mountain7"/>
       <tile_5_17 name="mountain7"/>
       <tile_6_16 name="mountain5"/>
+      <tile_0_13 name="hemp02"/>
+      <tile_0_14 name="hemp02"/>
+      <tile_0_16 name="hemp02"/>
+      <tile_0_17 name="hemp02"/>
+      <tile_0_18 name="hemp02"/>
+      <tile_0_19 name="hemp02"/>
+      <tile_1_2 name="bigtree01"/>
+      <tile_1_3 name="bigtree01"/>
+      <tile_1_17 name="hemp02"/>
+      <tile_1_18 name="hemp02"/>
+      <tile_7_2 name="bigtree01"/>
+      <tile_7_3 name="bigtree01"/>
+      <tile_8_2 name="bigtree01"/>
+      <tile_8_13 name="hemp02"/>
+      <tile_8_14 name="hemp02"/>
+      <tile_8_15 name="hemp02"/>
+      <tile_8_16 name="hemp02"/>
+      <tile_8_18 name="hemp02"/>
+      <tile_9_14 name="hemp02"/>
+      <tile_9_16 name="hemp02"/>
+      <tile_9_17 name="hemp02"/>
+      <tile_9_18 name="hemp02"/>
     </small>
     <large width="20" height="40" background="tilable-img_0044-lush.png">
-      <tile_0_6 name="tree"/>
-      <tile_0_7 name="tree"/>
-      <tile_0_8 name="tree"/>
-      <tile_0_10 name="tree"/>
-      <tile_0_11 name="tree"/>
-      <tile_0_13 name="tree"/>
-      <tile_0_14 name="tree"/>
-      <tile_0_15 name="tree"/>
+      <tile_0_6 name="bigtree01"/>
+      <tile_0_7 name="bigtree01"/>
+      <tile_0_8 name="bigtree01"/>
+      <tile_0_10 name="bigtree03"/>
+      <tile_0_11 name="bigtree01"/>
+      <tile_0_13 name="bigtree01"/>
+      <tile_0_14 name="bigtree01"/>
+      <tile_0_15 name="bigtree01"/>
       <tile_0_21 name="mountain5"/>
       <tile_0_22 name="mountain7"/>
       <tile_0_23 name="mountain7"/>
@@ -126,8 +145,8 @@
       <tile_3_26 name="mountain1"/>
       <tile_3_27 name="mountain7"/>
       <tile_3_28 name="mountain2"/>
-      <tile_3_33 name="tree"/>
-      <tile_3_34 name="tree"/>
+      <tile_3_33 name="bigtree01"/>
+      <tile_3_34 name="bigtree01"/>
       <tile_4_0 name="mountain6"/>
       <tile_4_1 name="mountain7"/>
       <tile_4_2 name="mountain7"/>
@@ -141,25 +160,25 @@
       <tile_4_24 name="mountain3"/>
       <tile_4_25 name="mountain4"/>
       <tile_4_27 name="mountain3"/>
-      <tile_4_31 name="tree"/>
-      <tile_4_32 name="tree"/>
-      <tile_4_33 name="tree"/>
+      <tile_4_31 name="bigtree01"/>
+      <tile_4_32 name="bigtree01"/>
+      <tile_4_33 name="bigtree01"/>
       <tile_5_0 name="mountain1"/>
       <tile_5_1 name="mountain1"/>
       <tile_5_2 name="mountain6"/>
       <tile_5_4 name="mountain1"/>
       <tile_5_5 name="mountain3"/>
       <tile_5_21 name="mountain6"/>
-      <tile_5_31 name="tree"/>
-      <tile_6_26 name="tree"/>
-      <tile_6_28 name="tree"/>
-      <tile_6_29 name="tree"/>
-      <tile_6_30 name="tree"/>
-      <tile_6_31 name="tree"/>
-      <tile_7_26 name="tree"/>
-      <tile_7_27 name="tree"/>
-      <tile_7_28 name="tree"/>
-      <tile_7_29 name="tree"/>
+      <tile_5_31 name="bigtree01"/>
+      <tile_6_26 name="bigtree01"/>
+      <tile_6_28 name="bigtree01"/>
+      <tile_6_29 name="bigtree01"/>
+      <tile_6_30 name="bigtree01"/>
+      <tile_6_31 name="bigtree01"/>
+      <tile_7_26 name="bigtree01"/>
+      <tile_7_27 name="bigtree01"/>
+      <tile_7_28 name="bigtree01"/>
+      <tile_7_29 name="bigtree01"/>
       <tile_7_37 name="mountain7"/>
       <tile_7_38 name="mountain6"/>
       <tile_8_36 name="mountain7"/>
@@ -173,28 +192,28 @@
       <tile_10_34 name="mountain3"/>
       <tile_10_37 name="mountain7"/>
       <tile_10_38 name="mountain7"/>
-      <tile_11_27 name="tree"/>
-      <tile_11_28 name="tree"/>
+      <tile_11_27 name="bigtree01"/>
+      <tile_11_28 name="bigtree01"/>
       <tile_12_7 name="mountain3"/>
       <tile_12_8 name="mountain7"/>
       <tile_12_9 name="mountain7"/>
       <tile_12_10 name="mountain7"/>
-      <tile_12_26 name="tree"/>
-      <tile_12_28 name="tree"/>
-      <tile_12_30 name="tree"/>
-      <tile_12_31 name="tree"/>
-      <tile_12_32 name="tree"/>
-      <tile_12_34 name="tree"/>
+      <tile_12_26 name="bigtree01"/>
+      <tile_12_28 name="bigtree01"/>
+      <tile_12_30 name="bigtree01"/>
+      <tile_12_31 name="bigtree01"/>
+      <tile_12_32 name="bigtree01"/>
+      <tile_12_34 name="bigtree01"/>
       <tile_13_8 name="mountain6"/>
       <tile_13_10 name="mountain7"/>
       <tile_13_12 name="mountain7"/>
       <tile_13_13 name="mountain7"/>
-      <tile_13_27 name="tree"/>
-      <tile_13_28 name="tree"/>
-      <tile_13_29 name="tree"/>
-      <tile_13_30 name="tree"/>
-      <tile_13_33 name="tree"/>
-      <tile_14_0 name="tree"/>
+      <tile_13_27 name="bigtree01"/>
+      <tile_13_28 name="bigtree01"/>
+      <tile_13_29 name="bigtree01"/>
+      <tile_13_30 name="bigtree01"/>
+      <tile_13_33 name="bigtree01"/>
+      <tile_14_0 name="bigtree01"/>
       <tile_14_8 name="mountain6"/>
       <tile_14_9 name="mountain7"/>
       <tile_14_10 name="mountain7"/>
@@ -202,11 +221,11 @@
       <tile_14_14 name="mountain7"/>
       <tile_14_15 name="mountain6"/>
       <tile_14_16 name="mountain7"/>
-      <tile_14_28 name="tree"/>
-      <tile_14_29 name="tree"/>
-      <tile_14_30 name="tree"/>
-      <tile_15_0 name="tree"/>
-      <tile_15_1 name="tree"/>
+      <tile_14_28 name="bigtree01"/>
+      <tile_14_29 name="bigtree01"/>
+      <tile_14_30 name="bigtree01"/>
+      <tile_15_0 name="bigtree01"/>
+      <tile_15_1 name="bigtree01"/>
       <tile_15_12 name="mountain7"/>
       <tile_15_14 name="mountain7"/>
       <tile_15_15 name="mountain7"/>
@@ -214,35 +233,35 @@
       <tile_15_17 name="mountain7"/>
       <tile_15_18 name="mountain7"/>
       <tile_15_19 name="mountain7"/>
-      <tile_15_28 name="tree"/>
-      <tile_15_29 name="tree"/>
-      <tile_15_30 name="tree"/>
-      <tile_15_31 name="tree"/>
-      <tile_16_0 name="tree"/>
-      <tile_16_1 name="tree"/>
+      <tile_15_28 name="bigtree01"/>
+      <tile_15_29 name="bigtree01"/>
+      <tile_15_30 name="bigtree01"/>
+      <tile_15_31 name="bigtree03"/>
+      <tile_16_0 name="bigtree01"/>
+      <tile_16_1 name="bigtree01"/>
       <tile_16_14 name="mountain7"/>
       <tile_16_17 name="mountain7"/>
       <tile_16_38 name="mountain6"/>
       <tile_16_39 name="mountain4"/>
-      <tile_17_0 name="tree"/>
-      <tile_17_1 name="tree"/>
-      <tile_17_3 name="tree"/>
+      <tile_17_0 name="bigtree01"/>
+      <tile_17_1 name="bigtree01"/>
+      <tile_17_3 name="bigtree01"/>
       <tile_17_37 name="mountain7"/>
       <tile_17_38 name="mountain7"/>
       <tile_17_39 name="mountain2"/>
-      <tile_18_0 name="tree"/>
-      <tile_18_1 name="tree"/>
-      <tile_18_3 name="tree"/>
-      <tile_18_4 name="tree"/>
+      <tile_18_0 name="bigtree01"/>
+      <tile_18_1 name="bigtree01"/>
+      <tile_18_3 name="bigtree01"/>
+      <tile_18_4 name="bigtree01"/>
       <tile_18_34 name="mountain4"/>
       <tile_18_36 name="mountain6"/>
       <tile_18_37 name="mountain7"/>
       <tile_18_38 name="mountain2"/>
-      <tile_19_0 name="tree"/>
-      <tile_19_1 name="tree"/>
-      <tile_19_3 name="tree"/>
-      <tile_19_4 name="tree"/>
-      <tile_19_5 name="tree"/>
+      <tile_19_0 name="bigtree01"/>
+      <tile_19_1 name="bigtree01"/>
+      <tile_19_3 name="bigtree01"/>
+      <tile_19_4 name="bigtree01"/>
+      <tile_19_5 name="bigtree01"/>
       <tile_1_23 name="mountain7"/>
       <tile_2_21 name="mountain7"/>
       <tile_2_25 name="mountain7"/>
@@ -264,6 +283,60 @@
       <tile_15_13 name="mountain6"/>
       <tile_16_12 name="mountain7"/>
       <tile_16_13 name="mountain7"/>
+      <tile_0_9 name="bigtree03"/>
+      <tile_1_8 name="bigtree03"/>
+      <tile_1_9 name="bigtree03"/>
+      <tile_1_10 name="bigtree03"/>
+      <tile_1_11 name="bigtree03"/>
+      <tile_1_13 name="bigtree03"/>
+      <tile_3_32 name="bigtree01"/>
+      <tile_3_35 name="bigtree01"/>
+      <tile_4_28 name="bigtree02"/>
+      <tile_4_29 name="bigtree02"/>
+      <tile_4_35 name="bigtree01"/>
+      <tile_5_29 name="bigtree02"/>
+      <tile_5_30 name="bigtree02"/>
+      <tile_5_32 name="bigtree03"/>
+      <tile_5_34 name="hemp03"/>
+      <tile_6_34 name="hemp03"/>
+      <tile_7_12 name="hemp03"/>
+      <tile_7_13 name="hemp03"/>
+      <tile_7_14 name="hemp03"/>
+      <tile_7_15 name="hemp03"/>
+      <tile_8_13 name="hemp03"/>
+      <tile_8_14 name="hemp03"/>
+      <tile_8_15 name="hemp03"/>
+      <tile_8_16 name="hemp03"/>
+      <tile_9_13 name="hemp02"/>
+      <tile_9_14 name="hemp02"/>
+      <tile_9_15 name="hemp03"/>
+      <tile_9_16 name="hemp02"/>
+      <tile_9_17 name="hemp03"/>
+      <tile_9_18 name="hemp03"/>
+      <tile_9_19 name="hemp03"/>
+      <tile_10_13 name="hemp02"/>
+      <tile_10_14 name="hemp02"/>
+      <tile_10_15 name="hemp02"/>
+      <tile_10_16 name="hemp03"/>
+      <tile_10_17 name="hemp03"/>
+      <tile_10_18 name="hemp03"/>
+      <tile_10_19 name="hemp03"/>
+      <tile_13_32 name="bigtree03"/>
+      <tile_14_32 name="bigtree03"/>
+      <tile_15_2 name="bigtree03"/>
+      <tile_15_32 name="bigtree03"/>
+      <tile_16_2 name="bigtree03"/>
+      <tile_16_3 name="bigtree03"/>
+      <tile_16_4 name="bigtree03"/>
+      <tile_16_5 name="bigtree03"/>
+      <tile_16_6 name="bigtree03"/>
+      <tile_16_30 name="bigtree03"/>
+      <tile_17_2 name="bigtree03"/>
+      <tile_17_4 name="bigtree03"/>
+      <tile_17_6 name="bigtree03"/>
+      <tile_18_6 name="bigtree03"/>
+      <tile_18_7 name="bigtree03"/>
+      <tile_18_9 name="bigtree03"/>
     </large>
   </maps>
   <npcs>
