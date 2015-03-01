@@ -41,7 +41,7 @@ type
     Image: TCastleImage;
     TilesX, FTileWidth, FTileHeight: Cardinal;
     FInitialLife: Single;
-    AttackConst, AttackRandom: Single;
+    FAttackConst, FAttackRandom: Single;
     FCostWood: Cardinal;
     FWantsToAttack: TWantsToAttack;
   private
@@ -56,6 +56,8 @@ type
     property TileWidth: Cardinal read FTileWidth;
     property TileHeight: Cardinal read FTileHeight;
     property WantsToAttack: TWantsToAttack read FWantsToAttack;
+    property AttackConst: Single read FAttackConst;
+    property AttackRandom: Single read FAttackRandom;
     constructor Create(const AFaction: TFaction; const ANpcType: TNpcType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -81,13 +83,16 @@ type
     Direction: TDirection;
     PathProgress: Single;
     AttackTarget: TVector2SmallInt;
+    FLife: Single;
     procedure SetPath(const Value: TPath);
     function TryAttacking(const Map: TAbstractMap): boolean;
+    procedure SetLife(const Value: Single);
+    function CurrentAnimationFinished: boolean;
   public
-    Life: Single;
     { Positon on map. Synchronized with Map.MapNpcs. }
     X, Y: Integer;
     property Npc: TNpc read FNpc;
+    property Life: Single read FLife write SetLife;
     { Current path of this npc. Asssigning automatically frees previous path.
       Note that this instance owns (will free) the TPath instance. }
     property Path: TPath read FPath write SetPath;
@@ -99,6 +104,7 @@ type
       This is the only place where you can change position (X, Y) of this NPC,
       but inly to places allowed by TValidTileEvent. }
     procedure Update(const SecondsPassed: Single; const Map: TAbstractMap);
+    function RemoveFromMap: boolean;
   end;
 
   TNpcInstanceList = specialize TFPGObjectList<TNpcInstance>;
@@ -154,8 +160,8 @@ begin
   Image := LoadImage(GameConf.GetURL(ConfPath + '/url'), []);
   TilesX := GameConf.GetValue(ConfPath + '/tiles_x', 1);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 1.0);
-  AttackConst := GameConf.GetFloat(ConfPath + '/attack_const', 0.0);
-  AttackRandom := GameConf.GetFloat(ConfPath + '/attack_random', 0.0);
+  FAttackConst := GameConf.GetFloat(ConfPath + '/attack_const', 0.0);
+  FAttackRandom := GameConf.GetFloat(ConfPath + '/attack_random', 0.0);
   FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
 
   FTileWidth := Image.Width div TilesX;
@@ -374,7 +380,26 @@ begin
     ((not Odd(Y)) and TestTryAttacking(X - 1, Y + 1));
 end;
 
+function TNpcInstance.CurrentAnimationFinished: boolean;
+var
+  AnimLength, AnimFrame: Integer;
+begin
+  AnimLength := Npc.Animations[FAnimation].Length;
+  AnimFrame := Trunc(Npc.Animations[FAnimation].Fps * (GameTime - FAnimationStart));
+  Result := AnimFrame >= AnimLength;
+end;
+
 procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractMap);
+
+  procedure TryFinishAttack;
+  begin
+    if CurrentAnimationFinished then
+    begin
+      if Map.CanAttack(AttackTarget[0], AttackTarget[1], Npc.WantsToAttack) then
+        Map.Attack(Npc.Faction, AttackTarget[0], AttackTarget[1], Npc.AttackConst + Random * Npc.AttackRandom);
+      StartAnimation(atIdle);
+    end;
+  end;
 
   { update Direction now, if moving along the path }
   procedure UpdateDirection;
@@ -396,6 +421,8 @@ var
   NextPoint: TVector2SmallInt;
   NextPointIndex: Integer;
 begin
+  if FAnimation = atDie then Exit;
+
   if (FPath <> nil) and (FPath.Count > 1) then
   begin
     OldPathProgress := PathProgress;
@@ -412,21 +439,38 @@ begin
           X := NextPoint[0];
           Y := NextPoint[1];
           if NextPointIndex = FPath.Count - 1 then
-          begin
-            TryAttacking(Map);
             Path := nil; // end of path
-          end;
         end else
-        begin
-          TryAttacking(Map);
           Path := nil;
-        end;
       end;
     end;
   end;
 
   if (FPath <> nil) and (FPath.Count > 1) then
     UpdateDirection;
+
+  if FPath = nil then
+  begin
+    if FAnimation = atAttack then
+      TryFinishAttack;
+    if FAnimation <> atAttack then
+      TryAttacking(Map);
+  end;
+end;
+
+procedure TNpcInstance.SetLife(const Value: Single);
+var
+  WasAlive: boolean;
+begin
+  WasAlive := FLife > 0;
+  FLife := Value;
+  if WasAlive and (FLife <= 0) then
+    StartAnimation(atDie);
+end;
+
+function TNpcInstance.RemoveFromMap: boolean;
+begin
+  Result := (FAnimation = atDie) and  CurrentAnimationFinished;
 end;
 
 end.

@@ -46,6 +46,7 @@ type
     function Neighbors(const P1, P2: TVector2SmallInt;  out Dir: TDirection): boolean;
     function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; virtual; abstract;
     function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; virtual; abstract;
+    procedure Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single); virtual; abstract;
   end;
 
 implementation

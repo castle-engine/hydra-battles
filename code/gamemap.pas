@@ -44,6 +44,7 @@ type
     FNpcs: TNpcs;
     { Possible props on map. }
     property Props: TProps read FProps;
+    function ValidCoord(const X, Y: Integer): boolean;
   public
     { Props on map. }
     MapProps: array of array of TPropInstance;
@@ -63,6 +64,7 @@ type
     procedure SetPropInstance(const X, Y: Integer; const NewPropInstance: TPropInstance);
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
     function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; override;
+    procedure Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single); override;
   end;
 
 implementation
@@ -241,12 +243,21 @@ begin
   Result := true;
 end;
 
+function TMap.ValidCoord(const X, Y: Integer): boolean;
+begin
+  Result :=
+    (X >= 0) and (X < Width) and
+    (Y >= 0) and (Y < Height);
+end;
+
 function TMap.CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean;
 begin
+  if not ValidCoord(X, Y) then Exit;
   case WantsToAttack of
     waHumans  :
       begin
         if (MapNpcs[X, Y] <> nil) and
+           (MapNpcs[X, Y].Life > 0) and
            (MapNpcs[X, Y].Npc.Faction = ftHumans) then
           Exit(true);
         if (MapProps[X, Y] <> nil) and
@@ -257,6 +268,7 @@ begin
     waMonsters:
       begin
         if (MapNpcs[X, Y] <> nil) and
+           (MapNpcs[X, Y].Life > 0) and
            (MapNpcs[X, Y].Npc.Faction = ftMonsters) then
           Exit(true);
         if (MapProps[X, Y] <> nil) and
@@ -312,6 +324,20 @@ begin
 end;
 
 procedure TMap.Update(const SecondsPassed: Single; var HandleInput: boolean);
+
+  procedure PackNpcs;
+  var
+    J: Integer;
+  begin
+    J := 0;
+    while J < NpcInstances.Count do
+    begin
+      if NpcInstances[J].RemoveFromMap then
+        NpcInstances.Delete(J) else
+        Inc(J);
+    end;
+  end;
+
 var
   I: Integer;
   NI: TNpcInstance;
@@ -329,6 +355,29 @@ begin
       MapNpcs[NI.X, NI.Y] := NI;
     end;
   end;
+
+  PackNpcs;
+end;
+
+procedure TMap.Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single);
+begin
+  if (MapProps[X, Y] <> nil) and
+     (MapProps[X, Y].Prop.InitialLife <> 0) then
+  begin
+    MapProps[X, Y].Life -= Damage;
+    if MapProps[X, Y].Life <= 0 then
+    begin
+      Wood[Attacker] += MapProps[X, Y].Prop.RewardWood;
+      // TODO: show reward as drop
+      { just destroy immediately. Don't worry that this removes from PropInstances list,
+        this can be called only while iterating over npcs. }
+      SetPropInstance(X, Y, nil);
+    end;
+  end else
+
+  if MapNpcs[X, Y] <> nil then
+    // TODO: show damage as drop
+    MapNpcs[X, Y].Life := MapNpcs[X, Y].Life - Damage;
 end;
 
 end.
