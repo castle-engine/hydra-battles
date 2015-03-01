@@ -272,31 +272,31 @@
       <peasant url="goblin_lumberjack_blue.png" tiles_x="38" cost_wood="2" attack_const="10" initial_life="10">
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
-        <walk_wood anim_start="9" move_speed="2" anim_length="8"/>
+        <walk_wood anim_start="13" move_speed="2" anim_length="8"/>
         <!-- TODO: walk with gold -->
-        <attack anim_start="17" anim_length="6"/>
+        <attack anim_start="21" anim_length="6"/>
         <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="isometric_hero/complete.png" tiles_x="32" cost_wood="6" attack_const="15" initial_life="100" attack_random="10">
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
-        <attack anim_start="9" anim_length="4"/>
-        <die anim_start="15" anim_length="6"/>
+        <attack anim_start="13" anim_length="4"/>
+        <die anim_start="19" anim_length="6"/>
       </warrior>
     </humans>
     <monsters>
       <peasant url="goblin_lumberjack_red.png" tiles_x="38" cost_wood="2" attack_const="10" initial_life="10">
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
-        <walk_wood anim_start="9" move_speed="2" anim_length="8"/>
+        <walk_wood anim_start="13" move_speed="2" anim_length="8"/>
         <!-- TODO: walk with gold -->
-        <attack anim_start="17" anim_length="6"/>
+        <attack anim_start="21" anim_length="6"/>
         <die anim_start="33" anim_length="6"/>
       </peasant>
       <warrior url="minotaur_alpha.png" tiles_x="24" cost_wood="6" attack_const="15" initial_life="100" attack_random="10">
         <idle anim_start="1" anim_length="4"/>
         <walk anim_start="5" move_speed="2" anim_length="8"/>
-        <attack anim_start="9" anim_length="4"/>
+        <attack anim_start="13" anim_length="4"/>
         <die anim_start="19" anim_length="6"/>
       </warrior>
     </monsters>

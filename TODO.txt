@@ -9,12 +9,13 @@ only your own paths are uncrossable? or enemy too?
 tryb "na zmiane", 5 sek na ruch
 
 gfx:
+drops with numbers (from ds?) when hit
 water is ugly
 2 layers, to allow water/grass under props like trees?
 large map bg better
 visualize line flow dir, Konrad ideas
 zgliszcza po zniszczeniu budynków
-plansze moga zawiera duze elementy gfx, jak specjalna rzeźna albo arena, murki, krainy w stylu diablo etc.
+plansze moga zawiera duze elementy gfx, jak specjalna rzeźba albo arena, murki, krainy w stylu diablo etc.
   ogolnie, znajdz dowolny set isometric, i można się bawić...
 
 code cleanup:

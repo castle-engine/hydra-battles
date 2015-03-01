@@ -21,7 +21,7 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleRectangles,
-  GameNpcs, GameAbstractMap, GamePath, GameProps;
+  GameNpcs, GameAbstractMap, GamePath, GameProps, GameUtils;
 
 type
   { Render map background. On a separate layer, to be place scene manager inside. }
@@ -62,14 +62,14 @@ type
     procedure SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);
     procedure SetPropInstance(const X, Y: Integer; const NewPropInstance: TPropInstance);
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
+    function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; override;
   end;
 
 implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog,
-  GameUtils;
+  CastleColors, CastleUtils, CastleStringUtils, CastleLog;
 
 { TMapBackground ------------------------------------------------------------- }
 
@@ -229,7 +229,6 @@ function TMap.ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): bo
 var
   I: Integer;
 begin
-  { TODO: allow attacking enemies here }
   if MapProps[X, Y] <> nil then Exit(false);
   if (MapNpcs[X, Y] <> nil) and
      (MapNpcs[X, Y] <> OmitNpcInstance) then
@@ -240,6 +239,34 @@ begin
       if not NpcInstances[I].Path.ValidTile(X, Y) then
         Exit(false);
   Result := true;
+end;
+
+function TMap.CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean;
+begin
+  case WantsToAttack of
+    waHumans  :
+      begin
+        if (MapNpcs[X, Y] <> nil) and
+           (MapNpcs[X, Y].Npc.Faction = ftHumans) then
+          Exit(true);
+        if (MapProps[X, Y] <> nil) and
+           (not MapProps[X, Y].Prop.Neutral) and
+           (MapProps[X, Y].Prop.Faction = ftHumans) then
+          Exit(true);
+      end;
+    waMonsters:
+      begin
+        if (MapNpcs[X, Y] <> nil) and
+           (MapNpcs[X, Y].Npc.Faction = ftMonsters) then
+          Exit(true);
+        if (MapProps[X, Y] <> nil) and
+           (not MapProps[X, Y].Prop.Neutral) and
+           (MapProps[X, Y].Prop.Faction = ftMonsters) then
+          Exit(true);
+      end;
+    waTrees: if (MapProps[X, Y] <> nil) and (MapProps[X, Y].Prop.PropType = ptTree) then Exit(true);
+  end;
+  Result := false;
 end;
 
 procedure TMap.SetNpcInstance(const X, Y: Integer; const NewNpcInstance: TNpcInstance);

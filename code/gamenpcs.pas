@@ -43,6 +43,7 @@ type
     FInitialLife: Single;
     AttackConst, AttackRandom: Single;
     FCostWood: Cardinal;
+    FWantsToAttack: TWantsToAttack;
   private
     Animations: array [TAnimationType] of TNpcAnimation;
   public
@@ -54,6 +55,7 @@ type
     property CostWood: Cardinal read FCostWood;
     property TileWidth: Cardinal read FTileWidth;
     property TileHeight: Cardinal read FTileHeight;
+    property WantsToAttack: TWantsToAttack read FWantsToAttack;
     constructor Create(const AFaction: TFaction; const ANpcType: TNpcType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -78,7 +80,9 @@ type
     FAnimationStart: TFloatTime;
     Direction: TDirection;
     PathProgress: Single;
+    AttackTarget: TVector2SmallInt;
     procedure SetPath(const Value: TPath);
+    function TryAttacking(const Map: TAbstractMap): boolean;
   public
     Life: Single;
     { Positon on map. Synchronized with Map.MapNpcs. }
@@ -178,6 +182,16 @@ begin
       Animations[AnimType].MoveSpeed := GameConf.GetFloat(AnimConfPath + '/move_speed', 0.0);
       WritelnLog('Npc', Format('Npc "%s" has animation "%s" with %d, %d', [Name, AnimationName[AnimType], AnimStart, AnimLength]));
     end;
+  end;
+
+  FWantsToAttack := waNone;
+  case NpcType of
+    npcPeasant: FWantsToAttack := waTrees;
+    npcWarrior:
+      case Faction of
+        ftHumans: FWantsToAttack := waMonsters;
+        ftMonsters: FWantsToAttack := waHumans;
+      end;
   end;
 end;
 
@@ -324,8 +338,40 @@ begin
     PathProgress := 0.0;
     if FPath <> nil then
       StartAnimation(atWalk) else
+    if FAnimation = atWalk then // do not override attack
       StartAnimation(atIdle);
   end;
+end;
+
+function TNpcInstance.TryAttacking(const Map: TAbstractMap): boolean;
+
+  function TestTryAttacking(const AttackX, AttackY: Integer): boolean;
+  var
+    Dir: TDirection;
+  begin
+    Result := Map.CanAttack(AttackX, AttackY, Npc.WantsToAttack);
+    if Result then
+    begin
+      AttackTarget := Vector2SmallInt(AttackX, AttackY);
+      { update Direction to attack target }
+      if Map.Neighbors(X, Y, AttackX, AttackY, Dir) then
+        Direction := Dir;
+      StartAnimation(atAttack);
+    end;
+  end;
+
+begin
+  Result :=
+    TestTryAttacking(X + 1, Y    ) or
+    TestTryAttacking(X - 1, Y    ) or
+    TestTryAttacking(X    , Y + 1) or
+    TestTryAttacking(X    , Y - 1) or
+    TestTryAttacking(X    , Y + 2) or
+    TestTryAttacking(X    , Y - 2) or
+    (Odd(Y) and TestTryAttacking(X + 1, Y - 1)) or
+    (Odd(Y) and TestTryAttacking(X + 1, Y + 1)) or
+    ((not Odd(Y)) and TestTryAttacking(X - 1, Y - 1)) or
+    ((not Odd(Y)) and TestTryAttacking(X - 1, Y + 1));
 end;
 
 procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractMap);
@@ -366,9 +412,15 @@ begin
           X := NextPoint[0];
           Y := NextPoint[1];
           if NextPointIndex = FPath.Count - 1 then
+          begin
+            TryAttacking(Map);
             Path := nil; // end of path
+          end;
         end else
+        begin
+          TryAttacking(Map);
           Path := nil;
+        end;
       end;
     end;
   end;
