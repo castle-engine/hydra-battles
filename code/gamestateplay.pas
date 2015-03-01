@@ -282,6 +282,10 @@ begin
     end;
 
     TryDraggingSidebar;
+
+    if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
+       (Map.MapProps[PathStartX, PathStartY] <> nil) then
+      Map.MapProps[PathStartX, PathStartY].StartTraining(Npcs);
   end;
 end;
 

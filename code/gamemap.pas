@@ -44,6 +44,7 @@ type
     FNpcs: TNpcs;
     { Possible props on map. }
     property Props: TProps read FProps;
+    //property Npcs: TNpcs read FNpcs;
     function ValidCoord(const X, Y: Integer): boolean;
   public
     { Props on map. }
@@ -231,6 +232,7 @@ function TMap.ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): bo
 var
   I: Integer;
 begin
+  if not ValidCoord(X, Y) then Exit(false);
   if MapProps[X, Y] <> nil then Exit(false);
   if (MapNpcs[X, Y] <> nil) and
      (MapNpcs[X, Y] <> OmitNpcInstance) then
@@ -325,6 +327,26 @@ end;
 
 procedure TMap.Update(const SecondsPassed: Single; var HandleInput: boolean);
 
+  procedure UpdateNpcs;
+  var
+    I: Integer;
+    NI: TNpcInstance;
+    OldX, OldY: Integer;
+  begin
+    for I := 0 to NpcInstances.Count - 1 do
+    begin
+      NI := NpcInstances[I];
+      OldX := NI.X;
+      OldY := NI.Y;
+      NI.Update(SecondsPassed, Self);
+      if (OldX <> NI.X) or (OldY <> NI.Y) then
+      begin
+        MapNpcs[OldX, OldY] := nil;
+        MapNpcs[NI.X, NI.Y] := NI;
+      end;
+    end;
+  end;
+
   procedure PackNpcs;
   var
     J: Integer;
@@ -343,25 +365,29 @@ procedure TMap.Update(const SecondsPassed: Single; var HandleInput: boolean);
     end;
   end;
 
-var
-  I: Integer;
-  NI: TNpcInstance;
-  OldX, OldY: Integer;
-begin
-  for I := 0 to NpcInstances.Count - 1 do
+  procedure UpdateProps;
+  var
+    I: Integer;
+    SpawnNpc: TNpc;
+    SpawnX, SpawnY: Integer;
+    SpawnDir: TDirection;
   begin
-    NI := NpcInstances[I];
-    OldX := NI.X;
-    OldY := NI.Y;
-    NI.Update(SecondsPassed, Self);
-    if (OldX <> NI.X) or (OldY <> NI.Y) then
+    for I := 0 to PropInstances.Count - 1 do
     begin
-      MapNpcs[OldX, OldY] := nil;
-      MapNpcs[NI.X, NI.Y] := NI;
+      PropInstances[I].Update(Self, SpawnNpc, SpawnX, SpawnY);
+      if SpawnNpc <> nil then
+      begin
+        if not Neighbors(PropInstances[I].X, PropInstances[I].Y, SpawnX, SpawnY, SpawnDir) then
+          SpawnDir := RandomDirection;
+        SetNpcInstance(SpawnX, SpawnY, TNpcInstance.Create(SpawnNpc, SpawnDir));
+      end;
     end;
   end;
 
+begin
+  UpdateNpcs;
   PackNpcs;
+  UpdateProps;
 end;
 
 procedure TMap.Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single);

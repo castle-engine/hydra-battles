@@ -113,6 +113,8 @@ function RandomFaction: TFaction;
 function RandomNpcType: TNpcType;
 function RandomDirection: TDirection;
 
+function NpcTypeFromName(const AName: string): TNpcType;
+
 implementation
 
 uses SysUtils, Math,
@@ -142,6 +144,14 @@ end;
 function RandomDirection: TDirection;
 begin
   Result := TDirection(Random(Ord(High(TDirection)) + 1));
+end;
+
+function NpcTypeFromName(const AName: string): TNpcType;
+begin
+  for Result := Low(Result) to High(Result) do
+    if NpcName[Result] = AName then
+      Exit;
+  raise Exception.CreateFmt('"%s" is not an npc name', [AName]);
 end;
 
 { TNpc ---------------------------------------------------------------------- }

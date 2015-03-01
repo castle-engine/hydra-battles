@@ -46,7 +46,7 @@ const
 
 function FactionFromName(const AName: string): TFaction;
 
-function BarRectFromTileRect(const R: TRectangle): TRectangle;
+function BarRectFromTileRect(const R: TRectangle; const Top: boolean = false): TRectangle;
 
 procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
   const Amount: Single);
@@ -82,12 +82,14 @@ begin
   DrawRectangle(R, FillColor);
 end;
 
-function BarRectFromTileRect(const R: TRectangle): TRectangle;
+function BarRectFromTileRect(const R: TRectangle; const Top: boolean): TRectangle;
 begin
   Result.Width := Round(R.Width * 0.6);
   Result.Left := R.Left + (R.Width - Result.Width) div 2;
   Result.Height := Round(R.Height * 0.1);
-  Result.Bottom := R.Bottom - Result.Height;
+  if Top then
+    Result.Bottom := R.Top else
+    Result.Bottom := R.Bottom - Result.Height;
 end;
 
 end.

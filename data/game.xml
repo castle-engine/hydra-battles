@@ -9,16 +9,16 @@
   -->
   <props>
     <humansHeadquarters url="hq_humans.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h"
-      cost_wood="1000" train="peasant"
+      cost_wood="1000" train="peasant" train_duration="1"
     />
     <humansBarracks url="barracks_humans.png" faction="humans" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="b"
-      cost_wood="10" train="warrior"
+      cost_wood="10" train="warrior" train_duration="4"
     />
     <monstersHeadquarters url="hq_monsters.png" faction="monsters" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="H"
-      cost_wood="1000" train="peasant"
+      cost_wood="1000" train="peasant" train_duration="1"
     />
     <monstersBarracks url="barracks_monsters.png" faction="monsters" neutral="false" pivot_y="110" initial_life="500" editor_shortcut="B"
-      cost_wood="10" train="warrior"
+      cost_wood="10" train="warrior" train_duration="4"
     />
     <mine url="gold_mine_1.png" editor_shortcut="m"/>
     <tree url="tree.png" pivot_y="70" reward_wood="1" initial_life="1" editor_shortcut="t"/>
@@ -54,13 +54,11 @@
       <tile_0_3 name="tree"/>
       <tile_1_1 name="tree"/>
       <tile_1_4 name="tree"/>
-      <tile_1_13 name="humansBarracks"/>
       <tile_1_19 name="mountain2"/>
       <tile_2_1 name="tree"/>
       <tile_2_3 name="tree"/>
       <tile_2_4 name="tree"/>
       <tile_2_5 name="tree"/>
-      <tile_2_11 name="humansHeadquarters"/>
       <tile_3_3 name="tree"/>
       <tile_3_6 name="tree"/>
       <tile_3_15 name="mountain3"/>
@@ -78,8 +76,6 @@
       <tile_6_18 name="mountain7"/>
       <tile_7_0 name="tree"/>
       <tile_7_4 name="tree"/>
-      <tile_7_11 name="humansHeadquarters"/>
-      <tile_7_14 name="humansBarracks"/>
       <tile_8_0 name="tree"/>
       <tile_8_1 name="tree"/>
       <tile_8_3 name="tree"/>
@@ -247,10 +243,6 @@
       <tile_19_3 name="tree"/>
       <tile_19_4 name="tree"/>
       <tile_19_5 name="tree"/>
-      <tile_2_13 name="humansHeadquarters"/>
-      <tile_2_17 name="humansBarracks"/>
-      <tile_12_23 name="humansBarracks"/>
-      <tile_13_21 name="humansHeadquarters"/>
       <tile_1_23 name="mountain7"/>
       <tile_2_21 name="mountain7"/>
       <tile_2_25 name="mountain7"/>
