@@ -20,7 +20,7 @@ interface
 
 uses FGL,
   CastleVectors, Castle2DSceneManager, X3DNodes,
-  GameAbstractMap;
+  GameAbstractMap, GameUtils;
 
 type
   TPath = class(TVector2SmallIntList)
@@ -35,7 +35,8 @@ type
   public
     { Start a new path. Note that position under PathStartX, PathStartY
       is assumed to be always Ok (otherwise we would collide with starting npc...). }
-    constructor Create(const AMap: TAbstractMap; const PathStartX, PathStartY: Integer);
+    constructor Create(const AMap: TAbstractMap;
+      const PathStartX, PathStartY: Integer; const AFaction: TFaction);
     destructor Destroy; override;
     function Add(const X, Y: SmallInt; const AssumeValid: boolean = false): boolean;
     function ValidTile(const X, Y: Integer): boolean;
@@ -46,10 +47,12 @@ type
 
 implementation
 
-uses CastleRectangles,
-  GameUtils;
+uses CastleRectangles, CastleColors;
 
-constructor TPath.Create(const AMap: TAbstractMap; const PathStartX, PathStartY: Integer);
+constructor TPath.Create(const AMap: TAbstractMap;
+  const PathStartX, PathStartY: Integer; const AFaction: TFaction);
+const
+  FactionColor: array [TFaction] of TCastleColorRGB = ((0.1, 0.1, 1), (1, 0.1, 0.1));
 
   procedure CreateVisualization;
   var
@@ -66,7 +69,7 @@ constructor TPath.Create(const AMap: TAbstractMap; const PathStartX, PathStartY:
     LineSet.FdCoord.Value := Coordinate;
 
     Material := TMaterialNode.Create('', '');
-    Material.FdEmissiveColor.Value := Vector3Single(0.1, 0.1, 0.1);
+    Material.FdEmissiveColor.Value := FactionColor[AFaction];
 
     LineProperties := TLinePropertiesNode.Create('', '');
     LineProperties.FdLineWidthScaleFactor.Value := 10;

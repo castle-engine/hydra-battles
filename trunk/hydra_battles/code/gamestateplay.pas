@@ -221,6 +221,7 @@ var
   RandomMountain: char;
   NewPath: TPath;
   PathStartX, PathStartY: Integer;
+  Npc: TNpcInstance;
 begin
   inherited;
 
@@ -273,9 +274,10 @@ begin
     if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
        (Map.MapNpcs[PathStartX, PathStartY] <> nil) then
     begin
-      NewPath := TPath.Create(Map, PathStartX, PathStartY);
+      Npc := Map.MapNpcs[PathStartX, PathStartY];
+      NewPath := TPath.Create(Map, PathStartX, PathStartY, Npc.Npc.Faction);
       CurrentPaths[Event.FingerIndex] := NewPath;
-      Map.MapNpcs[PathStartX, PathStartY].Path := NewPath;
+      Npc.Path := NewPath;
       Exit;
     end;
 
