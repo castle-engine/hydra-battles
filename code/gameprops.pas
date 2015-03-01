@@ -71,6 +71,7 @@ type
     destructor Destroy; override;
     procedure GLContextOpen;
     procedure GLContextClose;
+    procedure Draw(ScreenRectangle: TRectangle);
   end;
 
   TProps = class(specialize TFPGMap<TPropType,TProp>)
@@ -81,6 +82,21 @@ type
     procedure GLContextOpen;
     procedure GLContextClose;
   end;
+
+  TPropInstance = class
+  private
+    FProp: TProp;
+  public
+    { Moves along this path now. }
+    Life: Single;
+    { Positon on map. Synchronized with Map.MapProps. }
+    X, Y: Integer;
+    property Prop: TProp read FProp;
+    constructor Create(const AProp: TProp);
+    procedure Draw(ScreenRectangle: TRectangle);
+  end;
+
+  TPropInstanceList = specialize TFPGObjectList<TPropInstance>;
 
 function PropTypeFromName(const AName: string): TPropType;
 
@@ -188,6 +204,40 @@ var
 begin
   for I := 0 to Count - 1 do
     Data[I].GLContextClose;
+end;
+
+procedure TProp.Draw(ScreenRectangle: TRectangle);
+var
+  NewRectHeight: Integer;
+begin
+  if GLImage = nil then
+    raise Exception.CreateFmt('Prop "%s" GL resources not ready at rendering', [Name]);
+
+  { now ScreenRectangle is calculated assuming that Image fills tile size (ScreenRectangle)
+    perfectly. But actually it may be a little taller, so account for this,
+    knowing that width of ScreenRectangle (tile) matches Image width. }
+  NewRectHeight := ScreenRectangle.Width * Image.Height div Image.Width;
+  ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
+  ScreenRectangle.Height := NewRectHeight;
+  { apply pivot }
+  ScreenRectangle.Left -= Round((Pivot[0] - Image.Width div 2) * ScreenRectangle.Width / Image.Width);
+  ScreenRectangle.Bottom -= Round((Pivot[1] - Image.Height div 2) * ScreenRectangle.Height / Image.Height);
+
+  GLImage.Draw(ScreenRectangle);
+end;
+
+{ TPropInstance -------------------------------------------------------------- }
+
+constructor TPropInstance.Create(const AProp: TProp);
+begin
+  inherited Create;
+  FProp := AProp;
+  Life := Prop.InitialLife;
+end;
+
+procedure TPropInstance.Draw(ScreenRectangle: TRectangle);
+begin
+  Prop.Draw(ScreenRectangle);
 end;
 
 end.

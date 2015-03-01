@@ -80,7 +80,6 @@ type
     PathProgress: Single;
     procedure SetPath(const Value: TPath);
   public
-    { Moves along this path now. }
     Life: Single;
     { Positon on map. Synchronized with Map.MapNpcs. }
     X, Y: Integer;
@@ -281,7 +280,13 @@ var
   AnimLength: Cardinal;
   ImageX, ImageY: Integer;
   Diff, Shift: TVector2Single;
+  NewRectHeight: Integer;
 begin
+  { for NPC, rectangle to draw should uniform }
+  NewRectHeight := ScreenRectangle.Width;
+  ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
+  ScreenRectangle.Height := NewRectHeight;
+
   AnimLength := Npc.Animations[FAnimation].Length;
   AnimFrame := Trunc(Npc.Animations[FAnimation].Fps * (GameTime - FAnimationStart));
   if AnimationLooping[FAnimation] then

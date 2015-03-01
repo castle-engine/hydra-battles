@@ -173,7 +173,7 @@ begin
     begin
       Prop := Props[PT];
       if Event.IsKey(Prop.EditorShortcut) then
-        Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+        Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
     end;
     if Event.IsKey('0') then
     begin
@@ -182,17 +182,17 @@ begin
       begin
         Prop := Props[PT];
         if Prop.EditorShortcut = RandomMountain then
-          Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := Prop;
+          Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
       end;
     end;
     if Event.IsKey(' ') then
-      Map.MapProps[Map.EditCursor[0], Map.EditCursor[1]] := nil;
+      Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], nil);
     if Event.IsKey('S') then
       Map.SaveToFile;
     if Event.IsKey('N') then
     begin
       Map.SetNpcInstance(Map.EditCursor[0], Map.EditCursor[1],
-        TNpcInstance.Create(Npcs.Npcs[RandomFaction, npcPeasant], RandomDirection));
+        TNpcInstance.Create(Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection));
     end;
   end;
 
