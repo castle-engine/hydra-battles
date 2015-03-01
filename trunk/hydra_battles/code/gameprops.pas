@@ -22,7 +22,7 @@ interface
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
-  GameUtils, GameAbstractMap;
+  GameUtils, GameAbstractMap, GameNpcs;
 
 type
   { All possible prop types.
@@ -60,6 +60,9 @@ type
     FInitialLife: Single;
     FNeutral: boolean;
     FFaction: TFaction;
+    FTrain: boolean;
+    FTrainNpc: TNpcType;
+    FTrainDuration: Single;
   public
     property PropType: TPropType read FPropType;
     property GLImage: TGLImage read FGLImage;
@@ -72,6 +75,9 @@ type
     property InitialLife: Single read FInitialLife;
     property Neutral: boolean read FNeutral;
     property Faction: TFaction read FFaction;
+    property Train: boolean read FTrain;
+    property TrainNpc: TNpcType read FTrainNpc;
+    property TrainDuration: Single read FTrainDuration;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
     procedure GLContextOpen;
@@ -91,14 +97,20 @@ type
   TPropInstance = class
   private
     FProp: TProp;
+    FTrainStart: Single;
+    FTraining: boolean;
+    FTrainingNpc: TNpc;
   public
     { Moves along this path now. }
     Life: Single;
     { Positon on map. Synchronized with Map.MapProps. }
     X, Y: Integer;
     property Prop: TProp read FProp;
+    property Training: boolean read FTraining;
     constructor Create(const AProp: TProp);
     procedure Draw(ScreenRectangle: TRectangle);
+    procedure StartTraining(const Npcs: TNpcs);
+    procedure Update(const Map: TAbstractMap; out SpawnNpc: TNpc; out SpawnX, SpawnY: Integer);
   end;
 
   TPropInstanceList = specialize TFPGObjectList<TPropInstance>;
@@ -122,7 +134,7 @@ implementation
 
 uses SysUtils, Math,
   CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog;
+  CastleColors, CastleUtils, CastleStringUtils, CastleLog, CastleGameNotifications;
 
 const
   PropName: array [TPropType] of string =
@@ -144,7 +156,7 @@ end;
 
 constructor TProp.Create(const APropType: TPropType);
 var
-  EditorShortcutStr, ConfPath: string;
+  EditorShortcutStr, ConfPath, TrainStr: string;
 begin
   inherited Create;
   FPropType := APropType;
@@ -158,6 +170,11 @@ begin
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 0.0);
   FRewardWood := GameConf.GetValue(ConfPath + '/reward_wood', 0);
   FNeutral := GameConf.GetValue(ConfPath + '/neutral', true);
+  TrainStr := GameConf.GetValue(ConfPath + '/train', '');
+  FTrain := TrainStr <> '';
+  if FTrain then
+    FTrainNpc := NpcTypeFromName(TrainStr);
+  FTrainDuration := GameConf.GetFloat(ConfPath + '/train_duration', 10.0);
   if not FNeutral then
     FFaction := FactionFromName(GameConf.GetValue(ConfPath + '/faction', ''));
   if Length(EditorShortcutStr) > 1 then
@@ -256,13 +273,65 @@ end;
 
 procedure TPropInstance.Draw(ScreenRectangle: TRectangle);
 var
-  BarRect: TRectangle;
+  LifeBarRect, TrainBarRect: TRectangle;
 begin
-  BarRect := BarRectFromTileRect(ScreenRectangle);
-
+  LifeBarRect := BarRectFromTileRect(ScreenRectangle);
+  TrainBarRect := BarRectFromTileRect(ScreenRectangle, true);
   Prop.Draw(ScreenRectangle);
   if (Prop.InitialLife <> 0) and not Prop.Neutral then
-    RenderBar(BarRect, Black, FactionBarColor[Prop.Faction], Life / Prop.InitialLife);
+    RenderBar(LifeBarRect, Black, FactionBarColor[Prop.Faction], Life / Prop.InitialLife);
+  if FTraining then
+    RenderBar(TrainBarRect, Green, Black, (GameTime - FTrainStart) / Prop.TrainDuration);
+end;
+
+procedure TPropInstance.StartTraining(const Npcs: TNpcs);
+begin
+  if (not Training) and Prop.Train and
+     { neutral props cannot spawn, as we could not determine the faction on spawned unit }
+     (not Prop.Neutral) then
+  begin
+    FTrainingNpc := Npcs.Npcs[Prop.Faction, Prop.TrainNpc];
+    if Trunc(Wood[Prop.Faction]) < FTrainingNpc.CostWood then
+      Notifications.Show(Format('Not enough resources to train "%s" (cost wood: %d)',
+        [FTrainingNpc.Name, FTrainingNpc.CostWood])) else
+    begin
+      Wood[Prop.Faction] -= FTrainingNpc.CostWood;
+      FTraining := true;
+      FTrainStart := GameTime;
+    end;
+  end;
+end;
+
+procedure TPropInstance.Update(const Map: TAbstractMap; out SpawnNpc: TNpc; out SpawnX, SpawnY: Integer);
+
+  function TestTrySpawning(const TrySpawnX, TrySpawnY: Integer): boolean;
+  begin
+    Result := Map.ValidTile(TrySpawnX, TrySpawnY, nil);
+    if Result then
+    begin
+      SpawnX := TrySpawnX;
+      SpawnY := TrySpawnY;
+      SpawnNpc := FTrainingNpc;
+    end;
+  end;
+
+begin
+  SpawnNpc := nil;
+  if FTraining and (GameTime > FTrainStart + Prop.TrainDuration) then
+  begin
+    if TestTrySpawning(X + 1, Y    ) or
+       TestTrySpawning(X - 1, Y    ) or
+       TestTrySpawning(X    , Y + 1) or
+       TestTrySpawning(X    , Y - 1) or
+       TestTrySpawning(X    , Y + 2) or
+       TestTrySpawning(X    , Y - 2) or
+       (Odd(Y) and TestTrySpawning(X + 1, Y - 1)) or
+       (Odd(Y) and TestTrySpawning(X + 1, Y + 1)) or
+       ((not Odd(Y)) and TestTrySpawning(X - 1, Y - 1)) or
+       ((not Odd(Y)) and TestTrySpawning(X - 1, Y + 1)) then
+      { just return that we want to spawn };
+    FTraining := false;
+  end;
 end;
 
 { TDraggedProp --------------------------------------------------------------- }
