@@ -33,6 +33,7 @@ type
     Status: TCastleLabel;
     Props: TProps;
     Map: TMap;
+    MapBackground: TMapBackground;
     Npcs: TNpcs;
     CurrentPaths: TCurrentPaths;
     function NpcFromPath(const Path: TPath): TNpcInstance;
@@ -78,13 +79,17 @@ begin
 
   Props := TProps.Create;
   Npcs := TNpcs.Create;
-  Map := TMap.Create(StartMapName, Props, Npcs);
-  Window.Controls.InsertFront(Map);
+
+  MapBackground := TMapBackground.Create(StartMapName);
+  Window.Controls.InsertFront(MapBackground);
 
   VisualizationSceneManager := T2DSceneManager.Create(Self);
   VisualizationSceneManager.FullSize :=false;
   VisualizationSceneManager.Transparent := true;
   Window.Controls.InsertFront(VisualizationSceneManager);
+
+  Map := TMap.Create(StartMapName, Props, Npcs);
+  Window.Controls.InsertFront(Map);
 
   Status := TCastleLabel.Create(Self);
   Status.Padding := 5;
@@ -101,6 +106,7 @@ begin
   FreeAndNil(Status);
   FreeAndNil(VisualizationSceneManager);
   FreeAndNil(Map);
+  FreeAndNil(MapBackground);
   FreeAndNil(Props);
   FreeAndNil(Npcs);
   FreeAndNil(CurrentPaths);
@@ -114,6 +120,7 @@ begin
   inherited;
 
   R := Map.Rect;
+  MapBackground.Rect := R;
   VisualizationSceneManager.Left := R.Left;
   VisualizationSceneManager.Bottom := R.Bottom;
   VisualizationSceneManager.Width := R.Width;
