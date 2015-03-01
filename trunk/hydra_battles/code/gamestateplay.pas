@@ -73,7 +73,7 @@ begin
   Props := TProps.Create;
   Npcs := TNpcs.Create;
   Paths := TPathList.Create;
-  Map := TMap.Create(StartMapName, Props, Npcs);
+  Map := TMap.Create(StartMapName, Props, Npcs, Paths);
   Window.Controls.InsertFront(Map);
 
   SceneManager := T2DSceneManager.Create(Self);
@@ -185,7 +185,6 @@ begin
 
   if Event.IsMouseButton(mbLeft) then
   begin
-    writeln('Event.IsMouseButton');
     CurrentPath := TPath.Create(Map, SceneManager);
     Paths.Add(CurrentPath);
   end;

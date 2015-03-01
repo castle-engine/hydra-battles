@@ -41,6 +41,7 @@ type
     function PositionToTile(const MapRect: TRectangle;
       ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
     function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+    function ValidTile(const X, Y: Integer): boolean; virtual; abstract;
   end;
 
 implementation

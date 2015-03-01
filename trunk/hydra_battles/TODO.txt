@@ -3,8 +3,13 @@ gameplay ideas:
 
 water is ugly
 
-2 laters, to allow water/grass under props like trees?
+2 layers, to allow water/grass under props like trees?
 
 large map bg better
 
 TState can be just TUIControl at the bottom.
+
+try gameplay:
+  only your own paths are uncrossable? or enemy too?
+  
+visualize line flow dir

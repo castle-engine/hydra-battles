@@ -35,6 +35,7 @@ type
     property Visualization: T2DScene read FVisualization;
     constructor Create(const AMap: TAbstractMap; const VisualizationSceneManager: T2DSceneManager);
     function Add(const X, Y: SmallInt): boolean;
+    function ValidTile(const X, Y: Integer): boolean;
   end;
 
   TPathList = specialize TFPGObjectList<TPath>;
@@ -96,8 +97,9 @@ const
   PathZ = 1;
 var
   MapRect, TileRect: TRectangle;
-  Point: TVector2Integer;
+  TileMiddle: TVector2Integer;
   Point3D: TVector3Single;
+  Point2D: TVector2SmallInt;
   C: Integer;
 begin
   if (X = LastX) and (Y = LastY) then
@@ -105,15 +107,19 @@ begin
 
   if (LastX <> -1) and (LastY <> -1) and not Map.Neighbors(LastX, LastY, X, Y) then
     Exit(false);
+  if not Map.ValidTile(X, Y) then
+    Exit(false);
 
   MapRect := Map.Rect;
   TileRect := Map.GetTileRect(MapRect, X, Y);
-  Point := TileRect.Middle;
-  Point3D := Vector3Single(Point[0] - MapRect.Left, Point[1] - MapRect.Bottom, PathZ);
+  Point2D := Vector2SmallInt(X, Y);
+  TileMiddle := TileRect.Middle;
+  Point3D := Vector3Single(TileMiddle[0] - MapRect.Left, TileMiddle[1] - MapRect.Bottom, PathZ);
 
   if (LastLastX <> -1) and (LastLastY <> -1) and Map.Neighbors(LastLastX, LastLastY, X, Y) then
   begin
     { do not add new line point, only replace the last one. This smooths path. }
+    Items[Count - 1] := Point2D;
     Coordinate.FdPoint.Items.Items[Coordinate.FdPoint.Items.Count - 1] := Point3D;
     Coordinate.FdPoint.Changed;
 
@@ -121,6 +127,7 @@ begin
     LastY := Y;
   end else
   begin
+    inherited Add(Point2D);
     Coordinate.FdPoint.Items.Add(Point3D);
     Coordinate.FdPoint.Changed;
 
@@ -140,9 +147,16 @@ begin
   end;
 
   Result := true;
+end;
 
-  { TODO:
-    return false if invalid (e.g. crosses prop, in future: crosses other lines). }
+function TPath.ValidTile(const X, Y: Integer): boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    if (Items[I][0] = X) and (Items[I][1] = Y) then
+     Exit(false);
+  Result := true;
 end;
 
 end.
