@@ -20,7 +20,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
-  GameStates, GameMap, GameNpcs, GamePath, GameProps;
+  GameStates, GameMap, GameNpcs, GamePath, GameProps, GameUtils,
+  GamePlayerSidebar;
 
 type
   { Currently drawn paths with mouse / touch device. Support multi-touch
@@ -36,6 +37,7 @@ type
     MapBackground: TMapBackground;
     Npcs: TNpcs;
     CurrentPaths: TCurrentPaths;
+    Sidebar: array [TFaction] of TPlayerSidebar;
     function NpcFromPath(const Path: TPath): TNpcInstance;
   public
     StartMapName: string;
@@ -60,7 +62,7 @@ uses SysUtils,
   CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
   CastleColors, CastleUIControls, CastleUtils, CastleGLUtils,
   CastleGLImages, CastleStringUtils, CastleRectangles,
-  GameUtils, GameStateMainMenu;
+  GameStateMainMenu;
 
 { TStatePlay ----------------------------------------------------------------- }
 
@@ -70,6 +72,9 @@ begin
 end;
 
 procedure TStatePlay.Start;
+var
+  IntialWood: Single;
+  FT: TFaction;
 begin
   inherited;
 
@@ -99,9 +104,21 @@ begin
   Status.Frame := false;
   Status.Alignment := prRight;
   Window.Controls.InsertFront(Status);
+
+  for FT := Low(FT) to High(FT) do
+  begin
+    Sidebar[FT] := TPlayerSidebar.Create(Self, FT, Props);
+    Window.Controls.InsertFront(Sidebar[FT]);
+  end;
+
+  IntialWood := GameConf.GetValue('initial/wood', 0);
+  Wood[ftHumans] := IntialWood;
+  Wood[ftMonsters] := IntialWood;
 end;
 
 procedure TStatePlay.Finish;
+var
+  FT: TFaction;
 begin
   FreeAndNil(Status);
   FreeAndNil(VisualizationSceneManager);
@@ -110,6 +127,8 @@ begin
   FreeAndNil(Props);
   FreeAndNil(Npcs);
   FreeAndNil(CurrentPaths);
+  for FT := Low(FT) to High(FT) do
+    FreeAndNil(Sidebar[FT]);
   inherited;
 end;
 
@@ -125,6 +144,14 @@ begin
   VisualizationSceneManager.Bottom := R.Bottom;
   VisualizationSceneManager.Width := R.Width;
   VisualizationSceneManager.Height := R.Height;
+
+  Sidebar[ftHumans].Left := R.Left - PlayerSidebarWidth;
+  Sidebar[ftHumans].Bottom := R.Bottom;
+  Sidebar[ftHumans].Height := R.Height;
+
+  Sidebar[ftMonsters].Left := R.Right;
+  Sidebar[ftMonsters].Bottom := R.Bottom;
+  Sidebar[ftMonsters].Height := R.Height;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single);
@@ -152,6 +179,7 @@ var
   PathStartX, PathStartY: Integer;
 begin
   inherited;
+
   if Event.IsKey('E') then
     Map.EditMode := not Map.EditMode;
   if Event.IsKey('G') then

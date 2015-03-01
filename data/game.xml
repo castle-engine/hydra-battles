@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <game>
+  <initial wood="4" />
   <!--
     TODO: Props have constant size in map tiles for now: 1.
 
@@ -8,8 +9,10 @@
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <humanHeadquarters url="hq.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h"/>
-    <humanBarracks url="medieval_building_thumb.png" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" editor_shortcut="b"/>
+    <humansHeadquarters url="hq_humans.png" faction="humans" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="h" cost_wood="1000" />
+    <humansBarracks url="barracks_humans.png" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" editor_shortcut="b"/>
+    <monstersHeadquarters url="hq_monsters.png" faction="monsters" neutral="false" pivot_y="92" initial_life="1000" editor_shortcut="H" cost_wood="1000" />
+    <monstersBarracks url="barracks_monsters.png" faction="monsters" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" editor_shortcut="B"/>
     <mine url="gold_mine_1.png" editor_shortcut="m"/>
     <tree url="tree.png" pivot_y="70" reward_wood="1" initial_life="1" editor_shortcut="t"/>
     <grass url="grass.png" pivot_y="28" editor_shortcut="g"/>
@@ -44,13 +47,13 @@
       <tile_0_3 name="tree"/>
       <tile_1_1 name="tree"/>
       <tile_1_4 name="tree"/>
-      <tile_1_13 name="humanBarracks"/>
+      <tile_1_13 name="humansBarracks"/>
       <tile_1_19 name="mountain2"/>
       <tile_2_1 name="tree"/>
       <tile_2_3 name="tree"/>
       <tile_2_4 name="tree"/>
       <tile_2_5 name="tree"/>
-      <tile_2_11 name="humanHeadquarters"/>
+      <tile_2_11 name="humansHeadquarters"/>
       <tile_3_3 name="tree"/>
       <tile_3_6 name="tree"/>
       <tile_3_15 name="mountain3"/>
@@ -68,8 +71,8 @@
       <tile_6_18 name="mountain7"/>
       <tile_7_0 name="tree"/>
       <tile_7_4 name="tree"/>
-      <tile_7_11 name="humanHeadquarters"/>
-      <tile_7_14 name="humanBarracks"/>
+      <tile_7_11 name="humansHeadquarters"/>
+      <tile_7_14 name="humansBarracks"/>
       <tile_8_0 name="tree"/>
       <tile_8_1 name="tree"/>
       <tile_8_3 name="tree"/>
@@ -237,10 +240,10 @@
       <tile_19_3 name="tree"/>
       <tile_19_4 name="tree"/>
       <tile_19_5 name="tree"/>
-      <tile_2_13 name="humanHeadquarters"/>
-      <tile_2_17 name="humanBarracks"/>
-      <tile_12_23 name="humanBarracks"/>
-      <tile_13_21 name="humanHeadquarters"/>
+      <tile_2_13 name="humansHeadquarters"/>
+      <tile_2_17 name="humansBarracks"/>
+      <tile_12_23 name="humansBarracks"/>
+      <tile_13_21 name="humansHeadquarters"/>
       <tile_1_23 name="mountain7"/>
       <tile_2_21 name="mountain7"/>
       <tile_2_25 name="mountain7"/>
