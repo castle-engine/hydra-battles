@@ -110,7 +110,7 @@
       <tile_9_17 name="hemp02"/>
       <tile_9_18 name="hemp02"/>
     </small>
-    <large width="20" height="40" background="tilable-img_0044-lush.png">
+    <large width="20" height="40" background="fastgras01.png">
       <tile_0_6 name="bigtree01"/>
       <tile_0_7 name="bigtree01"/>
       <tile_0_8 name="bigtree01"/>
