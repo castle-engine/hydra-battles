@@ -4,3 +4,5 @@ gameplay ideas:
 prettier (thinner) grid images.
 
 water is ugly
+
+2 laters, to allow water/grass under props like trees?

@@ -25,6 +25,7 @@ var
   GameConf: TCastleConfig;
   Window: TCastleWindowCustom;
   ContainerWidth, ContainerHeight: Integer;
+  GameTime: TFloatTime;
 
 function SideControlWidth: Integer;
 
