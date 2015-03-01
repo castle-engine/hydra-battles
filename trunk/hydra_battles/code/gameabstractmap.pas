@@ -81,7 +81,7 @@ begin
   MapW := Width - 1.0; { cut off 0.5 margin from left/right side }
   MapH := Height / 2 - 0.5;
   MapH /= TileWidthToHeight;
-  ContainerW := ContainerWidth - 2 * SideControlWidth; // leave some space for controls on screen sides
+  ContainerW := ContainerWidth - 2 * PlayerSidebarWidth; // leave some space for controls on screen sides
   ContainerH := ContainerHeight;
   if MapW / MapH > ContainerW / ContainerH then
   begin
@@ -96,7 +96,7 @@ begin
     Result.Width := Round(Result.Height * MapW / MapH); // adjust Result.Width to aspect
     Result.Left := (ContainerW - Result.Width) div 2;
   end;
-  Result.Left += SideControlWidth;
+  Result.Left += PlayerSidebarWidth;
 end;
 
 function TAbstractMap.PositionToTile(const MapRect: TRectangle;

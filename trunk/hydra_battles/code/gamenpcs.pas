@@ -42,7 +42,7 @@ type
     TilesX, FTileWidth, FTileHeight: Cardinal;
     FInitialLife: Single;
     AttackConst, AttackRandom: Single;
-    FCostWood: Single;
+    FCostWood: Cardinal;
   private
     Animations: array [TAnimationType] of TNpcAnimation;
   public
@@ -51,7 +51,7 @@ type
     property Faction: TFaction read FFaction;
     property InitialLife: Single read FInitialLife;
     property GLImage: TGLImage read FGLImage;
-    property CostWood: Single read FCostWood;
+    property CostWood: Cardinal read FCostWood;
     property TileWidth: Cardinal read FTileWidth;
     property TileHeight: Cardinal read FTileHeight;
     constructor Create(const AFaction: TFaction; const ANpcType: TNpcType);
@@ -152,7 +152,7 @@ begin
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 1.0);
   AttackConst := GameConf.GetFloat(ConfPath + '/attack_const', 0.0);
   AttackRandom := GameConf.GetFloat(ConfPath + '/attack_random', 0.0);
-  FCostWood := GameConf.GetFloat(ConfPath + '/cost_wood', 0.0);
+  FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
 
   FTileWidth := Image.Width div TilesX;
   if Image.Width mod TilesX <> 0 then

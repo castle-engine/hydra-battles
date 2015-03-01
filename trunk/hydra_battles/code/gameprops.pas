@@ -32,17 +32,19 @@ type
 
     @orderedList(
       @item(easy usage of TCastleConfig to read their properties, since
-         we don't have to iterate over <prop name="xxx"> elements,
-         we just read <xxx> elements.)
+        we don't have to iterate over <prop name="xxx"> elements,
+        we just read <xxx> elements.)
       @item(for some prop types, like HQ and barracks, we really need to know
-       their function anyway.)
+        their function anyway.)
     )
 
     But for some props, it should be possible to define them in pure game.xml,
     which is not possible now: you have to always extent this type.
     In the future, this type should represent only generic prop types. }
-  TPropType = (ptHumanHeadquarters, ptHumanBarracks, ptMine,
-    ptTree, ptGrass, ptWater, ptCursor, ptTileFrame,
+  TPropType = (
+    ptHumansHeadquarters, ptHumansBarracks,
+    ptMonstersHeadquarters, ptMonstersBarracks,
+    ptMine, ptTree, ptGrass, ptWater, ptCursor, ptTileFrame,
     ptMountain1, ptMountain2, ptMountain3, ptMountain4,
     ptMountain5, ptMountain6, ptMountain7, ptMountain8);
 
@@ -54,7 +56,7 @@ type
     FEditorShortcut: char;
     FPivot: TVector2Integer;
     FGLImage: TGLImage;
-    FCostWood, FRewardWood: Single;
+    FCostWood, FRewardWood: Cardinal;
     FInitialLife: Single;
     FNeutral: boolean;
     FFaction: TFaction;
@@ -64,8 +66,8 @@ type
     property Pivot: TVector2Integer read FPivot;
     property Name: string read FName;
     property EditorShortcut: char read FEditorShortcut;
-    property CostWood: Single read FCostWood;
-    property RewardWood: Single read FRewardWood;
+    property CostWood: Cardinal read FCostWood;
+    property RewardWood: Cardinal read FRewardWood;
     property InitialLife: Single read FInitialLife;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
@@ -100,6 +102,10 @@ type
 
 function PropTypeFromName(const AName: string): TPropType;
 
+const
+  Barracks: array [TFaction] of TPropType = (ptHumansBarracks, ptMonstersBarracks);
+  Headquarters: array [TFaction] of TPropType = (ptHumansHeadquarters, ptMonstersHeadquarters);
+
 implementation
 
 uses SysUtils, Math,
@@ -108,8 +114,9 @@ uses SysUtils, Math,
 
 const
   PropName: array [TPropType] of string =
-  ('humanHeadquarters', 'humanBarracks', 'mine',
-    'tree', 'grass', 'water', 'cursor', 'tileFrame',
+  ( 'humansHeadquarters', 'humansBarracks',
+    'monstersHeadquarters', 'monstersBarracks',
+    'mine', 'tree', 'grass', 'water', 'cursor', 'tileFrame',
     'mountain1', 'mountain2', 'mountain3', 'mountain4',
     'mountain5', 'mountain6', 'mountain7', 'mountain8');
 
@@ -135,9 +142,9 @@ begin
   FPivot[0] := GameConf.GetValue(ConfPath + '/pivot_x', Image.Width div 2);
   FPivot[1] := Image.Height - 1 - GameConf.GetValue(ConfPath + '/pivot_y', Image.Height div 2);
   EditorShortcutStr := GameConf.GetValue(ConfPath + '/editor_shortcut', '');
-  FCostWood := GameConf.GetFloat(ConfPath + '/cost_wood', 0.0);
+  FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 0.0);
-  FRewardWood := GameConf.GetFloat(ConfPath + '/reward_wood', 0.0);
+  FRewardWood := GameConf.GetValue(ConfPath + '/reward_wood', 0);
   FNeutral := GameConf.GetValue(ConfPath + '/neutral', true);
   if not FNeutral then
     FFaction := FactionFromName(GameConf.GetValue(ConfPath + '/faction', ''));

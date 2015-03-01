@@ -33,8 +33,9 @@ var
   ContainerWidth, ContainerHeight: Integer;
   GameTime: TFloatTime;
   VisualizationSceneManager: T2DSceneManager;
+  Wood: array [TFaction] of Single;
 
-function SideControlWidth: Integer;
+function PlayerSidebarWidth: Integer;
 
 const
   FactionName: array [TFaction] of string =
@@ -46,7 +47,7 @@ implementation
 
 uses SysUtils;
 
-function SideControlWidth: Integer;
+function PlayerSidebarWidth: Integer;
 begin
   Result := Round(ContainerWidth * 0.1);
 end;
