@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<game>
+<game faction_exclusive_moves="True" faction_exclusive_moves_duration="10">
   <initial wood="1004"/>
   <!--
     Props have constant size in map tiles for now: 1.

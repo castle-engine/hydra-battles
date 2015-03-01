@@ -47,7 +47,7 @@ var
 implementation
 
 uses SysUtils,
-  CastleFilesUtils, CastleRectangles, CastleUtils,
+  CastleFilesUtils, CastleRectangles, CastleUtils, CastleGameNotifications,
   GameUtils, GameStatePlay;
 
 const
@@ -87,6 +87,7 @@ begin
   Window.Controls.InsertFront(Background);
   Window.Controls.InsertFront(PlayButtonSmall);
   Window.Controls.InsertFront(PlayButtonLarge);
+  Window.Controls.InsertFront(Notifications);
 end;
 
 procedure TStateMainMenu.Finish;
@@ -94,6 +95,7 @@ begin
   Window.Controls.Remove(Background);
   Window.Controls.Remove(PlayButtonSmall);
   Window.Controls.Remove(PlayButtonLarge);
+  Window.Controls.Remove(Notifications);
   inherited;
 end;
 

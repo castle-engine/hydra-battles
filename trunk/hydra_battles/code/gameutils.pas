@@ -38,6 +38,9 @@ var
   VisualizationSceneManager: T2DSceneManager;
   Wood: array [TFaction] of Single;
 
+  FactionExclusiveMoves: boolean;
+  FactionExclusiveMovesDuration: TFloatTime;
+
 function PlayerSidebarWidth: Integer;
 
 const
@@ -53,6 +56,8 @@ procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
 
 const
   FactionBarColor: array [TFaction] of TCastleColor = ((0.1, 0.1, 1, 1), (1, 0.1, 0.1, 1));
+
+function FactionCanMove(const F: TFaction): boolean;
 
 implementation
 
@@ -90,6 +95,12 @@ begin
   if Top then
     Result.Bottom := R.Top else
     Result.Bottom := R.Bottom - Result.Height;
+end;
+
+function FactionCanMove(const F: TFaction): boolean;
+begin
+  Result := (not FactionExclusiveMoves) or
+    ( (Trunc(GameTime / FactionExclusiveMovesDuration) mod 2) = Ord(F) );
 end;
 
 end.
