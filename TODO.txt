@@ -8,6 +8,7 @@ Hm, albo mine będzie wspólne na środku planszy dla obu graczy?
 only your own paths are uncrossable? or enemy too?
 tryb "na zmiane", 5 sek na ruch
 peasant should go to hq and back
+gold mines have no use now, and also peasants don't have gold caryy animation
 
 gfx:
 drops with numbers (from ds?) when hit
