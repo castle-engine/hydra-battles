@@ -1,21 +1,49 @@
 todo:
-game over
+  game over
 
 gameplay:
-Hm, albo mine będzie wspólne na środku planszy dla obu graczy?
-only your own paths are uncrossable? or enemy too?
-tryb "na zmiane", 5 sek na ruch
-peasant should go to hq and back
-gold mines have no use now, and also peasants don't have gold caryy animation
+  gold mine implement
+    mine będzie wspólne na środku planszy dla obu graczy?
+    peasants need gold carry anim too
+  test gameplay: only your own paths are uncrossable
+  peasant should go to hq and back with wood
+  asymmetric balance?
 
 gfx:
-drops with numbers (from ds?) when hit
-water is ugly
-2 layers, to allow water/grass under props like trees?
-visualize line flow dir, Konrad ideas
-zgliszcza po zniszczeniu budynków
-plansze moga zawiera duze elementy gfx, jak specjalna rzeźba albo arena, murki, krainy w stylu diablo etc.
-  ogolnie, znajdz dowolny set isometric, i można się bawić...
+  title on title screen
+  drops with numbers (from ds?) when hit
+  2 layers, to allow water/grass under props like trees?
+  visualize line flow dir, Konrad ideas
+  zgliszcza po zniszczeniu budynków
+  plansze moga zawiera duze elementy gfx, jak specjalna rzeźba albo arena, murki, krainy w stylu diablo etc.
+    ogolnie, znajdz dowolny set isometric, i można się bawić...
+  water
+  better buttons on sides to build/show timeout.
+    use some medieval/fps style buttons, without our weird color tint.
+    Maybe use icons for some stuff, e.g. to mark wood.
+  lines:
+  * Android line colors red/blue don't work
 
 code cleanup:
-TState can be just TUIControl at the bottom.
+  TState can be just TUIControl at the bottom.
+
+ui:
+  option on home screen to toggle view grid
+  choice whether to allow players play simultaneously
+    (big checkbox; make add checkbox to CastleControls?)
+  Screen while loading
+  Maybe special screen when loading gl resources in engine?
+  Button to jump to game url.
+    Make it also work on Android
+
+font:
+  Add scale param for Font.Print and all font.TextWidth/Height routines?.
+  add FontScale param to UI controls with font.
+
+large:
+  Gra vs bot
+  gra po sieci
+  add build murki
+
+More maps:
+- handle ok initial npcs or buildings
