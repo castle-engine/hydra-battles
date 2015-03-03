@@ -90,6 +90,8 @@ type
     function TryAttacking(const Map: TAbstractMap): boolean;
     procedure SetLife(const Value: Single);
     function CurrentAnimationFinished: boolean;
+    procedure SetAnimation(const Value: TAnimationType);
+    property Animation: TAnimationType read FAnimation write SetAnimation;
   public
     { Positon on map. Synchronized with Map.MapNpcs. }
     X, Y: Integer;
@@ -100,7 +102,6 @@ type
     property Path: TPath read FPath write SetPath;
     constructor Create(const ANpc: TNpc; const ADirection: TDirection);
     destructor Destroy; override;
-    procedure StartAnimation(const AnimType: TAnimationType);
     procedure Draw(ScreenRectangle: TRectangle);
     { Update, called every frame.
       This is the only place where you can change position (X, Y) of this NPC,
@@ -289,7 +290,7 @@ begin
   FNpc := ANpc;
   Life := Npc.InitialLife;
   Direction := ADirection;
-  StartAnimation(atIdle);
+  Animation := atIdle;
 end;
 
 destructor TNpcInstance.Destroy;
@@ -298,12 +299,17 @@ begin
   inherited;
 end;
 
-procedure TNpcInstance.StartAnimation(const AnimType: TAnimationType);
+procedure TNpcInstance.SetAnimation(const Value: TAnimationType);
 begin
-  if Npc.Animations[AnimType] = nil then
-    raise EInternalError.CreateFmt('Npc %s does not have animation %s', [Npc.Name, AnimationName[AnimType]]);
-  FAnimation := AnimType;
-  FAnimationStart := GameTime;
+  if FAnimation <> Value then
+  begin
+    if Npc.Animations[Value] = nil then
+      raise EInternalError.CreateFmt('Npc %s does not have animation %s',
+        [Npc.Name, AnimationName[Value]]);
+      FAnimation := Value;
+    FAnimation := Value;
+    FAnimationStart := GameTime;
+  end;
 end;
 
 procedure TNpcInstance.Draw(ScreenRectangle: TRectangle);
@@ -358,10 +364,6 @@ begin
       FreeAndNil(FPath);
     FPath := Value;
     PathProgress := 0.0;
-    if FPath <> nil then
-      StartAnimation(atWalk) else
-    if FAnimation = atWalk then // do not override attack
-      StartAnimation(atIdle);
   end;
 end;
 
@@ -378,7 +380,7 @@ function TNpcInstance.TryAttacking(const Map: TAbstractMap): boolean;
       { update Direction to attack target }
       if Neighbors(X, Y, AttackX, AttackY, Dir) then
         Direction := Dir;
-      StartAnimation(atAttack);
+      Animation := atAttack;
       TryAttacking := true;
       ContinueToNeighbors := false;
     end;
@@ -405,7 +407,7 @@ procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractM
     begin
       if Map.CanAttack(AttackTarget[0], AttackTarget[1], Npc.WantsToAttack) then
         Map.Attack(Npc.Faction, AttackTarget[0], AttackTarget[1], Npc.AttackConst + Random * Npc.AttackRandom);
-      StartAnimation(atIdle);
+      Animation := atIdle;
     end;
   end;
 
@@ -446,8 +448,6 @@ begin
         begin
           X := NextPoint[0];
           Y := NextPoint[1];
-          if NextPointIndex = FPath.Count - 1 then
-            Path := nil; // end of path
         end else
           Path := nil;
       end;
@@ -457,6 +457,11 @@ begin
   if (FPath <> nil) and (FPath.Count > 1) then
     UpdateDirection;
 
+  if (FPath <> nil) and
+     (FPath.Count > 0) and
+     (PathProgress > FPath.Count - 1) then
+    Path := nil; { path ended }
+
   if FPath = nil then
   begin
     if FAnimation = atAttack then
@@ -464,16 +469,18 @@ begin
     if FAnimation <> atAttack then
       TryAttacking(Map);
   end;
+
+  if FAnimation <> atAttack then // do not override attack
+    if (FPath <> nil) and (FPath.Count > 1) then
+      Animation := atWalk else
+      Animation := atIdle;
 end;
 
 procedure TNpcInstance.SetLife(const Value: Single);
-var
-  WasAlive: boolean;
 begin
-  WasAlive := FLife > 0;
   FLife := Value;
-  if WasAlive and (FLife <= 0) then
-    StartAnimation(atDie);
+  if FLife <= 0 then
+    Animation := atDie;
 end;
 
 function TNpcInstance.RemoveFromMap: boolean;
