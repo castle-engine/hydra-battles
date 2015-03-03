@@ -19,7 +19,6 @@
     <hemp02 url="trees/hemp02.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="h" caption="High-Quality Tree"/>
     <hemp03 url="trees/hemp03.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="j" caption="High-Quality Tree"/>
     <grass url="grass.png" pivot_y="28" editor_shortcut="g" caption="Grass"/>
-    <water url="water.png" editor_shortcut="w" caption="Water"/>
     <mountain1 url="mountain_1.png" editor_shortcut="1" caption="Mountains"/>
     <mountain2 url="mountain_2.png" editor_shortcut="2" caption="Mountains"/>
     <mountain3 url="mountain_3.png" editor_shortcut="3" caption="Mountains"/>
