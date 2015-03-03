@@ -1,6 +1,3 @@
-todo:
-  game over
-
 gameplay:
   gold mine implement
     mine będzie wspólne na środku planszy dla obu graczy?
