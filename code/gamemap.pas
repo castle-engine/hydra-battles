@@ -329,6 +329,8 @@ begin
     // OldPropInstance := nil; // useless
   end;
 
+  Assert(MapProps[X, Y] = nil);
+
   if NewPropInstance <> nil then
   begin
     PropInstances.Add(NewPropInstance);
