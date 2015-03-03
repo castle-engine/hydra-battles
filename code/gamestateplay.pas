@@ -22,6 +22,7 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
+  CastleColors, CastleUIControls,
   GameStates, GameMap, GameNpcs, GamePath, GameProps, GameUtils,
   GamePlayerSidebar;
 
@@ -35,6 +36,13 @@ type
 
   TStatePlay = class(TState)
   private
+  type
+    TFadeControl = class(TUIControl)
+    public
+      Color: TCastleColor;
+      procedure Render; override;
+    end;
+  var
     Status: TCastleLabel;
     Props: TProps;
     Map: TMap;
@@ -43,7 +51,12 @@ type
     CurrentPaths: TCurrentPaths;
     CurrentDraggedProps: TCurrentDraggedProps;
     Sidebar: array [TFaction] of TPlayerSidebar;
+    GameOver: boolean;
+    GameOverButton: TCastleButton;
+    GameOverColor: TCastleColor;
+    FadeControl: TFadeControl;
     function NpcFromPath(const Path: TPath): TNpcInstance;
+    procedure GameOverClick(Sender: TObject);
   public
     StartMapName: string;
     constructor Create(AOwner: TComponent); override;
@@ -65,9 +78,17 @@ implementation
 
 uses SysUtils,
   CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
-  CastleColors, CastleUIControls, CastleUtils, CastleGLUtils,
+  CastleUtils, CastleGLUtils,
   CastleGLImages, CastleStringUtils, CastleRectangles, CastleGameNotifications,
   GameStateMainMenu, GameAbstractMap;
+
+{ TFadeControl --------------------------------------------------------------- }
+
+procedure TStatePlay.TFadeControl.Render;
+begin
+  inherited;
+  GLFadeRectangle(Container.Rect, Color, 1);
+end;
 
 { TStatePlay ----------------------------------------------------------------- }
 
@@ -122,6 +143,8 @@ begin
 
   FactionExclusiveMoves := GameConf.GetValue('faction_exclusive_moves', false);
   FactionExclusiveMovesDuration := GameConf.GetValue('faction_exclusive_moves_duration', 1);
+
+  GameOver := false;
 end;
 
 procedure TStatePlay.Finish;
@@ -148,12 +171,14 @@ begin
   for FT := Low(FT) to High(FT) do
     FreeAndNil(Sidebar[FT]);
   Window.Controls.Remove(Notifications);
+  FreeAndNil(GameOverButton);
+  FreeAndNil(FadeControl);
   inherited;
 end;
 
 procedure TStatePlay.Resize;
 var
-  R: TRectangle;
+  R, GameOverButtonRect: TRectangle;
 begin
   inherited;
 
@@ -171,11 +196,42 @@ begin
   Sidebar[ftMonsters].Left := R.Right;
   Sidebar[ftMonsters].Bottom := R.Bottom;
   Sidebar[ftMonsters].Height := R.Height;
+
+  if GameOverButton <> nil then
+  begin
+    GameOverButtonRect := R.Grow(-R.Width div 4, -R.Height div 4);
+    GameOverButton.Left := GameOverButtonRect.Left;
+    GameOverButton.Bottom := GameOverButtonRect.Bottom;
+    GameOverButton.Width := GameOverButtonRect.Width;
+    GameOverButton.Height := GameOverButtonRect.Height;
+  end;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single);
+
+  function GameLost(const F: TFaction): boolean;
+  var
+    I: Integer;
+  begin
+    for I := 0 to Map.NpcInstances.Count - 1 do
+      if Map.NpcInstances[I].Npc.Faction = F then
+        Exit(false);
+
+    for I := 0 to Map.PropInstances.Count - 1 do
+      if (not Map.PropInstances[I].Prop.Neutral) and
+         (Map.PropInstances[I].Prop.Faction = F) then
+        Exit(false);
+
+    if Trunc(Wood[F]) > Props[Headquarters[F]].CostWood then
+      Exit(false);
+
+    { no npcs, no buildings, no money to build hq -> lost }
+    Result := true;
+  end;
+
 var
-  S: string;
+  S, GameOverMessage: string;
+  HumansLost, MonstersLost: boolean;
 begin
   inherited;
 
@@ -185,6 +241,44 @@ begin
   Status.AlignVertical(prTop, prTop);
 
   GameTime += SecondsPassed;
+
+  if not GameOver then
+  begin
+    HumansLost := GameLost(ftHumans);
+    MonstersLost := GameLost(ftMonsters);
+    if HumansLost and not MonstersLost then
+    begin
+      GameOver := true;
+      GameOverMessage := 'Humans Lost!';
+      GameOverColor := Red;
+    end else
+    if (not HumansLost) and MonstersLost then
+    begin
+      GameOver := true;
+      GameOverMessage := 'Monsters Lost!';
+      GameOverColor := Blue;
+    end else
+    if HumansLost and MonstersLost then
+    begin
+      GameOver := true;
+      GameOverMessage := 'Both factions lost, draw!';
+      GameOverColor := Gray;
+    end;
+    if GameOver then
+    begin
+      FadeControl := TFadeControl.Create(Self);
+      FadeControl.Color := GameOverColor;
+      Window.Controls.InsertFront(FadeControl);
+
+      GameOverButton := TCastleButton.Create(Self);
+      GameOverButton.AutoSize := false;
+      GameOverButton.OnClick := @GameOverClick;
+      GameOverButton.Caption := GameOverMessage;
+      Window.Controls.InsertFront(GameOverButton);
+
+      Resize; // set GameOverButton sizes
+    end;
+  end;
 
   Window.Invalidate;
 end;
@@ -449,6 +543,11 @@ begin
   if Npcs <> nil then
     Npcs.GLContextClose;
   inherited;
+end;
+
+procedure TStatePlay.GameOverClick(Sender: TObject);
+begin
+  TState.Current := StateMainMenu;
 end;
 
 end.
