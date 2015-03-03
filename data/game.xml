@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <game faction_exclusive_moves="True" faction_exclusive_moves_duration="10">
-  <initial wood="1004"/>
   <!--
     Props have constant size in map tiles for now: 1.
     Pivot (what image pixel corresponds to the middle of tile)
@@ -35,6 +34,7 @@
   </props>
   <maps>
     <small width="10" height="20" background="tileable-img_0062.png">
+      <initial wood="1004"/>
       <tile_0_0/>
       <tile_2_2 name="bigtree01"/>
       <tile_4_4 name="bigtree01"/>
@@ -111,6 +111,7 @@
       <tile_9_18 name="hemp02"/>
     </small>
     <large width="20" height="40" background="fastgras01.png">
+      <initial wood="1004"/>
       <tile_0_6 name="bigtree01"/>
       <tile_0_7 name="bigtree01"/>
       <tile_0_8 name="bigtree01"/>

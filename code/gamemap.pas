@@ -42,6 +42,7 @@ type
   strict private
     FProps: TProps;
     FNpcs: TNpcs;
+    FInitialWood: Cardinal;
     { Possible props on map. }
     property Props: TProps read FProps;
     //property Npcs: TNpcs read FNpcs;
@@ -66,6 +67,7 @@ type
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
     function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; override;
     procedure Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single); override;
+    property InitialWood: Cardinal read FInitialWood;
   end;
 
 implementation
@@ -145,6 +147,8 @@ begin
         MapProps[X, Y] := nil else
         SetPropInstance(X, Y, TPropInstance.Create(Props[PropTypeFromName(PropName)]));
     end;
+
+  FInitialWood := GameConf.GetValue(ConfPath + '/initial/wood', 0);
 end;
 
 destructor TMap.Destroy;

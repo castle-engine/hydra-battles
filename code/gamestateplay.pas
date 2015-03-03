@@ -76,7 +76,6 @@ end;
 
 procedure TStatePlay.Start;
 var
-  IntialWood: Single;
   FT: TFaction;
 begin
   inherited;
@@ -113,13 +112,11 @@ begin
   begin
     Sidebar[FT] := TPlayerSidebar.Create(Self, FT, Props);
     Window.Controls.InsertFront(Sidebar[FT]);
+
+    Wood[FT] := Map.InitialWood;
   end;
 
   Window.Controls.InsertFront(Notifications);
-
-  IntialWood := GameConf.GetValue('initial/wood', 0);
-  Wood[ftHumans] := IntialWood;
-  Wood[ftMonsters] := IntialWood;
 
   FactionExclusiveMoves := GameConf.GetValue('faction_exclusive_moves', false);
   FactionExclusiveMovesDuration := GameConf.GetFloat('faction_exclusive_moves_duration', 1.0);
