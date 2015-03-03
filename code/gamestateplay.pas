@@ -339,6 +339,8 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
           DragProp := TDraggedProp.Create(Self);
           DragProp.Map := Map;
           DragProp.Prop := DraggingPropType;
+          DragProp.X := -1;
+          DragProp.Y := -1;
           Window.Controls.InsertFront(DragProp);
           CurrentDraggedProps[Event.FingerIndex] := DragProp;
         end;
