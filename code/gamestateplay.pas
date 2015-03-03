@@ -355,13 +355,6 @@ end;
 
 procedure TStatePlay.Motion(const Event: TInputMotion);
 
-  { Break drawing current Path under Event.FingerIndex. }
-  procedure BreakPath(const Path: TPath; const PathNpc: TNpcInstance);
-  begin
-    CurrentPaths.Remove(Event.FingerIndex);
-    // PathNpc.Path := nil; // do not cancel the path, not necessary
-  end;
-
   procedure TryDraggingSidebar;
   var
     I: Integer;
@@ -401,13 +394,11 @@ begin
       CurrentPaths.Remove(Event.FingerIndex) else
     begin
       MapRect := Map.Rect;
-      if not Map.PositionToTile(MapRect, Event.Position, X, Y) then
-        BreakPath(CurrentPath, PathNpc) else
+      if Map.PositionToTile(MapRect, Event.Position, X, Y) then
       begin
         Map.EditCursor[0] := X;
         Map.EditCursor[1] := Y;
-        if not CurrentPath.Add(X, Y) then
-          BreakPath(CurrentPath, PathNpc);
+        CurrentPath.Add(X, Y);
       end;
     end;
   end;
