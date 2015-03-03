@@ -3,15 +3,18 @@ Hydra Battles
 
 RTS (real-time strategy) game for 2 players, with some twists. Players gather resources and attack the other player, also drawing lines to hinder the other player movement. Both players play on the same screen (no scrolling).
 
-Like in a classic RTS games, you have headquarters, you command peasants to gather resources (wood), you can build buildings (barracks) and train soldiers and command them to attack. It is a strategy (how to divide your resources, what to build/train), and it's real-time (time flies regardless what you do).
+Playing
+=======
 
-*Then, there's a twist*: When you command a peasant or soldier to go somewhere, you draw a line on a screen. This line cannot be crossed by other commands. This way you may make it difficult for other player (and yourself) to make other commands (to gather resources or attack you).
+Like in a classic RTS games, you have headquarters, you command peasants to gather resources (wood), you can build buildings (barracks) and train soldiers and command them to attack. You plan how to divide your resources, what to build/train, while the time is ticking.
 
-Drawing lines is made comfortable. By drawing correct, long lines, you not only direct your units, but also make it more difficult for other player to win.
+Build buildings by dragging them from the sidebar.
 
-Works on a touch screen with multi-touch (like on Android).
+Train units by clicking on a building (HQ train peasants, barracks train warriors).
 
-Graphics: isometric graphics, mostly from http://opengameart.org/ .
+*Then, the twist*: When you command NPC (a peasant or a soldier) to go somewhere, you draw a line on the screen. This line cannot be crossed by other commands. This way you may make it difficult for other player (and yourself) to make other commands (to gather resources or attack you).
+
+By drawing correct, long lines, you not only direct your units, but also make it more difficult for other player to win. Line drawing works very nice with a mouse or a multi-touch touch screen (like on Android).
 
 You can play in "free for all" mode (faction_exclusive_moves = false in game.xml) where both players can move all the time. Note that the game works on Android with multi-touch, playing on a large touch screen is very comfortable. Or you can play with faction_exclusive_moves = true, where each player has 10 seconds to performs his/her move. The latter is useful to play on PC with a single mouse.
 
@@ -45,8 +48,11 @@ Generally useful keys:
 Author
 ======
 
+Design and programming:
 Michalis Kamburelis
 
-Done during a 48h gamejam.
+Created during a 48h gamejam.
 
 Using Castle Game Engine, http://castle-engine.sourceforge.net/
+
+Graphics: isometric graphics, using assets mostly from http://opengameart.org/ . See AUTHORS.txt file for links.
