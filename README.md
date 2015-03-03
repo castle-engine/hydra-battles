@@ -28,20 +28,19 @@ Level editor
 Editor is included.
 
 Editor keys:
-  E - on/off editor
-  S - save edited maps to file
-  arrows keys - move editor cursor
-  use the names of props (see data/game.xml for editor_shortcut),
-    like "t" for tree, 1-8 for mountains
-  0 - random mountain
-  space - clear
-  N - random npc
+* E - on/off editor
+* S - save edited maps to file
+* arrows keys - move editor cursor
+* use the names of props (see data/game.xml for editor_shortcut), like "t" for tree, 1-8 for mountains
+* 0 - random mountain
+* space - clear
+* N - random npc
 
-  To design a proper map, place only "normal" neutral props on a map. Do not place NPCs or player buildings (headquarters, barracks). The code is not ready now to handle them Ok in initial positions.
+To design a proper map, place only "normal" neutral props on a map. Do not place NPCs or player buildings (headquarters, barracks). The code is not ready now to handle them Ok in initial positions.
 
 Generally useful keys:
-  F5 - save screen
-  G - on/off grid
+* F5 - save screen
+* G - on/off grid
 
 Author
 ======
