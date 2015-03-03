@@ -236,7 +236,13 @@ function TMap.ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): bo
 var
   I: Integer;
 begin
-  if not ValidCoord(X, Y) then Exit(false);
+  { prevent moving/building outside the map, and also right on the border
+    of the map (that is partially not rendered) }
+  if not (
+      (X > 0) and (X < Width  - 1) and
+      (Y > 0) and (Y < Height - 1)) then
+    Exit(false);
+
   if MapProps[X, Y] <> nil then Exit(false);
   if (MapNpcs[X, Y] <> nil) and
      (MapNpcs[X, Y] <> OmitNpcInstance) then

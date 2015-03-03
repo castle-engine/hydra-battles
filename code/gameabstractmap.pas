@@ -44,6 +44,10 @@ type
     function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
     function Neighbors(const X1, Y1, X2, Y2: Cardinal;  out Dir: TDirection): boolean;
     function Neighbors(const P1, P2: TVector2SmallInt;  out Dir: TDirection): boolean;
+    { Can you place an NPC or a prop on this tile.
+      This should be used to test can you place anything on a tile during a game
+      (during editing, when placing stuff in editor mode, rules are somewhat
+      more liberal, and this method shouldn't be used). }
     function ValidTile(const X, Y: Integer; const OmitNpcInstance: TObject): boolean; virtual; abstract;
     function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; virtual; abstract;
     procedure Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single); virtual; abstract;

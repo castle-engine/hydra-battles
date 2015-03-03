@@ -324,8 +324,8 @@ procedure TStatePlay.Release(const Event: TInputPressRelease);
             Wood[DragProp.Prop.Faction] -= DragProp.Prop.CostWood;
             Map.SetPropInstance(DragProp.X, DragProp.Y, TPropInstance.Create(DragProp.Prop));
           end else
-            Notifications.Show(Format('Cannot build "%s" there, position is blocked',
-              [DragProp.Prop.Name]));
+            Notifications.Show(Format('Cannot build "%s" at this place (blocked)',
+              [DragProp.Prop.Caption]));
         end;
       end;
 
