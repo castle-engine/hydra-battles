@@ -23,7 +23,7 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
-  CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
+  CastleGLImages, CastleUIControls, CastleRectangles,
   GameUtils, GameAbstractMap, GameNpcs;
 
 type
@@ -150,9 +150,9 @@ const
 
 implementation
 
-uses SysUtils, Math,
-  CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog, CastleGameNotifications;
+uses SysUtils,
+  CastleScene, CastleFilesUtils, CastleGLUtils,
+  CastleColors, CastleUtils, CastleStringUtils, CastleGameNotifications;
 
 const
   PropName: array [TPropType] of string =

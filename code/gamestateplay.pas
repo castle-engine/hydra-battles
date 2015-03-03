@@ -77,7 +77,7 @@ var
 implementation
 
 uses SysUtils,
-  CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
+  CastleScene, CastleVectors, CastleFilesUtils,
   CastleUtils, CastleGLUtils,
   CastleGLImages, CastleStringUtils, CastleRectangles, CastleGameNotifications,
   GameStateMainMenu, GameAbstractMap;

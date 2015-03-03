@@ -22,8 +22,8 @@ interface
 
 implementation
 
-uses SysUtils, CastleWindowTouch, CastleWindow, CastleScene, CastleControls,
-  CastleFilesUtils, CastleSceneCore, CastleKeysMouse, CastleConfig,
+uses SysUtils, CastleWindow, CastleScene, CastleControls,
+  CastleFilesUtils, CastleKeysMouse, CastleConfig,
   CastleLog, CastleProgress, CastleWindowProgress, CastleUtils, CastleSceneManager,
   GameUtils, GameStatePlay, GameStateMainMenu, GameStates;
 

@@ -18,7 +18,7 @@ unit GameStates;
 
 interface
 
-uses Classes, FGL,
+uses Classes,
   CastleConfig, CastleKeysMouse;
 
 type

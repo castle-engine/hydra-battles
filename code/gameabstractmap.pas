@@ -20,7 +20,7 @@ unit GameAbstractMap;
 
 interface
 
-uses CastleVectors, Castle2DSceneManager, CastleUIControls, CastleRectangles,
+uses CastleVectors, CastleUIControls, CastleRectangles,
   GameUtils;
 
 const

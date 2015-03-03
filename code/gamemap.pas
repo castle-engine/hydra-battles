@@ -73,9 +73,9 @@ type
 
 implementation
 
-uses SysUtils, Math,
-  CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleLog;
+uses SysUtils,
+  CastleScene, CastleFilesUtils, CastleGLUtils,
+  CastleUtils, CastleStringUtils, CastleLog;
 
 { TMapBackground ------------------------------------------------------------- }
 

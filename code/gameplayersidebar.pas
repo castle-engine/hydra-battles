@@ -48,7 +48,7 @@ type
 
 implementation
 
-uses SysUtils, Math,
+uses SysUtils,
   CastleColors, CastleFilesUtils, CastleControls, CastleGameNotifications,
   CastleGLUtils, CastleUtils;
 

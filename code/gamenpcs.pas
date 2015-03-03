@@ -91,6 +91,7 @@ type
     procedure SetLife(const Value: Single);
     function CurrentAnimationFinished: boolean;
     procedure SetAnimation(const Value: TAnimationType);
+    function CompletedPathProgress: Integer;
   public
     { Positon on map. Synchronized with Map.MapNpcs. }
     X, Y: Integer;
@@ -120,8 +121,8 @@ function NpcTypeFromName(const AName: string): TNpcType;
 
 implementation
 
-uses SysUtils, Math,
-  CastleScene, CastleFilesUtils, CastleSceneCore, CastleGLUtils, CastleWarnings,
+uses SysUtils,
+  CastleScene, CastleFilesUtils, CastleGLUtils, CastleWarnings,
   CastleColors, CastleUtils, CastleStringUtils, CastleLog;
 
 const
@@ -312,6 +313,11 @@ begin
   end;
 end;
 
+function TNpcInstance.CompletedPathProgress: Integer;
+begin
+  Result := Trunc(PathProgress);
+end;
+
 procedure TNpcInstance.Draw(ScreenRectangle: TRectangle);
 var
   AnimFrame: Integer;
@@ -341,9 +347,11 @@ begin
   ImageY := Ord(Direction) * Npc.TileHeight;
 
   Shift := ZeroVector2Single;
-  if (FPath <> nil) and (FPath.Count > 1) and (Trunc(PathProgress) < FPath.Count - 1) then
+  if (FPath <> nil) and
+     (FPath.Count > 1) and
+     (CompletedPathProgress < FPath.Count - 1) then
   begin
-    Diff := FPath.PointsVector(Trunc(PathProgress), Trunc(PathProgress) + 1);
+    Diff := FPath.PointsVector(CompletedPathProgress, CompletedPathProgress + 1);
     Shift := Diff * Frac(PathProgress);
   end;
   ScreenRectangle.Left += Round(Shift[0]);
@@ -417,8 +425,8 @@ procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractM
     PreviousPointIndex, NextPointIndex: Integer;
     Dir: TDirection;
   begin
-    PreviousPointIndex := Clamped(Trunc(PathProgress), 0, FPath.Count - 1);
-    NextPointIndex := Clamped(Trunc(PathProgress) + 1, 0, FPath.Count - 1);
+    PreviousPointIndex := Clamped(CompletedPathProgress, 0, FPath.Count - 1);
+    NextPointIndex := Clamped(CompletedPathProgress + 1, 0, FPath.Count - 1);
     if PreviousPointIndex < NextPointIndex then
     begin
       if Neighbors(FPath[PreviousPointIndex], FPath[NextPointIndex], Dir) then
@@ -440,7 +448,7 @@ begin
 
     if Trunc(OldPathProgress) <> Trunc(PathProgress) then
     begin
-      NextPointIndex := Clamped(Trunc(PathProgress), 0, FPath.Count - 1);
+      NextPointIndex := Clamped(CompletedPathProgress, 0, FPath.Count - 1);
       NextPoint := FPath[NextPointIndex];
       if (NextPoint[0] <> X) or (NextPoint[1] <> Y) then
       begin
