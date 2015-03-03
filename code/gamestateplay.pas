@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------------
 }
 
+{$modeswitch nestedprocvars}{$H+}
+
 { Game state to play actual game. }
 unit GameStatePlay;
 
@@ -65,7 +67,7 @@ uses SysUtils,
   CastleScene, CastleVectors, CastleFilesUtils, CastleSceneCore,
   CastleColors, CastleUIControls, CastleUtils, CastleGLUtils,
   CastleGLImages, CastleStringUtils, CastleRectangles, CastleGameNotifications,
-  GameStateMainMenu;
+  GameStateMainMenu, GameAbstractMap;
 
 { TStatePlay ----------------------------------------------------------------- }
 
@@ -189,17 +191,45 @@ end;
 
 procedure TStatePlay.Press(const Event: TInputPressRelease);
 
-  procedure TryDraggingSidebar;
+  function TryNpcDragging(const PathStartX, PathStartY: Integer): boolean;
+  var
+    NewPath: TPath;
+    Npc: TNpcInstance;
+  begin
+    Result :=
+      (Map.MapNpcs[PathStartX, PathStartY] <> nil) and
+      FactionCanMove((Map.MapNpcs[PathStartX, PathStartY].Npc.Faction));
+    if Result then
+    begin
+      Npc := Map.MapNpcs[PathStartX, PathStartY];
+      NewPath := TPath.Create(Map, PathStartX, PathStartY, Npc.Npc.Faction);
+      CurrentPaths[Event.FingerIndex] := NewPath;
+      Npc.Path := NewPath;
+    end;
+  end;
+
+  procedure TryNpcDraggingNeighbor(const PathStartX, PathStartY: Integer;
+    var ContinueToNeighbors: boolean);
+  begin
+    if TryNpcDragging(PathStartX, PathStartY) then
+      ContinueToNeighbors := false;
+  end;
+
+  function TryDraggingSidebar: boolean;
   var
     I: Integer;
     FT: TFaction;
     DraggingPropType: TProp;
     DragProp: TDraggedProp;
   begin
+    Result := false;
+
     for FT := Low(FT) to High(FT) do
       if Sidebar[FT].StartsDragging(Map.PropInstances, Event.Position,
         DraggingPropType) then
       begin
+        Result := true;
+
         I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
         if I <> -1 then
         begin
@@ -224,9 +254,7 @@ var
   PT: TPropType;
   Prop: TProp;
   RandomMountain: char;
-  NewPath: TPath;
-  PathStartX, PathStartY: Integer;
-  Npc: TNpcInstance;
+  MouseTileX, MouseTileY: Integer;
 begin
   inherited;
 
@@ -276,22 +304,22 @@ begin
 
   if Event.IsMouseButton(mbLeft) then
   begin
-    if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
-       (Map.MapNpcs[PathStartX, PathStartY] <> nil) and
-       FactionCanMove((Map.MapNpcs[PathStartX, PathStartY].Npc.Faction)) then
-    begin
-      Npc := Map.MapNpcs[PathStartX, PathStartY];
-      NewPath := TPath.Create(Map, PathStartX, PathStartY, Npc.Npc.Faction);
-      CurrentPaths[Event.FingerIndex] := NewPath;
-      Npc.Path := NewPath;
+    if TryDraggingSidebar then
       Exit;
+
+    if Map.PositionToTile(Map.Rect, Event.Position, MouseTileX, MouseTileY) then
+    begin
+      if TryNpcDragging(MouseTileX, MouseTileY) then
+        Exit;
+
+      if Map.MapProps[MouseTileX, MouseTileY] <> nil then
+      begin
+        Map.MapProps[MouseTileX, MouseTileY].StartTraining(Npcs);
+        Exit;
+      end;
+
+      HandleNeighbors(MouseTileX, MouseTileY, @TryNpcDraggingNeighbor);
     end;
-
-    TryDraggingSidebar;
-
-    if Map.PositionToTile(Map.Rect, Event.Position, PathStartX, PathStartY) and
-       (Map.MapProps[PathStartX, PathStartY] <> nil) then
-      Map.MapProps[PathStartX, PathStartY].StartTraining(Npcs);
   end;
 end;
 
