@@ -49,7 +49,7 @@ type
     ptMine,
     ptBigTree01, ptBigTree02, ptBigTree03,
     ptHemp01, ptHemp02, ptHemp03,
-    ptGrass, ptWater, ptCursor, ptCursorLight, ptTileFrame,
+    ptGrass, ptCursor, ptCursorLight, ptTileFrame,
     ptMountain1, ptMountain2, ptMountain3, ptMountain4,
     ptMountain5, ptMountain6, ptMountain7, ptMountain8);
 
@@ -160,7 +160,7 @@ const
     'monstersHeadquarters', 'monstersBarracks', 'mine',
     'bigtree01', 'bigtree02', 'bigtree03',
     'hemp01', 'hemp02', 'hemp03',
-    'grass', 'water', 'cursor', 'cursorLight', 'tileFrame',
+    'grass', 'cursor', 'cursorLight', 'tileFrame',
     'mountain1', 'mountain2', 'mountain3', 'mountain4',
     'mountain5', 'mountain6', 'mountain7', 'mountain8');
 
