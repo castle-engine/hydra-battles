@@ -91,10 +91,10 @@ type
     procedure SetLife(const Value: Single);
     function CurrentAnimationFinished: boolean;
     procedure SetAnimation(const Value: TAnimationType);
-    property Animation: TAnimationType read FAnimation write SetAnimation;
   public
     { Positon on map. Synchronized with Map.MapNpcs. }
     X, Y: Integer;
+    property Animation: TAnimationType read FAnimation write SetAnimation;
     property Npc: TNpc read FNpc;
     property Life: Single read FLife write SetLife;
     { Current path of this npc. Asssigning automatically frees previous path.
@@ -462,13 +462,12 @@ begin
      (PathProgress > FPath.Count - 1) then
     Path := nil; { path ended }
 
+  if FAnimation = atAttack then
+    TryFinishAttack;
+
   if FPath = nil then
-  begin
-    if FAnimation = atAttack then
-      TryFinishAttack;
     if FAnimation <> atAttack then
       TryAttacking(Map);
-  end;
 
   if FAnimation <> atAttack then // do not override attack
     if (FPath <> nil) and (FPath.Count > 1) then

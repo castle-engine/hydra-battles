@@ -293,6 +293,7 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
     Result :=
       Map.ValidCoord(PathStartX, PathStartY) and
       (Map.MapNpcs[PathStartX, PathStartY] <> nil) and
+      (Map.MapNpcs[PathStartX, PathStartY].Animation in [atWalk, atIdle, atWalkWood]) and
       FactionCanMove((Map.MapNpcs[PathStartX, PathStartY].Npc.Faction));
     if Result then
     begin
@@ -422,6 +423,33 @@ end;
 
 procedure TStatePlay.Release(const Event: TInputPressRelease);
 
+  procedure TryDraggingNpc;
+  var
+    CurrentPathIndex: Integer;
+    CurrentPath: TPath;
+    PathNpc: TNpcInstance;
+  begin
+    CurrentPathIndex := CurrentPaths.IndexOf(Event.FingerIndex);
+    if CurrentPathIndex <> -1 then
+    begin
+      CurrentPath := CurrentPaths.Data[CurrentPathIndex];
+      if CurrentPath <> nil then
+      begin
+        PathNpc := NpcFromPath(CurrentPath);
+        if PathNpc <> nil then
+        begin
+          { TODO: ugly to secure from it like this.
+            This means that Path was already freed in TNpcInstance,
+            and CurrentPaths contains reference to invalid object. }
+          { release empty paths, to not block npcs from initiating attack }
+          if CurrentPath.Count < 2 then
+            PathNpc.Path := nil;
+        end;
+      end;
+      CurrentPaths.Delete(CurrentPathIndex);
+    end;
+  end;
+
   procedure TryDraggingSidebar;
   var
     I: Integer;
@@ -463,7 +491,7 @@ begin
   inherited;
   if Event.IsMouseButton(mbLeft) then
   begin
-    CurrentPaths.Remove(Event.FingerIndex);
+    TryDraggingNpc;
     TryDraggingSidebar;
   end;
 end;
@@ -516,7 +544,7 @@ begin
       { TODO: ugly to detect it like this.
         This means that Path was already freed in TNpcInstance,
         and CurrentPaths contains reference to invalid object. }
-      CurrentPaths.Remove(Event.FingerIndex) else
+      CurrentPaths.Delete(PathUnderFingerIndex) else
     begin
       MapRect := Map.Rect;
       if Map.PositionToTile(MapRect, Event.Position, X, Y) then
