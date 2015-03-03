@@ -255,7 +255,7 @@ end;
 
 function TMap.CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean;
 begin
-  if not ValidCoord(X, Y) then Exit;
+  if not ValidCoord(X, Y) then Exit(false);
   case WantsToAttack of
     waHumans  :
       begin
