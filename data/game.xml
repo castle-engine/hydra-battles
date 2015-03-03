@@ -30,6 +30,7 @@
     <mountain8 url="mountain_8.png" editor_shortcut="8" caption="Mountains"/>
     <!-- special props -->
     <cursor url="cursor.png" caption="Cursor (Special)"/>
+    <cursorLight url="cursor_light.png" caption="Light Cursor (Special)"/>
     <tileFrame url="tile_frame.png" caption="Tile Frame (Special)"/>
   </props>
   <maps>

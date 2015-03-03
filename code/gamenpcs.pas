@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------------
 }
 
+{$modeswitch nestedprocvars}{$H+}
+
 { Game NPCs. }
 unit GameNpcs;
 
@@ -365,33 +367,25 @@ end;
 
 function TNpcInstance.TryAttacking(const Map: TAbstractMap): boolean;
 
-  function TestTryAttacking(const AttackX, AttackY: Integer): boolean;
+  procedure TestTryAttacking(const AttackX, AttackY: Integer;
+    var ContinueToNeighbors: boolean);
   var
     Dir: TDirection;
   begin
-    Result := Map.CanAttack(AttackX, AttackY, Npc.WantsToAttack);
-    if Result then
+    if Map.CanAttack(AttackX, AttackY, Npc.WantsToAttack) then
     begin
       AttackTarget := Vector2SmallInt(AttackX, AttackY);
       { update Direction to attack target }
-      if Map.Neighbors(X, Y, AttackX, AttackY, Dir) then
+      if Neighbors(X, Y, AttackX, AttackY, Dir) then
         Direction := Dir;
       StartAnimation(atAttack);
+      TryAttacking := true;
+      ContinueToNeighbors := false;
     end;
   end;
 
 begin
-  Result :=
-    TestTryAttacking(X + 1, Y    ) or
-    TestTryAttacking(X - 1, Y    ) or
-    TestTryAttacking(X    , Y + 1) or
-    TestTryAttacking(X    , Y - 1) or
-    TestTryAttacking(X    , Y + 2) or
-    TestTryAttacking(X    , Y - 2) or
-    (Odd(Y) and TestTryAttacking(X + 1, Y - 1)) or
-    (Odd(Y) and TestTryAttacking(X + 1, Y + 1)) or
-    ((not Odd(Y)) and TestTryAttacking(X - 1, Y - 1)) or
-    ((not Odd(Y)) and TestTryAttacking(X - 1, Y + 1));
+  HandleNeighbors(X, Y, @TestTryAttacking);
 end;
 
 function TNpcInstance.CurrentAnimationFinished: boolean;
@@ -425,7 +419,7 @@ procedure TNpcInstance.Update(const SecondsPassed: Single; const Map: TAbstractM
     NextPointIndex := Clamped(Trunc(PathProgress) + 1, 0, FPath.Count - 1);
     if PreviousPointIndex < NextPointIndex then
     begin
-      if Map.Neighbors(FPath[PreviousPointIndex], FPath[NextPointIndex], Dir) then
+      if Neighbors(FPath[PreviousPointIndex], FPath[NextPointIndex], Dir) then
         Direction := Dir;
     end;
   end;

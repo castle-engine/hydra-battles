@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------------
 }
 
+{$modeswitch nestedprocvars}{$H+}
+
 { Game props: things that don't move, but lie on map, and sometimes can be destroyed
   or harvested. Buldings and trees are special kinds of props. }
 unit GameProps;
@@ -47,7 +49,7 @@ type
     ptMine,
     ptBigTree01, ptBigTree02, ptBigTree03,
     ptHemp01, ptHemp02, ptHemp03,
-    ptGrass, ptWater, ptCursor, ptTileFrame,
+    ptGrass, ptWater, ptCursor, ptCursorLight, ptTileFrame,
     ptMountain1, ptMountain2, ptMountain3, ptMountain4,
     ptMountain5, ptMountain6, ptMountain7, ptMountain8);
 
@@ -158,7 +160,7 @@ const
     'monstersHeadquarters', 'monstersBarracks', 'mine',
     'bigtree01', 'bigtree02', 'bigtree03',
     'hemp01', 'hemp02', 'hemp03',
-    'grass', 'water', 'cursor', 'tileFrame',
+    'grass', 'water', 'cursor', 'cursorLight', 'tileFrame',
     'mountain1', 'mountain2', 'mountain3', 'mountain4',
     'mountain5', 'mountain6', 'mountain7', 'mountain8');
 
@@ -346,14 +348,15 @@ end;
 
 procedure TPropInstance.Update(const Map: TAbstractMap; out SpawnNpc: TNpc; out SpawnX, SpawnY: Integer);
 
-  function TestTrySpawning(const TrySpawnX, TrySpawnY: Integer): boolean;
+  procedure TestTrySpawning(const TrySpawnX, TrySpawnY: Integer;
+    var ContinueToNeighbors: boolean);
   begin
-    Result := Map.ValidTile(TrySpawnX, TrySpawnY, nil);
-    if Result then
+    if Map.ValidTile(TrySpawnX, TrySpawnY, nil) then
     begin
       SpawnX := TrySpawnX;
       SpawnY := TrySpawnY;
       SpawnNpc := FTrainingNpc;
+      ContinueToNeighbors := false;
     end;
   end;
 
@@ -361,17 +364,7 @@ begin
   SpawnNpc := nil;
   if FTraining and (GameTime > FTrainStart + Prop.TrainDuration) then
   begin
-    if TestTrySpawning(X + 1, Y    ) or
-       TestTrySpawning(X - 1, Y    ) or
-       TestTrySpawning(X    , Y + 1) or
-       TestTrySpawning(X    , Y - 1) or
-       TestTrySpawning(X    , Y + 2) or
-       TestTrySpawning(X    , Y - 2) or
-       (Odd(Y) and TestTrySpawning(X + 1, Y - 1)) or
-       (Odd(Y) and TestTrySpawning(X + 1, Y + 1)) or
-       ((not Odd(Y)) and TestTrySpawning(X - 1, Y - 1)) or
-       ((not Odd(Y)) and TestTrySpawning(X - 1, Y + 1)) then
-      { just return that we want to spawn };
+    HandleNeighbors(X, Y, @TestTrySpawning);
     FTraining := false;
   end;
 end;

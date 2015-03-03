@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------------
 }
 
+{$modeswitch nestedprocvars}{$H+}
+
 { Game map. }
 unit GameMap;
 
@@ -161,7 +163,19 @@ end;
 
 procedure TMap.Render;
 var
-  R, TileRect: TRectangle;
+  R: TRectangle;
+
+  procedure DrawLightCursor(const X, Y: Integer;
+    var ContinueToNeighbors: boolean);
+  var
+    TileRect: TRectangle;
+  begin
+    TileRect := GetTileRect(R, X, Y);
+    Props[ptCursorLight].Draw(TileRect);
+  end;
+
+var
+  TileRect: TRectangle;
   X, Y: Integer;
 begin
   inherited;
@@ -192,23 +206,8 @@ begin
   begin
     TileRect := GetTileRect(R, EditCursor[0], EditCursor[1]);
     Props[ptCursor].Draw(TileRect);
-
-    // test our neighbors logic is sensible
-    // RenderProp(EditCursor[0] + 1, EditCursor[1]    , Props[ptCursor]);
-    // RenderProp(EditCursor[0] - 1, EditCursor[1]    , Props[ptCursor]);
-    // RenderProp(EditCursor[0]    , EditCursor[1] + 1, Props[ptCursor]);
-    // RenderProp(EditCursor[0]    , EditCursor[1] - 1, Props[ptCursor]);
-    // RenderProp(EditCursor[0]    , EditCursor[1] + 2, Props[ptCursor]);
-    // RenderProp(EditCursor[0]    , EditCursor[1] - 2, Props[ptCursor]);
-    // if Odd(EditCursor[1]) then
-    // begin
-    //   RenderProp(EditCursor[0] + 1, EditCursor[1] - 1, Props[ptCursor]);
-    //   RenderProp(EditCursor[0] + 1, EditCursor[1] + 1, Props[ptCursor]);
-    // end else
-    // begin
-    //   RenderProp(EditCursor[0] - 1, EditCursor[1] - 1, Props[ptCursor]);
-    //   RenderProp(EditCursor[0] - 1, EditCursor[1] + 1, Props[ptCursor]);
-    // end;
+    { Show neighbors, to test our neighbor logic is Ok. }
+    HandleNeighbors(EditCursor[0], EditCursor[1], @DrawLightCursor);
   end;
 
   ScissorDisable;

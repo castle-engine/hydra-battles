@@ -127,7 +127,7 @@ function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
     TileMiddle := TileRect.Middle;
     Point3D := Vector3Single(TileMiddle[0] - MapRect.Left, TileMiddle[1] - MapRect.Bottom, PathZ);
 
-    if (LastLastX <> -1) and (LastLastY <> -1) and Map.Neighbors(LastLastX, LastLastY, X, Y) then
+    if (LastLastX <> -1) and (LastLastY <> -1) and Neighbors(LastLastX, LastLastY, X, Y) then
     begin
       { do not add new line point, only replace the last one. This smooths path. }
       Items[Count - 1] := Point2D;
@@ -162,7 +162,7 @@ begin
   if (X = LastX) and (Y = LastY) then
     Exit(true);
 
-  if (LastX <> -1) and (LastY <> -1) and not Map.Neighbors(LastX, LastY, X, Y) then
+  if (LastX <> -1) and (LastY <> -1) and not Neighbors(LastX, LastY, X, Y) then
     Exit(false);
   if (not AssumeValid) and (not Map.ValidTile(X, Y, nil)) then
     Exit(false);

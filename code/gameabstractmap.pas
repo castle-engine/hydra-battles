@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------------
 }
 
+{$modeswitch nestedprocvars}{$H+}
+
 { Abstract map, defines map and tile sizing algorithm. }
 unit GameAbstractMap;
 
@@ -41,9 +43,6 @@ type
     { Convert screen position to tile (returns false if outside the map. }
     function PositionToTile(const MapRect: TRectangle;
       ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
-    function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
-    function Neighbors(const X1, Y1, X2, Y2: Cardinal;  out Dir: TDirection): boolean;
-    function Neighbors(const P1, P2: TVector2SmallInt;  out Dir: TDirection): boolean;
     { Can you place an NPC or a prop on this tile.
       This should be used to test can you place anything on a tile during a game
       (during editing, when placing stuff in editor mode, rules are somewhat
@@ -52,6 +51,19 @@ type
     function CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean; virtual; abstract;
     procedure Attack(const Attacker: TFaction; const X, Y: Integer; const Damage: Single); virtual; abstract;
   end;
+
+type
+  TTileHandler = procedure (const X, Y: Integer;
+    var ContinueToNeighbors: boolean) is nested;
+
+{ Call Handler for all neighbors of tile X, Y.
+  Note that this doesn't look at map validity or even size,
+  so be sure to check X, Y inside. }
+procedure HandleNeighbors(const X, Y: Integer; const Handler: TTileHandler);
+
+function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+function Neighbors(const X1, Y1, X2, Y2: Cardinal;  out Dir: TDirection): boolean;
+function Neighbors(const P1, P2: TVector2SmallInt;  out Dir: TDirection): boolean;
 
 implementation
 
@@ -164,7 +176,7 @@ begin
             (Y >= 0) and (Y < Height);
 end;
 
-function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal;
+function Neighbors(const X1, Y1, X2, Y2: Cardinal;
   out Dir: TDirection): boolean;
 begin
   Result := false;
@@ -190,16 +202,41 @@ begin
     begin Result := true; Dir := dirNW; end;
 end;
 
-function TAbstractMap.Neighbors(const P1, P2: TVector2SmallInt; out Dir: TDirection): boolean;
+function Neighbors(const P1, P2: TVector2SmallInt; out Dir: TDirection): boolean;
 begin
   Result := Neighbors(P1[0], P1[1], P2[0], P2[1], Dir);
 end;
 
-function TAbstractMap.Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
+function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;
 var
   Dir: TDirection;
 begin
   Result := Neighbors(X1, Y1, X2, Y2, Dir);
+end;
+
+{ global routines ------------------------------------------------------------ }
+
+procedure HandleNeighbors(const X, Y: Integer; const Handler: TTileHandler);
+var
+  ContinueToNeighbors: boolean;
+begin
+  ContinueToNeighbors := true;
+  Handler(X + 1, Y    , ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  Handler(X - 1, Y    , ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  Handler(X    , Y + 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  Handler(X    , Y - 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  Handler(X    , Y + 2, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  Handler(X    , Y - 2, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  if Odd(Y) then
+  begin
+    Handler(X + 1, Y - 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+    Handler(X + 1, Y + 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  end;
+  if not Odd(Y) then
+  begin
+    Handler(X - 1, Y - 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+    Handler(X - 1, Y + 1, ContinueToNeighbors); if not ContinueToNeighbors then Exit;
+  end;
 end;
 
 end.
