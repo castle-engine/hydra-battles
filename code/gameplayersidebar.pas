@@ -124,7 +124,8 @@ begin
     0, prMiddle, prMiddle);
 end;
 
-function TPlayerSidebar.StartsDragging(const ScreenPosition: TVector2Single; out Prop: TPropType): boolean;
+function TPlayerSidebar.StartsDragging(const ScreenPosition: TVector2Single;
+  out Prop: TPropType): boolean;
 var
   BDH: Integer;
   R: TRectangle;
@@ -132,7 +133,7 @@ begin
   BDH := Round(BuildingDragHeight * Height);
   Result := false;
 
-  R := Rectangle(Left, Height - 2 * BDH, PlayerSidebarWidth, BDH);
+  R := Rectangle(Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Barracks[Faction];
@@ -141,7 +142,7 @@ begin
       Result := true;
   end;
 
-  R := Rectangle(Left, Height - BDH, PlayerSidebarWidth, BDH);
+  R := Rectangle(Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Headquarters[Faction];
