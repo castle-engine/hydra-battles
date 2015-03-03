@@ -8,30 +8,30 @@
     pivot_y is measured from image top (like in GIMP).
   -->
   <props>
-    <humansHeadquarters url="hq_humans.png" train="peasant" faction="humans" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="h"/>
-    <humansBarracks url="barracks_humans.png" train="warrior" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="b"/>
-    <monstersHeadquarters url="hq_monsters.png" train="peasant" faction="monsters" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="H"/>
-    <monstersBarracks url="barracks_monsters.png" train="warrior" faction="monsters" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="B"/>
-    <mine url="gold_mine_1.png" editor_shortcut="m"/>
-    <bigtree01 url="trees/bigtree01.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="t"/>
-    <bigtree02 url="trees/bigtree02.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="y"/>
-    <bigtree03 url="trees/bigtree03.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="u"/>
-    <hemp01 url="trees/hemp01.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="g"/>
-    <hemp02 url="trees/hemp02.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="h"/>
-    <hemp03 url="trees/hemp03.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="j"/>
-    <grass url="grass.png" pivot_y="28" editor_shortcut="g"/>
-    <water url="water.png" editor_shortcut="w"/>
-    <mountain1 url="mountain_1.png" editor_shortcut="1"/>
-    <mountain2 url="mountain_2.png" editor_shortcut="2"/>
-    <mountain3 url="mountain_3.png" editor_shortcut="3"/>
-    <mountain4 url="mountain_4.png" editor_shortcut="4"/>
-    <mountain5 url="mountain_5.png" editor_shortcut="5"/>
-    <mountain6 url="mountain_6.png" editor_shortcut="6"/>
-    <mountain7 url="mountain_7.png" editor_shortcut="7"/>
-    <mountain8 url="mountain_8.png" editor_shortcut="8"/>
+    <humansHeadquarters url="hq_humans.png" train="peasant" faction="humans" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="h" caption="Human Headquarters (HQ)"/>
+    <humansBarracks url="barracks_humans.png" train="warrior" faction="humans" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="b" caption="Human Barracks"/>
+    <monstersHeadquarters url="hq_monsters.png" train="peasant" faction="monsters" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="H" caption="Monster Headquarters (HQ)"/>
+    <monstersBarracks url="barracks_monsters.png" train="warrior" faction="monsters" neutral="false" pivot_y="110" cost_wood="10" initial_life="500" train_duration="4" editor_shortcut="B" caption="Monster Barracks"/>
+    <mine url="gold_mine_1.png" editor_shortcut="m" caption="Gold Mine"/>
+    <bigtree01 url="trees/bigtree01.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="t" caption="Tree"/>
+    <bigtree02 url="trees/bigtree02.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="y" caption="Tree"/>
+    <bigtree03 url="trees/bigtree03.png" scale="1.2" reward_wood="1" initial_life="1" editor_shortcut="u" caption="Tree"/>
+    <hemp01 url="trees/hemp01.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="g" caption="High-Quality Tree"/>
+    <hemp02 url="trees/hemp02.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="h" caption="High-Quality Tree"/>
+    <hemp03 url="trees/hemp03.png" scale="2.2" reward_wood="2" initial_life="1" editor_shortcut="j" caption="High-Quality Tree"/>
+    <grass url="grass.png" pivot_y="28" editor_shortcut="g" caption="Grass"/>
+    <water url="water.png" editor_shortcut="w" caption="Water"/>
+    <mountain1 url="mountain_1.png" editor_shortcut="1" caption="Mountains"/>
+    <mountain2 url="mountain_2.png" editor_shortcut="2" caption="Mountains"/>
+    <mountain3 url="mountain_3.png" editor_shortcut="3" caption="Mountains"/>
+    <mountain4 url="mountain_4.png" editor_shortcut="4" caption="Mountains"/>
+    <mountain5 url="mountain_5.png" editor_shortcut="5" caption="Mountains"/>
+    <mountain6 url="mountain_6.png" editor_shortcut="6" caption="Mountains"/>
+    <mountain7 url="mountain_7.png" editor_shortcut="7" caption="Mountains"/>
+    <mountain8 url="mountain_8.png" editor_shortcut="8" caption="Mountains"/>
     <!-- special props -->
-    <cursor url="cursor.png"/>
-    <tileFrame url="tile_frame.png"/>
+    <cursor url="cursor.png" caption="Cursor (Special)"/>
+    <tileFrame url="tile_frame.png" caption="Tile Frame (Special)"/>
   </props>
   <maps>
     <small width="10" height="20" background="tileable-img_0062.png">

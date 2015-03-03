@@ -41,7 +41,9 @@ type
     procedure Render; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
-    function StartsDragging(const ScreenPosition: TVector2Single; out Prop: TPropType): boolean;
+    function StartsDragging(
+      const PropInstances: TPropInstanceList;
+      const ScreenPosition: TVector2Single; out Prop: TProp): boolean;
   end;
 
 implementation
@@ -124,8 +126,9 @@ begin
     0, prMiddle, prMiddle);
 end;
 
-function TPlayerSidebar.StartsDragging(const ScreenPosition: TVector2Single;
-  out Prop: TPropType): boolean;
+function TPlayerSidebar.StartsDragging(
+  const PropInstances: TPropInstanceList;
+  const ScreenPosition: TVector2Single; out Prop: TProp): boolean;
 var
   BDH: Integer;
   R: TRectangle;
@@ -136,19 +139,15 @@ begin
   R := Rectangle(Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
-    Prop := Barracks[Faction];
-    if Trunc(Wood[Faction]) < Props[Prop].CostWood then
-      Notifications.Show(Format('Not enough wood to buy Barracks by faction "%s"', [FactionName[Faction]])) else
-      Result := true;
+    Prop := Props[Barracks[Faction]];
+    Result := Prop.CanBuild(PropInstances);
   end;
 
   R := Rectangle(Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
-    Prop := Headquarters[Faction];
-    if Trunc(Wood[Faction]) < Props[Prop].CostWood then
-      Notifications.Show(Format('Not enough wood to buy Headquarters by faction "%s"', [FactionName[Faction]])) else
-      Result := true;
+    Prop := Props[Headquarters[Faction]];
+    Result := Prop.CanBuild(PropInstances);
   end;
 end;
 

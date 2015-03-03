@@ -196,11 +196,12 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
   var
     I: Integer;
     FT: TFaction;
-    DraggingPropType: TPropType;
+    DraggingPropType: TProp;
     DragProp: TDraggedProp;
   begin
     for FT := Low(FT) to High(FT) do
-      if Sidebar[FT].StartsDragging(Event.Position, DraggingPropType) then
+      if Sidebar[FT].StartsDragging(Map.PropInstances, Event.Position,
+        DraggingPropType) then
       begin
         I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
         if I <> -1 then
@@ -210,11 +211,12 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
           CurrentDraggedProps.Delete(I);
         end;
 
-        if Props[DraggingPropType].Neutral or FactionCanMove(Props[DraggingPropType].Faction) then
+        if DraggingPropType.Neutral or
+           FactionCanMove(DraggingPropType.Faction) then
         begin
           DragProp := TDraggedProp.Create(Self);
           DragProp.Map := Map;
-          DragProp.Prop := Props[DraggingPropType];
+          DragProp.Prop := DraggingPropType;
           Window.Controls.InsertFront(DragProp);
           CurrentDraggedProps[Event.FingerIndex] := DragProp;
         end;
@@ -318,7 +320,7 @@ procedure TStatePlay.Release(const Event: TInputPressRelease);
       if (DragProp.X <> -1) and
          (DragProp.Y <> -1) then
       begin
-        if DragProp.Prop.Neutral or (Trunc(Wood[DragProp.Prop.Faction]) > DragProp.Prop.CostWood) then
+        if DragProp.Prop.CanBuild(Map.PropInstances) then
         begin
           if Map.ValidTile(DragProp.X, DragProp.Y, nil) then
           begin
@@ -327,9 +329,7 @@ procedure TStatePlay.Release(const Event: TInputPressRelease);
           end else
             Notifications.Show(Format('Cannot build "%s" there, position is blocked',
               [DragProp.Prop.Name]));
-        end else
-          Notifications.Show(Format('Faction %s does not have enough wood to buy prop "%s"',
-            [FactionName[DragProp.Prop.Faction], DragProp.Prop.Name]));
+        end;
       end;
 
       DragProp.Free;

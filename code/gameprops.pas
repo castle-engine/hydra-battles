@@ -51,6 +51,8 @@ type
     ptMountain1, ptMountain2, ptMountain3, ptMountain4,
     ptMountain5, ptMountain6, ptMountain7, ptMountain8);
 
+  TPropInstanceList = class;
+
   TProp = class
   strict private
     FPropType: TPropType;
@@ -67,6 +69,7 @@ type
     FTrainNpc: TNpcType;
     FTrainDuration: Single;
     FScale: Single;
+    FCaption: string;
   public
     property PropType: TPropType read FPropType;
     property GLImage: TGLImage read FGLImage;
@@ -83,11 +86,16 @@ type
     property TrainNpc: TNpcType read FTrainNpc;
     property TrainDuration: Single read FTrainDuration;
     property Scale: Single read FScale;
+    property Caption: string read FCaption;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
     procedure GLContextOpen;
     procedure GLContextClose;
     procedure Draw(ScreenRectangle: TRectangle);
+
+    { Test can we build a given prop.
+      Notification (and return false) if not. }
+    function CanBuild(const PropInstances: TPropInstanceList): boolean;
   end;
 
   TProps = class(specialize TFPGMap<TPropType,TProp>)
@@ -118,7 +126,9 @@ type
     procedure Update(const Map: TAbstractMap; out SpawnNpc: TNpc; out SpawnX, SpawnY: Integer);
   end;
 
-  TPropInstanceList = specialize TFPGObjectList<TPropInstance>;
+  TPropInstanceList = class(specialize TFPGObjectList<TPropInstance>)
+    function Contains(const PropType: TPropType): boolean;
+  end;
 
   TDraggedProp = class(TUIControl)
   public
@@ -191,6 +201,7 @@ begin
     FEditorShortcut := EditorShortcutStr[1] else
     FEditorShortcut := #0;
   FScale := GameConf.GetFloat(ConfPath + '/scale', 1.0);
+  FCaption := GameConf.GetValue(ConfPath + '/caption', Name);
 end;
 
 destructor TProp.Destroy;
@@ -231,6 +242,25 @@ begin
   ScreenRectangle.Bottom -= Round((Pivot[1] - Image.Height div 2) * ScreenRectangle.Height / Image.Height);
 
   GLImage.Draw(ScreenRectangle);
+end;
+
+function TProp.CanBuild(const PropInstances: TPropInstanceList): boolean;
+var
+  HQ: TPropType;
+begin
+  if Neutral then
+    Exit(true);
+
+  Result := Trunc(Wood[Faction]) >= CostWood;
+  if not Result then
+    Notifications.Show(Format('Not enough wood to build "%s"', [Caption]));
+
+  HQ := Headquarters[Faction];
+  if (PropType <> HQ) and (not PropInstances.Contains(HQ)) then
+  begin
+    Result := false;
+    Notifications.Show(Format('Cannot build "%s", build headquarters first', [Caption]));
+  end;
 end;
 
 { TProps ------------------------------------------------------------------ }
@@ -344,6 +374,18 @@ begin
       { just return that we want to spawn };
     FTraining := false;
   end;
+end;
+
+{ TPropInstanceList ---------------------------------------------------------- }
+
+function TPropInstanceList.Contains(const PropType: TPropType): boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    if Items[I].Prop.PropType = PropType then
+      Exit(true);
+  Result := false;
 end;
 
 { TDraggedProp --------------------------------------------------------------- }
