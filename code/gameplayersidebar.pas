@@ -48,9 +48,9 @@ type
 
 implementation
 
-uses SysUtils,
+uses SysUtils, Math,
   CastleColors, CastleFilesUtils, CastleControls, CastleGameNotifications,
-  CastleGLUtils;
+  CastleGLUtils, CastleUtils;
 
 const
   BuildingDragHeight = 0.4;
@@ -94,9 +94,17 @@ var
   BDH: Integer;
   R: TRectangle;
   ColorBg, ColorText: TCastleColor;
+  Timeout: string;
 begin
   inherited;
   BDH := Round(BuildingDragHeight * Height);
+
+  Timeout := '';
+  if FactionExclusiveMoves then
+    if FactionCanMove(Faction) then
+      Timeout := ' [' + IntToStr(FactionExclusiveMovesDuration -
+        Trunc(FloatModulo(GameTime, FactionExclusiveMovesDuration))) + ']' else
+      Timeout := ' [blocked]';
 
   R := Rectangle(Left, Bottom, PlayerSidebarWidth, Height - BDH * 2);
   if FactionCanMove(Faction) then
@@ -110,7 +118,7 @@ begin
   end;
   DrawRectangle(R, ColorBg);
   UIFont.PrintBrokenString(R, ColorText,
-    Format('%s - %d wood', [FactionName[Faction], Trunc(Wood[Faction])]),
+    Format('%s (%d wood)'+ Timeout, [FactionName[Faction], Trunc(Wood[Faction])]),
     0, prMiddle, prMiddle);
 
   R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);

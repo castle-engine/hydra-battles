@@ -39,7 +39,7 @@ var
   Wood: array [TFaction] of Single;
 
   FactionExclusiveMoves: boolean;
-  FactionExclusiveMovesDuration: TFloatTime;
+  FactionExclusiveMovesDuration: Cardinal;
 
 function PlayerSidebarWidth: Integer;
 

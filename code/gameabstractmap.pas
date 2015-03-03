@@ -36,6 +36,7 @@ type
     property Width: Cardinal read FWidth;
     property Height: Cardinal read FHeight;
     function Rect: TRectangle;
+    function ValidCoord(const X, Y: Integer): boolean;
     { Get rectangle of given tile, assuming that map fits given MapRect.
       MapRect must always be equal the return value of @link(Rect) method,
       it is taken here only for optimization. }
@@ -172,9 +173,17 @@ begin
     end;
   end;
 
-  Result := (X >= 0) and (X < Width) and
-            (Y >= 0) and (Y < Height);
+  Result := ValidCoord(X, Y);
 end;
+
+function TAbstractMap.ValidCoord(const X, Y: Integer): boolean;
+begin
+  Result :=
+    (X >= 0) and (X < Width) and
+    (Y >= 0) and (Y < Height);
+end;
+
+{ global routines ------------------------------------------------------------ }
 
 function Neighbors(const X1, Y1, X2, Y2: Cardinal;
   out Dir: TDirection): boolean;
@@ -213,8 +222,6 @@ var
 begin
   Result := Neighbors(X1, Y1, X2, Y2, Dir);
 end;
-
-{ global routines ------------------------------------------------------------ }
 
 procedure HandleNeighbors(const X, Y: Integer; const Handler: TTileHandler);
 var

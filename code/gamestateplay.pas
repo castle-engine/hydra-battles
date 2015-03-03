@@ -121,7 +121,7 @@ begin
   Window.Controls.InsertFront(Notifications);
 
   FactionExclusiveMoves := GameConf.GetValue('faction_exclusive_moves', false);
-  FactionExclusiveMovesDuration := GameConf.GetFloat('faction_exclusive_moves_duration', 1.0);
+  FactionExclusiveMovesDuration := GameConf.GetValue('faction_exclusive_moves_duration', 1);
 end;
 
 procedure TStatePlay.Finish;
@@ -197,6 +197,7 @@ procedure TStatePlay.Press(const Event: TInputPressRelease);
     Npc: TNpcInstance;
   begin
     Result :=
+      Map.ValidCoord(PathStartX, PathStartY) and
       (Map.MapNpcs[PathStartX, PathStartY] <> nil) and
       FactionCanMove((Map.MapNpcs[PathStartX, PathStartY].Npc.Faction));
     if Result then

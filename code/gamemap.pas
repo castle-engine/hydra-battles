@@ -48,7 +48,6 @@ type
     { Possible props on map. }
     property Props: TProps read FProps;
     //property Npcs: TNpcs read FNpcs;
-    function ValidCoord(const X, Y: Integer): boolean;
   public
     { Props on map. }
     MapProps: array of array of TPropInstance;
@@ -252,13 +251,6 @@ begin
       if not NpcInstances[I].Path.ValidTile(X, Y) then
         Exit(false);
   Result := true;
-end;
-
-function TMap.ValidCoord(const X, Y: Integer): boolean;
-begin
-  Result :=
-    (X >= 0) and (X < Width) and
-    (Y >= 0) and (Y < Height);
 end;
 
 function TMap.CanAttack(const X, Y: Integer; const WantsToAttack: TWantsToAttack): boolean;
