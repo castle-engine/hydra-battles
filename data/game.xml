@@ -5,6 +5,11 @@
     Pivot (what image pixel corresponds to the middle of tile)
     is at pivot_x, pivot_y (default: half the image).
     pivot_y is measured from image top (like in GIMP).
+
+    Note that the gameplay is completely symmetric for now,
+    i.e. both factions (humans and monsters) have the same buildings and units.
+    In the future, we may experiment with asymmetric balance (different
+    buildings/units/costs for factions) and add more stuff to the game:)
   -->
   <props>
     <humansHeadquarters url="hq_humans.png" train="peasant" faction="humans" neutral="false" pivot_y="92" cost_wood="1000" initial_life="1000" train_duration="1" editor_shortcut="h" caption="Human Headquarters (HQ)"/>
