@@ -21,9 +21,6 @@ gfx:
   lines:
   * Android line colors red/blue don't work
 
-code cleanup:
-  TState can be just TUIControl at the bottom.
-
 ui:
   option on home screen to toggle view grid
   choice whether to allow players play simultaneously

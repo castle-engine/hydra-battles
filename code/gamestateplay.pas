@@ -22,9 +22,8 @@ interface
 
 uses Classes, FGL,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
-  CastleColors, CastleUIControls,
-  GameStates, GameMap, GameNpcs, GamePath, GameProps, GameUtils,
-  GamePlayerSidebar;
+  CastleColors, CastleUIControls, CastleUIState,
+  GameMap, GameNpcs, GamePath, GameProps, GameUtils, GamePlayerSidebar;
 
 type
   { Currently drawn paths with mouse / touch device. Support multi-touch
@@ -34,7 +33,7 @@ type
 
   TCurrentDraggedProps = specialize TFPGMap<TFingerIndex, TDraggedProp>;
 
-  TStatePlay = class(TState)
+  TStatePlay = class(TUIState)
   private
   type
     TFadeControl = class(TUIControl)
@@ -62,11 +61,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Finish; override;
-    procedure Resize; override;
-    procedure Update(const SecondsPassed: Single); override;
-    procedure Press(const Event: TInputPressRelease); override;
-    procedure Release(const Event: TInputPressRelease); override;
-    procedure Motion(const Event: TInputMotion); override;
+    procedure ContainerResize(const AContainerWidth, AContainerHeight: Cardinal); override;
+    procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
+    function Press(const Event: TInputPressRelease): boolean; override;
+    function Release(const Event: TInputPressRelease): boolean; override;
+    function Motion(const Event: TInputMotion): boolean; override;
     procedure GLContextOpen; override;
     procedure GLContextClose; override;
   end;
@@ -176,7 +175,7 @@ begin
   inherited;
 end;
 
-procedure TStatePlay.Resize;
+procedure TStatePlay.ContainerResize(const AContainerWidth, AContainerHeight: Cardinal);
 var
   R, GameOverButtonRect: TRectangle;
 begin
@@ -207,7 +206,7 @@ begin
   end;
 end;
 
-procedure TStatePlay.Update(const SecondsPassed: Single);
+procedure TStatePlay.Update(const SecondsPassed: Single; var HandleInput: boolean);
 
   function GameLost(const F: TFaction): boolean;
   var
@@ -276,14 +275,14 @@ begin
       GameOverButton.Caption := GameOverMessage;
       Window.Controls.InsertFront(GameOverButton);
 
-      Resize; // set GameOverButton sizes
+      ContainerResize(Container.Width, Container.Height); // set GameOverButton sizes
     end;
   end;
 
   Window.Invalidate;
 end;
 
-procedure TStatePlay.Press(const Event: TInputPressRelease);
+function TStatePlay.Press(const Event: TInputPressRelease): boolean;
 
   function TryNpcDragging(const PathStartX, PathStartY: Integer): boolean;
   var
@@ -354,30 +353,53 @@ var
   RandomMountain: char;
   MouseTileX, MouseTileY: Integer;
 begin
-  inherited;
+  Result := inherited;
+  if Result then Exit;
 
   if Event.IsKey('E') then
+  begin
     Map.EditMode := not Map.EditMode;
+    Result := true;
+  end;
+
   if Event.IsKey('G') then
+  begin
     Map.Grid := not Map.Grid;
+    Result := true;
+  end;
 
   if Map.EditMode then
   begin
     if Event.IsKey(K_Up) then
+    begin
       Map.EditCursor[1] := Map.EditCursor[1] + 1;
+      Result := true;
+    end;
     if Event.IsKey(K_Down) then
+    begin
       Map.EditCursor[1] := Map.EditCursor[1] - 1;
+      Result := true;
+    end;
     if Event.IsKey(K_Right) then
+    begin
       Map.EditCursor[0] := Map.EditCursor[0] + 1;
+      Result := true;
+    end;
     if Event.IsKey(K_Left) then
+    begin
       Map.EditCursor[0] := Map.EditCursor[0] - 1;
+      Result := true;
+    end;
     Map.EditCursor[0] := Clamped(Map.EditCursor[0], 0, Map.Width - 1);
     Map.EditCursor[1] := Clamped(Map.EditCursor[1], 0, Map.Height - 1);
     for PT := Low(PT) to High(PT) do
     begin
       Prop := Props[PT];
       if Event.IsKey(Prop.EditorShortcut) then
+      begin
         Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
+        Result := true;
+      end;
     end;
     if Event.IsKey('0') then
     begin
@@ -388,40 +410,49 @@ begin
         if Prop.EditorShortcut = RandomMountain then
           Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
       end;
+      Result := true;
     end;
     if Event.IsKey(' ') then
+    begin
       Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], nil);
+      Result := true;
+    end;
     if Event.IsKey('S') then
+    begin
       Map.SaveToFile;
+      Result := true;
+    end;
     if Event.IsKey('N') then
     begin
       Map.SetNpcInstance(Map.EditCursor[0], Map.EditCursor[1],
         TNpcInstance.Create(Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection));
+      Result := true;
     end;
   end;
 
   if Event.IsMouseButton(mbLeft) then
   begin
     if TryDraggingSidebar then
-      Exit;
+      Exit(true);
 
     if Map.PositionToTile(Map.Rect, Event.Position, MouseTileX, MouseTileY) then
     begin
       if TryNpcDragging(MouseTileX, MouseTileY) then
-        Exit;
+        Exit(true);
 
       if Map.MapProps[MouseTileX, MouseTileY] <> nil then
       begin
         Map.MapProps[MouseTileX, MouseTileY].StartTraining(Npcs);
-        Exit;
+        Exit(true);
       end;
 
       HandleNeighbors(MouseTileX, MouseTileY, @TryNpcDraggingNeighbor);
+      Exit(true);
     end;
   end;
 end;
 
-procedure TStatePlay.Release(const Event: TInputPressRelease);
+function TStatePlay.Release(const Event: TInputPressRelease): boolean;
 
   procedure TryDraggingNpc;
   var
@@ -447,6 +478,7 @@ procedure TStatePlay.Release(const Event: TInputPressRelease);
         end;
       end;
       CurrentPaths.Delete(CurrentPathIndex);
+      Release := true;
     end;
   end;
 
@@ -484,11 +516,14 @@ procedure TStatePlay.Release(const Event: TInputPressRelease);
 
       DragProp.Free;
       CurrentDraggedProps.Delete(I);
+      Release := true;
     end;
   end;
 
 begin
-  inherited;
+  Result := inherited;
+  if Result then Exit;
+
   if Event.IsMouseButton(mbLeft) then
   begin
     TryDraggingNpc;
@@ -506,7 +541,37 @@ begin
   Exit(nil);
 end;
 
-procedure TStatePlay.Motion(const Event: TInputMotion);
+function TStatePlay.Motion(const Event: TInputMotion): boolean;
+
+  procedure TryDraggingNpc;
+  var
+    X, Y, PathUnderFingerIndex: Integer;
+    MapRect: TRectangle;
+    CurrentPath: TPath;
+    PathNpc: TNpcInstance;
+  begin
+    PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
+    if PathUnderFingerIndex <> -1 then
+    begin
+      CurrentPath := CurrentPaths.Data[PathUnderFingerIndex];
+      PathNpc := NpcFromPath(CurrentPath);
+      if PathNpc = nil then
+        { TODO: ugly to detect it like this.
+          This means that Path was already freed in TNpcInstance,
+          and CurrentPaths contains reference to invalid object. }
+        CurrentPaths.Delete(PathUnderFingerIndex) else
+      begin
+        MapRect := Map.Rect;
+        if Map.PositionToTile(MapRect, Event.Position, X, Y) then
+        begin
+          Map.EditCursor[0] := X;
+          Map.EditCursor[1] := Y;
+          CurrentPath.Add(X, Y);
+        end;
+      end;
+      Motion := true;
+    end;
+  end;
 
   procedure TryDraggingSidebar;
   var
@@ -524,38 +589,15 @@ procedure TStatePlay.Motion(const Event: TInputMotion);
         DragProp.X := -1;
         DragProp.Y := -1;
       end;
+      Motion := true;
     end;
   end;
 
-var
-  X, Y, PathUnderFingerIndex: Integer;
-  MapRect: TRectangle;
-  CurrentPath: TPath;
-  PathNpc: TNpcInstance;
 begin
-  inherited;
+  Result := inherited;
+  if Result then Exit;
 
-  PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
-  if PathUnderFingerIndex <> -1 then
-  begin
-    CurrentPath := CurrentPaths.Data[PathUnderFingerIndex];
-    PathNpc := NpcFromPath(CurrentPath);
-    if PathNpc = nil then
-      { TODO: ugly to detect it like this.
-        This means that Path was already freed in TNpcInstance,
-        and CurrentPaths contains reference to invalid object. }
-      CurrentPaths.Delete(PathUnderFingerIndex) else
-    begin
-      MapRect := Map.Rect;
-      if Map.PositionToTile(MapRect, Event.Position, X, Y) then
-      begin
-        Map.EditCursor[0] := X;
-        Map.EditCursor[1] := Y;
-        CurrentPath.Add(X, Y);
-      end;
-    end;
-  end;
-
+  TryDraggingNpc;
   TryDraggingSidebar;
 end;
 
@@ -577,7 +619,7 @@ end;
 
 procedure TStatePlay.GameOverClick(Sender: TObject);
 begin
-  TState.Current := StateMainMenu;
+  TUIState.Current := StateMainMenu;
 end;
 
 end.

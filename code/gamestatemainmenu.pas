@@ -18,11 +18,10 @@ unit GameStateMainMenu;
 
 interface
 
-uses Classes, CastleControls, CastleKeysMouse,
-  GameStates;
+uses Classes, CastleControls, CastleKeysMouse, CastleUIState;
 
 type
-  TStateMainMenu = class(TState)
+  TStateMainMenu = class(TUIState)
   private
   type
     TPlayButton = class(TCastleButton)
@@ -37,8 +36,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Finish; override;
-    procedure Resize; override;
-    procedure Press(const Event: TInputPressRelease); override;
+    procedure ContainerResize(const AContainerWidth, AContainerHeight: Cardinal); override;
+    function Press(const Event: TInputPressRelease): boolean; override;
   end;
 
 var
@@ -56,7 +55,7 @@ const
 procedure TStateMainMenu.TPlayButton.DoClick;
 begin
   StatePlay.StartMapName := MapName;
-  TState.Current := StatePlay;
+  TUIState.Current := StatePlay;
 end;
 
 { TStateMainMenu ----------------------------------------------------------------- }
@@ -99,7 +98,7 @@ begin
   inherited;
 end;
 
-procedure TStateMainMenu.Resize;
+procedure TStateMainMenu.ContainerResize(const AContainerWidth, AContainerHeight: Cardinal);
 var
   R: TRectangle;
 begin
@@ -122,13 +121,16 @@ begin
   PlayButtonLarge.Bottom := Round(Lerp(0.5, R.Bottom, R.Top));
 end;
 
-procedure TStateMainMenu.Press(const Event: TInputPressRelease);
+function TStateMainMenu.Press(const Event: TInputPressRelease): boolean;
 begin
-  inherited;
+  Result := inherited;
+  if Result then Exit;
+
   if Event.IsKey(K_Enter) or Event.IsKey(K_Escape) then
   begin
+    Result := true;
     StatePlay.StartMapName := DefaultMapName;
-    TState.Current := StatePlay;
+    TUIState.Current := StatePlay;
   end;
 end;
 

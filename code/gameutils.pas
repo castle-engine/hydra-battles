@@ -33,7 +33,6 @@ type
 var
   GameConf: TCastleConfig;
   Window: TCastleWindowCustom;
-  ContainerWidth, ContainerHeight: Integer;
   GameTime: TFloatTime;
   VisualizationSceneManager: T2DSceneManager;
   Wood: array [TFaction] of Single;
@@ -66,7 +65,7 @@ uses SysUtils,
 
 function PlayerSidebarWidth: Integer;
 begin
-  Result := Round(ContainerWidth * 0.1);
+  Result := Round(Window.Width * 0.1);
 end;
 
 function FactionFromName(const AName: string): TFaction;

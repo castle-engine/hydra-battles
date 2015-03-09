@@ -25,7 +25,8 @@ implementation
 uses SysUtils, CastleWindow, CastleScene, CastleControls,
   CastleFilesUtils, CastleKeysMouse, CastleConfig,
   CastleLog, CastleProgress, CastleWindowProgress, CastleUtils, CastleSceneManager,
-  GameUtils, GameStatePlay, GameStateMainMenu, GameStates;
+  CastleUIState,
+  GameUtils, GameStatePlay, GameStateMainMenu;
 
 var
   SimpleBackground: TCastleSimpleBackground;
@@ -56,10 +57,6 @@ begin
   Input_InventoryNext.MakeClear(true);
   Input_UseItem.MakeClear(true);
 
-  { initialize these in case something wants to use them before WindowResize. }
-  ContainerWidth := Window.Width;
-  ContainerHeight := Window.Height;
-
   Progress.UserInterface := WindowProgressInterface;
 
   { add window controls on all game states }
@@ -71,55 +68,13 @@ begin
 
   ReadGameConf;
 
-  TState.Current := StateMainMenu;
-end;
-
-procedure WindowResize(Container: TUIContainer);
-begin
-  ContainerWidth := Container.Width;
-  ContainerHeight := Container.Height;
-  TState.Current.Resize;
-end;
-
-procedure WindowUpdate(Container: TUIContainer);
-const
-  { Avoid increasing GameTime a lot (and producing a lot of dragons)
-    when the game was just hanging on Android for some time. }
-  MaxSensibleSecondsPassed = 1;
-var
-  SecondsPassed: Single;
-begin
-  SecondsPassed := Min(MaxSensibleSecondsPassed, Container.Fps.UpdateSecondsPassed);
-  TState.Current.Update(SecondsPassed);
+  TUIState.Current := StateMainMenu;
 end;
 
 procedure WindowPress(Container: TUIContainer; const Event: TInputPressRelease);
 begin
   if Event.IsKey(K_F5) then
     Window.SaveScreen(FileNameAutoInc(ApplicationName + '_screen_%d.png'));
-  TState.Current.Press(Event);
-end;
-
-procedure WindowRelease(Container: TUIContainer; const Event: TInputPressRelease);
-begin
-  TState.Current.Release(Event);
-end;
-
-procedure WindowMotion(Container: TUIContainer; const Event: TInputMotion);
-begin
-  TState.Current.Motion(Event);
-end;
-
-procedure WindowOpen(Container: TUIContainer);
-begin
-  if TState.Current <> nil then
-    TState.Current.GLContextOpen;
-end;
-
-procedure WindowClose(Container: TUIContainer);
-begin
-  if TState.Current <> nil then
-    TState.Current.GLContextClose;
 end;
 
 function MyGetApplicationName: string;
@@ -139,13 +94,5 @@ initialization
   { create Window and initialize Window callbacks }
   Window := TCastleWindowCustom.Create(Application);
   Application.MainWindow := Window;
-  Window.OnResize := @WindowResize;
-  Window.OnUpdate := @WindowUpdate;
   Window.OnPress := @WindowPress;
-  Window.OnRelease := @WindowRelease;
-  Window.OnMotion := @WindowMotion;
-  Window.OnOpen := @WindowOpen;
-  Window.OnClose := @WindowClose;
-finalization
-  TState.Current := nil;
 end.
