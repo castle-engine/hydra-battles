@@ -75,4 +75,4 @@ Created during a 48h gamejam on https://www.facebook.com/tsgcompo
 
 Using Castle Game Engine, http://castle-engine.sourceforge.net/
 
-Graphics: isometric graphics, using assets mostly from http://opengameart.org/ . See AUTHORS.txt file for links. See sources on https://github.com/michaliskambi/hydra-battles
+Graphics: isometric graphics, using assets mostly from http://opengameart.org/ . See AUTHORS.txt file for links. See sources on https://github.com/castle-engine/hydra-battles
