@@ -119,19 +119,19 @@ begin
   DrawRectangle(R, ColorBg);
   UIFont.PrintBrokenString(R, ColorText,
     Format('%s (%d wood)'+ Timeout, [FactionName[Faction], Trunc(Wood[Faction])]),
-    0, prMiddle, prMiddle);
+    0, hpMiddle, vpMiddle);
 
   R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build Barracks (%d wood)', [FProps[Barracks[Faction]].CostWood]),
-    0, prMiddle, prMiddle);
+    0, hpMiddle, vpMiddle);
 
   R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build HQ (%d wood)', [FProps[Headquarters[Faction]].CostWood]),
-    0, prMiddle, prMiddle);
+    0, hpMiddle, vpMiddle);
 end;
 
 function TPlayerSidebar.StartsDragging(

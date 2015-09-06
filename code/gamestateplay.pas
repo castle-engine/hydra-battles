@@ -127,7 +127,7 @@ begin
   Status.Left := 10;
   Status.Bottom := 10;
   Status.Frame := false;
-  Status.Alignment := prRight;
+  Status.Alignment := hpRight;
   Window.Controls.InsertFront(Status);
 
   for FT := Low(FT) to High(FT) do
@@ -236,8 +236,8 @@ begin
 
   S := Format('FPS: %f real : %f', [Window.Fps.FrameTime, Window.Fps.RealTime]);
   Status.Text.Text := S;
-  Status.AlignHorizontal(prRight, prRight);
-  Status.AlignVertical(prTop, prTop);
+  Status.Align(hpRight, hpRight);
+  Status.Align(vpTop, vpTop);
 
   GameTime += SecondsPassed;
 
