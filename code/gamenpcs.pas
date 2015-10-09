@@ -342,7 +342,7 @@ begin
   AnimFrame := Trunc(Npc.Animations[FAnimation].Fps * (GameTime - FAnimationStart));
   if AnimationLooping[FAnimation] then
     AnimFrame := AnimFrame mod AnimLength else
-    Clamp(AnimFrame, 0, AnimLength - 1);
+    ClampVar(AnimFrame, 0, AnimLength - 1);
   ImageX := (AnimFrame + (Npc.Animations[FAnimation].Start - 1)) * Npc.TileWidth;
   ImageY := Ord(Direction) * Npc.TileHeight;
 

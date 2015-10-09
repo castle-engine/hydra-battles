@@ -182,7 +182,7 @@ begin
   inherited;
 
   R := Map.Rect;
-  MapBackground.Rect := R;
+  MapBackground.FRect := R;
   VisualizationSceneManager.Left := R.Left;
   VisualizationSceneManager.Bottom := R.Bottom;
   VisualizationSceneManager.Width := R.Width;

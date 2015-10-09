@@ -35,7 +35,7 @@ type
     constructor Create(const AWidth, AHeight: Cardinal); reintroduce;
     property Width: Cardinal read FWidth;
     property Height: Cardinal read FHeight;
-    function Rect: TRectangle;
+    function Rect: TRectangle; override;
     function ValidCoord(const X, Y: Integer): boolean;
     { Get rectangle of given tile, assuming that map fits given MapRect.
       MapRect must always be equal the return value of @link(Rect) method,

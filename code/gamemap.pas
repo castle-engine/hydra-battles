@@ -32,7 +32,8 @@ type
     Background: TCastleImage;
     GLBackground: TGLImage;
   public
-    Rect: TRectangle;
+    FRect: TRectangle;
+    function Rect: TRectangle; override;
     procedure Render; override;
     constructor Create(const AName: string); reintroduce;
     destructor Destroy; override;
@@ -87,6 +88,11 @@ begin
   ConfPath := 'maps/' + AName;
   inherited Create(nil);
   Background := LoadImage(GameConf.GetURL(ConfPath + '/background'), []);
+end;
+
+function TMapBackground.Rect: TRectangle;
+begin
+  Result := FRect;
 end;
 
 destructor TMapBackground.Destroy;
