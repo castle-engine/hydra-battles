@@ -61,7 +61,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Finish; override;
-    procedure ContainerResize(const AContainerWidth, AContainerHeight: Cardinal); override;
+    procedure Resize; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
     function Press(const Event: TInputPressRelease): boolean; override;
     function Release(const Event: TInputPressRelease): boolean; override;
@@ -111,15 +111,15 @@ begin
   Npcs := TNpcs.Create;
 
   MapBackground := TMapBackground.Create(StartMapName);
-  Window.Controls.InsertFront(MapBackground);
+  InsertFront(MapBackground);
 
   VisualizationSceneManager := T2DSceneManager.Create(Self);
   VisualizationSceneManager.FullSize :=false;
   VisualizationSceneManager.Transparent := true;
-  Window.Controls.InsertFront(VisualizationSceneManager);
+  InsertFront(VisualizationSceneManager);
 
   Map := TMap.Create(StartMapName, Props, Npcs);
-  Window.Controls.InsertFront(Map);
+  InsertFront(Map);
 
   Status := TCastleLabel.Create(Self);
   Status.Padding := 5;
@@ -128,17 +128,17 @@ begin
   Status.Bottom := 10;
   Status.Frame := false;
   Status.Alignment := hpRight;
-  Window.Controls.InsertFront(Status);
+  InsertFront(Status);
 
   for FT := Low(FT) to High(FT) do
   begin
     Sidebar[FT] := TPlayerSidebar.Create(Self, FT, Props);
-    Window.Controls.InsertFront(Sidebar[FT]);
+    InsertFront(Sidebar[FT]);
 
     Wood[FT] := Map.InitialWood;
   end;
 
-  Window.Controls.InsertFront(Notifications);
+  InsertFront(Notifications);
 
   FactionExclusiveMoves := GameConf.GetValue('faction_exclusive_moves', false);
   FactionExclusiveMovesDuration := GameConf.GetValue('faction_exclusive_moves_duration', 1);
@@ -169,13 +169,13 @@ begin
   end;
   for FT := Low(FT) to High(FT) do
     FreeAndNil(Sidebar[FT]);
-  Window.Controls.Remove(Notifications);
+  RemoveControl(Notifications);
   FreeAndNil(GameOverButton);
   FreeAndNil(FadeControl);
   inherited;
 end;
 
-procedure TStatePlay.ContainerResize(const AContainerWidth, AContainerHeight: Cardinal);
+procedure TStatePlay.Resize;
 var
   R, GameOverButtonRect: TRectangle;
 begin
@@ -204,6 +204,8 @@ begin
     GameOverButton.Width := GameOverButtonRect.Width;
     GameOverButton.Height := GameOverButtonRect.Height;
   end;
+
+  UIFont.Scale := R.Height / 600;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single; var HandleInput: boolean);
@@ -267,15 +269,15 @@ begin
     begin
       FadeControl := TFadeControl.Create(Self);
       FadeControl.Color := GameOverColor;
-      Window.Controls.InsertFront(FadeControl);
+      InsertFront(FadeControl);
 
       GameOverButton := TCastleButton.Create(Self);
       GameOverButton.AutoSize := false;
       GameOverButton.OnClick := @GameOverClick;
       GameOverButton.Caption := GameOverMessage;
-      Window.Controls.InsertFront(GameOverButton);
+      InsertFront(GameOverButton);
 
-      ContainerResize(Container.Width, Container.Height); // set GameOverButton sizes
+      Resize; // set GameOverButton sizes
     end;
   end;
 
@@ -341,7 +343,7 @@ function TStatePlay.Press(const Event: TInputPressRelease): boolean;
           DragProp.Prop := DraggingPropType;
           DragProp.X := -1;
           DragProp.Y := -1;
-          Window.Controls.InsertFront(DragProp);
+          InsertFront(DragProp);
           CurrentDraggedProps[Event.FingerIndex] := DragProp;
         end;
       end;

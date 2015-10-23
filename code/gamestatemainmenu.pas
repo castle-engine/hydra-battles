@@ -36,7 +36,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Finish; override;
-    procedure ContainerResize(const AContainerWidth, AContainerHeight: Cardinal); override;
+    procedure Resize; override;
     function Press(const Event: TInputPressRelease): boolean; override;
   end;
 
@@ -83,22 +83,22 @@ end;
 procedure TStateMainMenu.Start;
 begin
   inherited;
-  Window.Controls.InsertFront(Background);
-  Window.Controls.InsertFront(PlayButtonSmall);
-  Window.Controls.InsertFront(PlayButtonLarge);
-  Window.Controls.InsertFront(Notifications);
+  InsertFront(Background);
+  InsertFront(PlayButtonSmall);
+  InsertFront(PlayButtonLarge);
+  InsertFront(Notifications);
 end;
 
 procedure TStateMainMenu.Finish;
 begin
-  Window.Controls.Remove(Background);
-  Window.Controls.Remove(PlayButtonSmall);
-  Window.Controls.Remove(PlayButtonLarge);
-  Window.Controls.Remove(Notifications);
+  RemoveControl(Background);
+  RemoveControl(PlayButtonSmall);
+  RemoveControl(PlayButtonLarge);
+  RemoveControl(Notifications);
   inherited;
 end;
 
-procedure TStateMainMenu.ContainerResize(const AContainerWidth, AContainerHeight: Cardinal);
+procedure TStateMainMenu.Resize;
 var
   R: TRectangle;
 begin
@@ -107,6 +107,8 @@ begin
   Background.Height := ContainerHeight;
 
   R := Background.Rect;
+
+  UIFont.Scale := 1.0; // TODO: for some reason, scaling text makes it wrong on buttons
 
   PlayButtonLarge.Left := Round(Lerp(0.69, R.Left, R.Right));
   PlayButtonSmall.Left := PlayButtonLarge.Left;

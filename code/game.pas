@@ -25,7 +25,7 @@ implementation
 uses SysUtils, CastleWindow, CastleScene, CastleControls,
   CastleFilesUtils, CastleKeysMouse, CastleConfig,
   CastleLog, CastleProgress, CastleWindowProgress, CastleUtils, CastleSceneManager,
-  CastleUIState,
+  CastleUIState, CastleGameNotifications, CastleUIControls, CastleColors,
   GameUtils, GameStatePlay, GameStateMainMenu;
 
 var
@@ -56,6 +56,10 @@ begin
   Input_InventoryPrevious.MakeClear(true);
   Input_InventoryNext.MakeClear(true);
   Input_UseItem.MakeClear(true);
+
+  Notifications.Anchor(hpMiddle);
+  Notifications.Anchor(vpBottom, 10);
+  Notifications.Color := Yellow;
 
   Progress.UserInterface := WindowProgressInterface;
 
