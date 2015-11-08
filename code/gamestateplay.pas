@@ -122,7 +122,8 @@ begin
   InsertFront(Map);
 
   Status := TCastleLabel.Create(Self);
-  Status.Padding := 5;
+  Status.PaddingHorizontal := 5;
+  Status.PaddingVertical := 5;
   Status.Color := White;
   Status.Left := 10;
   Status.Bottom := 10;
