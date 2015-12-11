@@ -7,7 +7,7 @@ The compiled game versions are available on
 
   http://michaliskambi.itch.io/hydra-battles
 
-From here you can download the source code (compile using Castle Game Engine, http://castle-engine.sourceforge.net/ and it's build tool: https://sourceforge.net/p/castle-engine/wiki/Build%20tool/ ). Also, this document is right now the only game manual, and contains instructions and hints how to play (and win!:).
+From here you can download the source code (compile using Castle Game Engine, http://castle-engine.sourceforge.net/ and it's build tool: https://github.com/castle-engine/castle-engine/wiki/Build-Tool ). Also, this document is right now the only game manual, and contains instructions and hints how to play (and win!:).
 
 Playing
 =======
