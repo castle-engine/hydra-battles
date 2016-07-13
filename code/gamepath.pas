@@ -62,27 +62,27 @@ const
     Appearance: TAppearanceNode;
     LineProperties: TLinePropertiesNode;
   begin
-    Coordinate := TCoordinateNode.Create('', '');
+    Coordinate := TCoordinateNode.Create;
     Coordinate.FdPoint.Items.Clear;
 
-    LineSet := TLineSetNode.Create('', '');
+    LineSet := TLineSetNode.Create;
     LineSet.FdCoord.Value := Coordinate;
 
-    Material := TMaterialNode.Create('', '');
+    Material := TMaterialNode.Create;
     Material.FdEmissiveColor.Value := FactionColor[AFaction];
 
-    LineProperties := TLinePropertiesNode.Create('', '');
+    LineProperties := TLinePropertiesNode.Create;
     LineProperties.FdLineWidthScaleFactor.Value := 10;
 
-    Appearance := TAppearanceNode.Create('', '');
+    Appearance := TAppearanceNode.Create;
     Appearance.FdMaterial.Value := Material;
     Appearance.FdLineProperties.Value := LineProperties;
 
-    Shape := TShapeNode.Create('', '');
+    Shape := TShapeNode.Create;
     Shape.FdGeometry.Value := LineSet;
     Shape.Appearance := Appearance;
 
-    Root := TX3DRootNode.Create('', '');
+    Root := TX3DRootNode.Create;
     Root.FdChildren.Add(Shape);
 
     FVisualization := T2DScene.Create(VisualizationSceneManager);
