@@ -122,7 +122,7 @@ function NpcTypeFromName(const AName: string): TNpcType;
 implementation
 
 uses SysUtils,
-  CastleScene, CastleFilesUtils, CastleGLUtils, CastleWarnings,
+  CastleScene, CastleFilesUtils, CastleGLUtils,
   CastleColors, CastleUtils, CastleStringUtils, CastleLog;
 
 const
@@ -180,11 +180,11 @@ begin
 
   FTileWidth := Image.Width div TilesX;
   if Image.Width mod TilesX <> 0 then
-    OnWarning(wtMinor, 'Npc', Format('Npc "%s" image width %d does not exactly divide into tiles_x %d',
+    WritelnWarning('Npc', Format('Npc "%s" image width %d does not exactly divide into tiles_x %d',
       [Name, Image.Width, TilesX]));
   FTileHeight := Image.Height div 8;
   if Image.Height mod 8 <> 0 then
-    OnWarning(wtMinor, 'Npc', Format('Npc "%s" image height %d does not exactly divide into 8 directions',
+    WritelnWarning('Npc', Format('Npc "%s" image height %d does not exactly divide into 8 directions',
       [Name, Image.Height]));
   WritelnLog('Npc', Format('Npc "%s" tile size %d x %d', [Name, TileWidth, TileHeight]));
 
