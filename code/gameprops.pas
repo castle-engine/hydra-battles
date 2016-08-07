@@ -59,7 +59,6 @@ type
   strict private
     FPropType: TPropType;
     FName: string;
-    Image: TCastleImage;
     FEditorShortcut: char;
     FPivot: TVector2Integer;
     FGLImage: TGLImage;
@@ -91,8 +90,7 @@ type
     property Caption: string read FCaption;
     constructor Create(const APropType: TPropType);
     destructor Destroy; override;
-    procedure GLContextOpen;
-    procedure GLContextClose;
+    procedure PrepareResources;
     procedure Draw(ScreenRectangle: TRectangle);
 
     { Test can we build a given prop.
@@ -105,8 +103,7 @@ type
     { Create, reading list contents from config file. }
     constructor Create;
     destructor Destroy; override;
-    procedure GLContextOpen;
-    procedure GLContextClose;
+    procedure PrepareResources;
   end;
 
   TPropInstance = class
@@ -182,9 +179,9 @@ begin
   FPropType := APropType;
   FName := PropName[PropType];
   ConfPath := 'props/' + Name;
-  Image := LoadImage(GameConf.GetURL(ConfPath + '/url'), []);
-  FPivot[0] := GameConf.GetValue(ConfPath + '/pivot_x', Image.Width div 2);
-  FPivot[1] := Image.Height - 1 - GameConf.GetValue(ConfPath + '/pivot_y', Image.Height div 2);
+  FGLImage := TGLImage.Create(GameConf.GetURL(ConfPath + '/url'));
+  FPivot[0] := GameConf.GetValue(ConfPath + '/pivot_x', FGLImage.Width div 2);
+  FPivot[1] := FGLImage.Height - 1 - GameConf.GetValue(ConfPath + '/pivot_y', FGLImage.Height div 2);
   EditorShortcutStr := GameConf.GetValue(ConfPath + '/editor_shortcut', '');
   FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 0.0);
@@ -208,20 +205,14 @@ end;
 
 destructor TProp.Destroy;
 begin
-  GLContextClose;
-  FreeAndNil(Image);
+  FreeAndNil(FGLImage);
   inherited;
 end;
 
-procedure TProp.GLContextOpen;
+procedure TProp.PrepareResources;
 begin
-  if FGLImage = nil then
-    FGLImage := TGLImage.Create(Image, true);
-end;
-
-procedure TProp.GLContextClose;
-begin
-  FreeAndNil(FGLImage);
+  { not necessary, but makes sure we're fully initialized before game begins }
+  FGLImage.PrepareResources;
 end;
 
 procedure TProp.Draw(ScreenRectangle: TRectangle);
@@ -236,12 +227,12 @@ begin
   { now ScreenRectangle is calculated assuming that Image fills tile size (ScreenRectangle)
     perfectly. But actually it may be a little taller, so account for this,
     knowing that width of ScreenRectangle (tile) matches Image width. }
-  NewRectHeight := ScreenRectangle.Width * Image.Height div Image.Width;
+  NewRectHeight := ScreenRectangle.Width * FGLImage.Height div FGLImage.Width;
   ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
   ScreenRectangle.Height := NewRectHeight;
   { apply pivot }
-  ScreenRectangle.Left -= Round((Pivot[0] - Image.Width div 2) * ScreenRectangle.Width / Image.Width);
-  ScreenRectangle.Bottom -= Round((Pivot[1] - Image.Height div 2) * ScreenRectangle.Height / Image.Height);
+  ScreenRectangle.Left -= Round((Pivot[0] - FGLImage.Width div 2) * ScreenRectangle.Width / FGLImage.Width);
+  ScreenRectangle.Bottom -= Round((Pivot[1] - FGLImage.Height div 2) * ScreenRectangle.Height / FGLImage.Height);
 
   GLImage.Draw(ScreenRectangle);
 end;
@@ -280,7 +271,6 @@ destructor TProps.Destroy;
 var
   I: Integer;
 begin
-  GLContextClose;
   for I := 0 to Count - 1 do
   begin
     Data[I].Free;
@@ -289,20 +279,12 @@ begin
   inherited;
 end;
 
-procedure TProps.GLContextOpen;
+procedure TProps.PrepareResources;
 var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-    Data[I].GLContextOpen;
-end;
-
-procedure TProps.GLContextClose;
-var
-  I: Integer;
-begin
-  for I := 0 to Count - 1 do
-    Data[I].GLContextClose;
+    Data[I].PrepareResources;
 end;
 
 { TPropInstance -------------------------------------------------------------- }

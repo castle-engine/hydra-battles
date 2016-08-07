@@ -25,7 +25,6 @@ uses Classes,
 type
   TPlayerSidebar = class(TUIRectangularControl)
   private
-    Frame: TCastleImage;
     GLFrame: TGLImage;
     FHeight: Integer;
     FFaction: TFaction;
@@ -39,8 +38,6 @@ type
     function Rect: TRectangle; override;
     property Height: Integer read FHeight write FHeight;
     procedure Render; override;
-    procedure GLContextOpen; override;
-    procedure GLContextClose; override;
     function StartsDragging(
       const PropInstances: TPropInstanceList;
       const ScreenPosition: TVector2Single; out Prop: TProp): boolean;
@@ -61,7 +58,7 @@ constructor TPlayerSidebar.Create(const AOwner: TComponent;
 begin
   inherited Create(AOwner);
   FFaction := AFaction;
-  Frame := LoadImage(ApplicationData('gui/button_' + FactionName[Faction] + '.png'), []);
+  GLFrame := TGLImage.Create(ApplicationData('gui/button_' + FactionName[Faction] + '.png'));
   FProps := AProps;
 end;
 
@@ -71,19 +68,6 @@ begin
 end;
 
 destructor TPlayerSidebar.Destroy;
-begin
-  FreeAndNil(Frame);
-  inherited;
-end;
-
-procedure TPlayerSidebar.GLContextOpen;
-begin
-  inherited;
-  if GLFrame = nil then
-    GLFrame := TGLImage.Create(Frame, true);
-end;
-
-procedure TPlayerSidebar.GLContextClose;
 begin
   FreeAndNil(GLFrame);
   inherited;

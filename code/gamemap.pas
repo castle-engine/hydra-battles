@@ -29,7 +29,6 @@ type
   { Render map background. On a separate layer, to be place scene manager inside. }
   TMapBackground = class(TUIControl)
   strict private
-    Background: TCastleImage;
     GLBackground: TGLImage;
   public
     FRect: TRectangle;
@@ -37,8 +36,6 @@ type
     procedure Render; override;
     constructor Create(const AName: string); reintroduce;
     destructor Destroy; override;
-    procedure GLContextOpen; override;
-    procedure GLContextClose; override;
   end;
 
   TMap = class(TAbstractMap)
@@ -87,7 +84,7 @@ begin
   Name := AName;
   ConfPath := 'maps/' + AName;
   inherited Create(nil);
-  Background := LoadImage(GameConf.GetURL(ConfPath + '/background'), []);
+  GLBackground := TGLImage.Create(GameConf.GetURL(ConfPath + '/background'));
 end;
 
 function TMapBackground.Rect: TRectangle;
@@ -96,19 +93,6 @@ begin
 end;
 
 destructor TMapBackground.Destroy;
-begin
-  FreeAndNil(Background);
-  inherited;
-end;
-
-procedure TMapBackground.GLContextOpen;
-begin
-  inherited;
-  if GLBackground = nil then
-    GLBackground := TGLImage.Create(Background, true);
-end;
-
-procedure TMapBackground.GLContextClose;
 begin
   FreeAndNil(GLBackground);
   inherited;

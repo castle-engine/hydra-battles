@@ -40,7 +40,6 @@ type
     FNpcType: TNpcType;
     FFaction: TFaction;
     FGLImage: TGLImage;
-    Image: TCastleImage;
     TilesX, FTileWidth, FTileHeight: Cardinal;
     FInitialLife: Single;
     FAttackConst, FAttackRandom: Single;
@@ -62,8 +61,7 @@ type
     property AttackRandom: Single read FAttackRandom;
     constructor Create(const AFaction: TFaction; const ANpcType: TNpcType);
     destructor Destroy; override;
-    procedure GLContextOpen;
-    procedure GLContextClose;
+    procedure PrepareResources;
   end;
 
   TNpcs = class
@@ -72,8 +70,7 @@ type
     { Create all npcs, reading contents from config file. }
     constructor Create;
     destructor Destroy; override;
-    procedure GLContextOpen;
-    procedure GLContextClose;
+    procedure PrepareResources;
   end;
 
   TNpcInstance = class
@@ -171,21 +168,21 @@ begin
   FNpcType := ANpcType;
   FName := NpcName[NpcType] + ' (' + FactionName[Faction] + ')';
   ConfPath := 'npcs/' + FactionName[Faction] + '/' + NpcName[NpcType];
-  Image := LoadImage(GameConf.GetURL(ConfPath + '/url'), []);
+  FGLImage := TGLImage.Create(GameConf.GetURL(ConfPath + '/url'));
   TilesX := GameConf.GetValue(ConfPath + '/tiles_x', 1);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 1.0);
   FAttackConst := GameConf.GetFloat(ConfPath + '/attack_const', 0.0);
   FAttackRandom := GameConf.GetFloat(ConfPath + '/attack_random', 0.0);
   FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
 
-  FTileWidth := Image.Width div TilesX;
-  if Image.Width mod TilesX <> 0 then
+  FTileWidth := FGLImage.Width div TilesX;
+  if FGLImage.Width mod TilesX <> 0 then
     WritelnWarning('Npc', Format('Npc "%s" image width %d does not exactly divide into tiles_x %d',
-      [Name, Image.Width, TilesX]));
-  FTileHeight := Image.Height div 8;
-  if Image.Height mod 8 <> 0 then
+      [Name, FGLImage.Width, TilesX]));
+  FTileHeight := FGLImage.Height div 8;
+  if FGLImage.Height mod 8 <> 0 then
     WritelnWarning('Npc', Format('Npc "%s" image height %d does not exactly divide into 8 directions',
-      [Name, Image.Height]));
+      [Name, FGLImage.Height]));
   WritelnLog('Npc', Format('Npc "%s" tile size %d x %d', [Name, TileWidth, TileHeight]));
 
   for AnimType := Low(AnimType) to High(AnimType) do
@@ -219,22 +216,16 @@ destructor TNpc.Destroy;
 var
   AnimType: TAnimationType;
 begin
-  GLContextClose;
-  FreeAndNil(Image);
+  FreeAndNil(FGLImage);
   for AnimType := Low(AnimType) to High(AnimType) do
     FreeAndNil(Animations[AnimType]);
   inherited;
 end;
 
-procedure TNpc.GLContextOpen;
+procedure TNpc.PrepareResources;
 begin
-  if FGLImage = nil then
-    FGLImage := TGLImage.Create(Image, true);
-end;
-
-procedure TNpc.GLContextClose;
-begin
-  FreeAndNil(FGLImage);
+  { not necessary, but makes sure we're fully initialized before game begins }
+  FGLImage.PrepareResources;
 end;
 
 { TNpcs ------------------------------------------------------------------ }
@@ -255,32 +246,20 @@ var
   F: TFaction;
   NT: TNpcType;
 begin
-  GLContextClose;
   for F := Low(F) to High(F) do
     for NT := Low(NT) to High(NT) do
       FreeAndNil(Npcs[F, NT]);
   inherited;
 end;
 
-procedure TNpcs.GLContextOpen;
+procedure TNpcs.PrepareResources;
 var
   F: TFaction;
   NT: TNpcType;
 begin
   for F := Low(F) to High(F) do
     for NT := Low(NT) to High(NT) do
-      Npcs[F, NT].GLContextOpen;
-end;
-
-procedure TNpcs.GLContextClose;
-var
-  F: TFaction;
-  NT: TNpcType;
-begin
-  for F := Low(F) to High(F) do
-    for NT := Low(NT) to High(NT) do
-      if Npcs[F, NT] <> nil then
-        Npcs[F, NT].GLContextClose;
+      Npcs[F, NT].PrepareResources;
 end;
 
 { TNpcInstance --------------------------------------------------------------- }

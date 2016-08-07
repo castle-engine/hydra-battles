@@ -35,7 +35,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
-    procedure Finish; override;
+    procedure Stop; override;
     procedure Resize; override;
     function Press(const Event: TInputPressRelease): boolean; override;
   end;
@@ -89,7 +89,7 @@ begin
   InsertFront(Notifications);
 end;
 
-procedure TStateMainMenu.Finish;
+procedure TStateMainMenu.Stop;
 begin
   RemoveControl(Background);
   RemoveControl(PlayButtonSmall);

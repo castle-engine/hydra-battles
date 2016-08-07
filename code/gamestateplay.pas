@@ -60,14 +60,13 @@ type
     StartMapName: string;
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
-    procedure Finish; override;
+    procedure Stop; override;
     procedure Resize; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: boolean); override;
     function Press(const Event: TInputPressRelease): boolean; override;
     function Release(const Event: TInputPressRelease): boolean; override;
     function Motion(const Event: TInputMotion): boolean; override;
     procedure GLContextOpen; override;
-    procedure GLContextClose; override;
   end;
 
 var
@@ -147,7 +146,7 @@ begin
   GameOver := false;
 end;
 
-procedure TStatePlay.Finish;
+procedure TStatePlay.Stop;
 var
   FT: TFaction;
   I: Integer;
@@ -607,17 +606,8 @@ end;
 procedure TStatePlay.GLContextOpen;
 begin
   inherited;
-  Props.GLContextOpen;
-  Npcs.GLContextOpen;
-end;
-
-procedure TStatePlay.GLContextClose;
-begin
-  if Props <> nil then
-    Props.GLContextClose;
-  if Npcs <> nil then
-    Npcs.GLContextClose;
-  inherited;
+  Props.PrepareResources;
+  Npcs.PrepareResources;
 end;
 
 procedure TStatePlay.GameOverClick(Sender: TObject);
