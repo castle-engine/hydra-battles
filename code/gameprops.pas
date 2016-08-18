@@ -375,7 +375,7 @@ begin
   if (X <> -1) and (Y <> -1) then
   begin
     R := Map.Rect;
-    ScissorEnable(R);
+    RenderContext.ScissorEnable(R);
 
     if Map.ValidTile(X, Y, nil) then
       C := Vector4Single(0, 1, 0, 1) else
@@ -385,7 +385,7 @@ begin
 
     Prop.Draw(Map.GetTileRect(R, X, Y));
     Prop.GLImage.Color := Vector4Single(1, 1, 1, 1);
-    ScissorDisable;
+    RenderContext.ScissorDisable;
   end;
 end;
 

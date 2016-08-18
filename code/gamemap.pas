@@ -171,7 +171,7 @@ begin
   { Map width, height assuming that tile width = 1.0. }
   R := Rect;
 
-  ScissorEnable(R);
+  RenderContext.ScissorEnable(R);
 
   if Grid then
     for Y := Height - 1 downto 0 do
@@ -199,7 +199,7 @@ begin
     HandleNeighbors(EditCursor[0], EditCursor[1], @DrawLightCursor);
   end;
 
-  ScissorDisable;
+  RenderContext.ScissorDisable;
 end;
 
 procedure TMap.SaveToFile;
