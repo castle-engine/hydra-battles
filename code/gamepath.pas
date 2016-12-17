@@ -124,7 +124,7 @@ function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
     MapRect := Map.Rect;
     TileRect := Map.GetTileRect(MapRect, X, Y);
     Point2D := Vector2SmallInt(X, Y);
-    TileMiddle := TileRect.Middle;
+    TileMiddle := TileRect.Center;
     Point3D := Vector3Single(TileMiddle[0] - MapRect.Left, TileMiddle[1] - MapRect.Bottom, PathZ);
 
     if (LastLastX <> -1) and (LastLastY <> -1) and Neighbors(LastLastX, LastLastY, X, Y) then

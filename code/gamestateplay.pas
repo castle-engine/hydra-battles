@@ -85,7 +85,7 @@ uses SysUtils,
 procedure TStatePlay.TFadeControl.Render;
 begin
   inherited;
-  GLFadeRectangle(Container.Rect, Color, 1);
+  GLFadeRectangleDark(Container.Rect, Color, 1);
 end;
 
 { TStatePlay ----------------------------------------------------------------- }
