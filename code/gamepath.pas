@@ -18,7 +18,7 @@ unit GamePath;
 
 interface
 
-uses FGL,
+uses Generics.Collections,
   CastleVectors, Castle2DSceneManager, X3DNodes,
   GameAbstractMap, GameUtils;
 
@@ -43,7 +43,7 @@ type
     function PointsVector(const FromIndex, ToIndex: Integer): TVector2Single;
   end;
 
-  TPathList = specialize TFPGObjectList<TPath>;
+  TPathList = specialize TObjectList<TPath>;
 
 implementation
 

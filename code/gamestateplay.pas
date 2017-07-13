@@ -20,7 +20,7 @@ unit GameStatePlay;
 
 interface
 
-uses Classes, FGL,
+uses Classes, Generics.Collections,
   CastleConfig, CastleKeysMouse, CastleControls, Castle2DSceneManager,
   CastleColors, CastleUIControls, CastleUIState,
   GameMap, GameNpcs, GamePath, GameProps, GameUtils, GamePlayerSidebar;
@@ -29,9 +29,9 @@ type
   { Currently drawn paths with mouse / touch device. Support multi-touch
     (crucial for our game to enable 2 players simultaneously drawing paths)
     by supporting multiple paths, for different finger index. }
-  TCurrentPaths = specialize TFPGMap<TFingerIndex, TPath>;
+  TCurrentPaths = specialize TDictionary<TFingerIndex, TPath>;
 
-  TCurrentDraggedProps = specialize TFPGMap<TFingerIndex, TDraggedProp>;
+  TCurrentDraggedProps = specialize TDictionary<TFingerIndex, TDraggedProp>;
 
   TStatePlay = class(TUIState)
   private
@@ -149,7 +149,7 @@ end;
 procedure TStatePlay.Stop;
 var
   FT: TFaction;
-  I: Integer;
+  V: TDraggedProp;
 begin
   FreeAndNil(Status);
   FreeAndNil(VisualizationSceneManager);
@@ -160,11 +160,8 @@ begin
   FreeAndNil(CurrentPaths);
   if CurrentDraggedProps <> nil then
   begin
-    for I := 0 to CurrentDraggedProps.Count - 1 do
-    begin
-      CurrentDraggedProps.Data[I].Free;
-      CurrentDraggedProps.Data[I] := nil;
-    end;
+    for V in CurrentDraggedProps.Values do
+      V.Free;
     FreeAndNil(CurrentDraggedProps);
   end;
   for FT := Low(FT) to High(FT) do
@@ -300,7 +297,7 @@ function TStatePlay.Press(const Event: TInputPressRelease): boolean;
     begin
       Npc := Map.MapNpcs[PathStartX, PathStartY];
       NewPath := TPath.Create(Map, PathStartX, PathStartY, Npc.Npc.Faction);
-      CurrentPaths[Event.FingerIndex] := NewPath;
+      CurrentPaths.AddOrSetValue(Event.FingerIndex, NewPath);
       Npc.Path := NewPath;
     end;
   end;
@@ -314,7 +311,6 @@ function TStatePlay.Press(const Event: TInputPressRelease): boolean;
 
   function TryDraggingSidebar: boolean;
   var
-    I: Integer;
     FT: TFaction;
     DraggingPropType: TProp;
     DragProp: TDraggedProp;
@@ -327,12 +323,10 @@ function TStatePlay.Press(const Event: TInputPressRelease): boolean;
       begin
         Result := true;
 
-        I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
-        if I <> -1 then
+        if CurrentDraggedProps.TryGetValue(Event.FingerIndex, DragProp) then
         begin
-          DragProp := CurrentDraggedProps.Data[I];
           FreeAndNil(DragProp);
-          CurrentDraggedProps.Delete(I);
+          CurrentDraggedProps.Remove(Event.FingerIndex);
         end;
 
         if DraggingPropType.Neutral or
@@ -344,7 +338,7 @@ function TStatePlay.Press(const Event: TInputPressRelease): boolean;
           DragProp.X := -1;
           DragProp.Y := -1;
           InsertFront(DragProp);
-          CurrentDraggedProps[Event.FingerIndex] := DragProp;
+          CurrentDraggedProps.AddOrSetValue(Event.FingerIndex, DragProp);
         end;
       end;
   end;
@@ -458,14 +452,11 @@ function TStatePlay.Release(const Event: TInputPressRelease): boolean;
 
   procedure TryDraggingNpc;
   var
-    CurrentPathIndex: Integer;
     CurrentPath: TPath;
     PathNpc: TNpcInstance;
   begin
-    CurrentPathIndex := CurrentPaths.IndexOf(Event.FingerIndex);
-    if CurrentPathIndex <> -1 then
+    if CurrentPaths.TryGetValue(Event.FingerIndex, CurrentPath) then
     begin
-      CurrentPath := CurrentPaths.Data[CurrentPathIndex];
       if CurrentPath <> nil then
       begin
         PathNpc := NpcFromPath(CurrentPath);
@@ -479,21 +470,17 @@ function TStatePlay.Release(const Event: TInputPressRelease): boolean;
             PathNpc.Path := nil;
         end;
       end;
-      CurrentPaths.Delete(CurrentPathIndex);
+      CurrentPaths.Remove(Event.FingerIndex);
       Release := true;
     end;
   end;
 
   procedure TryDraggingSidebar;
   var
-    I: Integer;
     DragProp: TDraggedProp;
   begin
-    I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
-    if I <> -1 then
+    if CurrentDraggedProps.TryGetValue(Event.FingerIndex, DragProp) then
     begin
-      DragProp := CurrentDraggedProps.Data[I];
-
       { update DragProp.X, Y for the last time }
       if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then
       begin
@@ -517,7 +504,7 @@ function TStatePlay.Release(const Event: TInputPressRelease): boolean;
       end;
 
       DragProp.Free;
-      CurrentDraggedProps.Delete(I);
+      CurrentDraggedProps.Remove(Event.FingerIndex);
       Release := true;
     end;
   end;
@@ -547,21 +534,19 @@ function TStatePlay.Motion(const Event: TInputMotion): boolean;
 
   procedure TryDraggingNpc;
   var
-    X, Y, PathUnderFingerIndex: Integer;
+    X, Y: Integer;
     MapRect: TRectangle;
     CurrentPath: TPath;
     PathNpc: TNpcInstance;
   begin
-    PathUnderFingerIndex := CurrentPaths.IndexOf(Event.FingerIndex);
-    if PathUnderFingerIndex <> -1 then
+    if CurrentPaths.TryGetValue(Event.FingerIndex, CurrentPath) then
     begin
-      CurrentPath := CurrentPaths.Data[PathUnderFingerIndex];
       PathNpc := NpcFromPath(CurrentPath);
       if PathNpc = nil then
         { TODO: ugly to detect it like this.
           This means that Path was already freed in TNpcInstance,
           and CurrentPaths contains reference to invalid object. }
-        CurrentPaths.Delete(PathUnderFingerIndex) else
+        CurrentPaths.Remove(Event.FingerIndex) else
       begin
         MapRect := Map.Rect;
         if Map.PositionToTile(MapRect, Event.Position, X, Y) then
@@ -577,13 +562,10 @@ function TStatePlay.Motion(const Event: TInputMotion): boolean;
 
   procedure TryDraggingSidebar;
   var
-    I: Integer;
     DragProp: TDraggedProp;
   begin
-    I := CurrentDraggedProps.IndexOf(Event.FingerIndex);
-    if I <> -1 then
+    if CurrentDraggedProps.TryGetValue(Event.FingerIndex, DragProp) then
     begin
-      DragProp := CurrentDraggedProps.Data[I];
       { update DragProp.ScreenPosition, X, Y }
       DragProp.ScreenPosition := Event.Position;
       if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then

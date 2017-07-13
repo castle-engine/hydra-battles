@@ -20,7 +20,7 @@ unit GameMap;
 
 interface
 
-uses Classes, FGL,
+uses Classes,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleRectangles,
   GameNpcs, GameAbstractMap, GamePath, GameProps, GameUtils;
