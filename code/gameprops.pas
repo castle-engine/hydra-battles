@@ -21,7 +21,7 @@ unit GameProps;
 
 interface
 
-uses Classes, FGL,
+uses Classes, Generics.Collections,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleRectangles,
   GameUtils, GameAbstractMap, GameNpcs;
@@ -98,10 +98,10 @@ type
     function CanBuild(const PropInstances: TPropInstanceList): boolean;
   end;
 
-  TProps = class(specialize TFPGMap<TPropType,TProp>)
+  TProps = class(specialize TDictionary<TPropType,TProp>)
   public
     { Create, reading list contents from config file. }
-    constructor Create;
+    constructor Create; reintroduce;
     destructor Destroy; override;
     procedure PrepareResources;
   end;
@@ -125,7 +125,7 @@ type
     procedure Update(const Map: TAbstractMap; out SpawnNpc: TNpc; out SpawnX, SpawnY: Integer);
   end;
 
-  TPropInstanceList = class(specialize TFPGObjectList<TPropInstance>)
+  TPropInstanceList = class(specialize TObjectList<TPropInstance>)
     function Contains(const PropType: TPropType): boolean;
   end;
 
@@ -264,27 +264,24 @@ var
 begin
   inherited;
   for PT := Low(PT) to High(PT) do
-    KeyData[PT] := TProp.Create(PT);
+    AddOrSetValue(PT, TProp.Create(PT));
 end;
 
 destructor TProps.Destroy;
 var
-  I: Integer;
+  V: TProp;
 begin
-  for I := 0 to Count - 1 do
-  begin
-    Data[I].Free;
-    Data[I] := nil;
-  end;
+  for V in Values do
+    V.Free;
   inherited;
 end;
 
 procedure TProps.PrepareResources;
 var
-  I: Integer;
+  V: TProp;
 begin
-  for I := 0 to Count - 1 do
-    Data[I].PrepareResources;
+  for V in Values do
+    V.PrepareResources;
 end;
 
 { TPropInstance -------------------------------------------------------------- }

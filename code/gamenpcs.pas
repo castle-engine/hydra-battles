@@ -20,7 +20,7 @@ unit GameNpcs;
 
 interface
 
-uses Classes, FGL,
+uses Classes, Generics.Collections,
   CastleConfig, CastleKeysMouse, CastleControls, CastleImages, CastleVectors,
   CastleGLImages, CastleUIControls, CastleTimeUtils, CastleRectangles,
   GamePath, GameAbstractMap, GameUtils;
@@ -108,7 +108,7 @@ type
     function RemoveFromMap: boolean;
   end;
 
-  TNpcInstanceList = specialize TFPGObjectList<TNpcInstance>;
+  TNpcInstanceList = specialize TObjectList<TNpcInstance>;
 
 function RandomFaction: TFaction;
 function RandomNpcType: TNpcType;
