@@ -51,7 +51,10 @@ uses SysUtils,
 
 const
   BuildingDragHeight = 0.4;
-  FactionColor: array [TFaction] of TCastleColor = ((0.5, 0.5, 1, 1), (1, 0.5, 0.5, 1));
+  FactionColor: array [TFaction] of TCastleColor = (
+    (Data: (0.5, 0.5, 1, 1)),
+    (Data: (1, 0.5, 0.5, 1))
+  );
 
 constructor TPlayerSidebar.Create(const AOwner: TComponent;
   const AFaction: TFaction; const AProps: TProps);

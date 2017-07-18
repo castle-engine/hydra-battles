@@ -54,7 +54,10 @@ procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
   const Amount: Single);
 
 const
-  FactionBarColor: array [TFaction] of TCastleColor = ((0.1, 0.1, 1, 1), (1, 0.1, 0.1, 1));
+  FactionBarColor: array [TFaction] of TCastleColor = (
+    (Data: (0.1, 0.1, 1, 1)),
+    (Data: (1, 0.1, 0.1, 1))
+  );
 
 function FactionCanMove(const F: TFaction): boolean;
 

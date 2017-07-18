@@ -52,7 +52,10 @@ uses CastleRectangles, CastleColors;
 constructor TPath.Create(const AMap: TAbstractMap;
   const PathStartX, PathStartY: Integer; const AFaction: TFaction);
 const
-  FactionColor: array [TFaction] of TCastleColorRGB = ((0.1, 0.1, 1), (1, 0.1, 0.1));
+  FactionColor: array [TFaction] of TCastleColorRGB = (
+    (Data: (0.1, 0.1, 1)),
+    (Data: (1, 0.1, 0.1))
+  );
 
   procedure CreateVisualization;
   var
