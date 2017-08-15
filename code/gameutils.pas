@@ -63,7 +63,7 @@ function FactionCanMove(const F: TFaction): boolean;
 
 implementation
 
-uses SysUtils,
+uses SysUtils, Math,
   CastleGLUtils, CastleUtils;
 
 function PlayerSidebarWidth: Integer;
