@@ -31,8 +31,8 @@ type
   strict private
     GLBackground: TGLImage;
   public
-    FRect: TRectangle;
-    function Rect: TRectangle; override;
+    FRect: TFloatRectangle;
+    function Rect: TFloatRectangle; override;
     procedure Render; override;
     constructor Create(const AName: string); reintroduce;
     destructor Destroy; override;
@@ -87,7 +87,7 @@ begin
   GLBackground := TGLImage.Create(GameConf.GetURL(ConfPath + '/background'));
 end;
 
-function TMapBackground.Rect: TRectangle;
+function TMapBackground.Rect: TFloatRectangle;
 begin
   Result := FRect;
 end;
@@ -101,7 +101,7 @@ end;
 procedure TMapBackground.Render;
 begin
   inherited;
-  GLBackground.Draw(Rect);
+  GLBackground.Draw(RenderRect);
 end;
 
 { TMap ----------------------------------------------------------------------- }
@@ -169,7 +169,10 @@ var
 begin
   inherited;
   { Map width, height assuming that tile width = 1.0. }
-  R := Rect;
+
+  // TODO: Should use Map.RenderRect for all rendering, not Map.Rect.
+
+  R := Rect.Round;
 
   RenderContext.ScissorEnable(R);
 

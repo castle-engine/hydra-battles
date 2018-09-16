@@ -35,14 +35,14 @@ type
     constructor Create(const AWidth, AHeight: Cardinal); reintroduce;
     property Width: Cardinal read FWidth;
     property Height: Cardinal read FHeight;
-    function Rect: TRectangle; override;
+    function Rect: TFloatRectangle; override;
     function ValidCoord(const X, Y: Integer): boolean;
     { Get rectangle of given tile, assuming that map fits given MapRect.
       MapRect must always be equal the return value of @link(Rect) method,
       it is taken here only for optimization. }
     function GetTileRect(const MapRect: TRectangle; const X, Y: Integer): TRectangle;
     { Convert screen position to tile (returns false if outside the map. }
-    function PositionToTile(const MapRect: TRectangle;
+    function PositionToTile(const MapRect: TFloatRectangle;
       ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
     { Can you place an NPC or a prop on this tile.
       This should be used to test can you place anything on a tile during a game
@@ -92,7 +92,7 @@ begin
   Result.Height := Ceil(TileH);
 end;
 
-function TAbstractMap.Rect: TRectangle;
+function TAbstractMap.Rect: TFloatRectangle;
 var
   MapW, MapH: Single;
   ContainerW, ContainerH: Integer;
@@ -106,19 +106,19 @@ begin
   begin
     Result.Left := 0;
     Result.Width := ContainerW;
-    Result.Height := Round(Result.Width * MapH / MapW); // adjust Result.Height to aspect
-    Result.Bottom := (ContainerH - Result.Height) div 2;
+    Result.Height := Result.Width * MapH / MapW; // adjust Result.Height to aspect
+    Result.Bottom := (ContainerH - Result.Height) / 2;
   end else
   begin
     Result.Bottom := 0;
     Result.Height := ContainerH;
-    Result.Width := Round(Result.Height * MapW / MapH); // adjust Result.Width to aspect
-    Result.Left := (ContainerW - Result.Width) div 2;
+    Result.Width := Result.Height * MapW / MapH; // adjust Result.Width to aspect
+    Result.Left := (ContainerW - Result.Width) / 2;
   end;
   Result.Left += PlayerSidebarWidth;
 end;
 
-function TAbstractMap.PositionToTile(const MapRect: TRectangle;
+function TAbstractMap.PositionToTile(const MapRect: TFloatRectangle;
   ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
 var
   TileW, TileH: Single;

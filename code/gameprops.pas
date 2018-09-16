@@ -371,7 +371,9 @@ begin
 
   if (X <> -1) and (Y <> -1) then
   begin
-    R := Map.Rect;
+    // TODO: Should use Map.RenderRect for all rendering, not Map.Rect.
+
+    R := Map.Rect.Round;
     RenderContext.ScissorEnable(R);
 
     if Map.ValidTile(X, Y, nil) then

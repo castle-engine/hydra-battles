@@ -26,7 +26,6 @@ type
   TPlayerSidebar = class(TUIRectangularControl)
   private
     GLFrame: TGLImage;
-    FHeight: Integer;
     FFaction: TFaction;
     FProps: TProps;
   public
@@ -35,8 +34,7 @@ type
     destructor Destroy; override;
     property Props: TProps read FProps;
     property Faction: TFaction read FFaction;
-    function Rect: TRectangle; override;
-    property Height: Integer read FHeight write FHeight;
+    function Rect: TFloatRectangle; override;
     procedure Render; override;
     function StartsDragging(
       const PropInstances: TPropInstanceList;
@@ -65,9 +63,9 @@ begin
   FProps := AProps;
 end;
 
-function TPlayerSidebar.Rect: TRectangle;
+function TPlayerSidebar.Rect: TFloatRectangle;
 begin
-  Result := Rectangle(Left, Bottom, PlayerSidebarWidth, Height);
+  Result := FloatRectangle(Left, Bottom, PlayerSidebarWidth, Height);
 end;
 
 destructor TPlayerSidebar.Destroy;
@@ -79,7 +77,7 @@ end;
 procedure TPlayerSidebar.Render;
 var
   BDH: Integer;
-  R: TRectangle;
+  R: TFloatRectangle;
   ColorBg, ColorText: TCastleColor;
   Timeout: string;
 begin
@@ -93,7 +91,7 @@ begin
         Trunc(FloatModulo(GameTime, FactionExclusiveMovesDuration))) + ']' else
       Timeout := ' [blocked]';
 
-  R := Rectangle(Left, Bottom, PlayerSidebarWidth, Height - BDH * 2);
+  R := FloatRectangle(Left, Bottom, PlayerSidebarWidth, Height - BDH * 2);
   if FactionCanMove(Faction) then
   begin
     ColorBg := FactionColor[Faction];
@@ -108,13 +106,13 @@ begin
     Format('%s (%d wood)'+ Timeout, [FactionName[Faction], Trunc(Wood[Faction])]),
     0, hpMiddle, vpMiddle);
 
-  R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build Barracks (%d wood)', [FProps[Barracks[Faction]].CostWood]),
     0, hpMiddle, vpMiddle);
 
-  R := Rectangle(Left, R.Top, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build HQ (%d wood)', [FProps[Headquarters[Faction]].CostWood]),
@@ -126,19 +124,19 @@ function TPlayerSidebar.StartsDragging(
   const ScreenPosition: TVector2Single; out Prop: TProp): boolean;
 var
   BDH: Integer;
-  R: TRectangle;
+  R: TFloatRectangle;
 begin
   BDH := Round(BuildingDragHeight * Height);
   Result := false;
 
-  R := Rectangle(Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Props[Barracks[Faction]];
     Result := Prop.CanBuild(PropInstances);
   end;
 
-  R := Rectangle(Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Props[Headquarters[Faction]];

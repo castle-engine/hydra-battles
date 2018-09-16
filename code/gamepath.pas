@@ -38,7 +38,7 @@ type
     constructor Create(const AMap: TAbstractMap;
       const PathStartX, PathStartY: Integer; const AFaction: TFaction);
     destructor Destroy; override;
-    function Add(const X, Y: SmallInt; const AssumeValid: boolean = false): boolean;
+    function Add(const X, Y: SmallInt; const AssumeValid: boolean = false): boolean; reintroduce;
     function ValidTile(const X, Y: Integer): boolean;
     function PointsVector(const FromIndex, ToIndex: Integer): TVector2Single;
   end;
@@ -124,7 +124,7 @@ function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
     Point2D: TVector2SmallInt;
     C: Integer;
   begin
-    MapRect := Map.Rect;
+    MapRect := Map.Rect.Round;
     TileRect := Map.GetTileRect(MapRect, X, Y);
     Point2D := Vector2SmallInt(X, Y);
     TileMiddle := TileRect.Center;

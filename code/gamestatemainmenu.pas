@@ -100,7 +100,7 @@ end;
 
 procedure TStateMainMenu.Resize;
 var
-  R: TRectangle;
+  R: TFloatRectangle;
 begin
   inherited;
   Background.Width := ContainerWidth;

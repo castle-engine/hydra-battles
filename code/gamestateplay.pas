@@ -174,7 +174,7 @@ end;
 
 procedure TStatePlay.Resize;
 var
-  R, GameOverButtonRect: TRectangle;
+  R, GameOverButtonRect: TFloatRectangle;
 begin
   inherited;
 
@@ -195,7 +195,7 @@ begin
 
   if GameOverButton <> nil then
   begin
-    GameOverButtonRect := R.Grow(-R.Width div 4, -R.Height div 4);
+    GameOverButtonRect := R.Grow(-R.Width / 4, -R.Height / 4);
     GameOverButton.Left := GameOverButtonRect.Left;
     GameOverButton.Bottom := GameOverButtonRect.Bottom;
     GameOverButton.Width := GameOverButtonRect.Width;
@@ -535,7 +535,7 @@ function TStatePlay.Motion(const Event: TInputMotion): boolean;
   procedure TryDraggingNpc;
   var
     X, Y: Integer;
-    MapRect: TRectangle;
+    MapRect: TFloatRectangle;
     CurrentPath: TPath;
     PathNpc: TNpcInstance;
   begin
