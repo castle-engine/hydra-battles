@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="hydra_battles"
   standalone_source="code/hydra_battles_standalone.lpr"
-  android_source="code/hydra_battles_android.lpr"
   caption="Hydra Battles"
   qualified_name="net.sourceforge.castleengine.hydrabattles"
   screen_orientation="landscape"
-  author="Michalis Kamburelis">
+  author="Michalis Kamburelis"
+  game_units="Game"
+>
   <version value="1.1.0" code="2" />
+  <compiler_options>
+    <search_paths>
+      <path value="code/" />
+    </search_paths>
+  </compiler_options>
   <package>
     <include path="COPYING.GPL2.txt" />
     <include path="README.txt" />

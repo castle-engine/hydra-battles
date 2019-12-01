@@ -65,7 +65,7 @@ begin
   inherited;
 
   Background := TCastleImageControl.Create(Self);
-  Background.URL := ApplicationData('at_oga/wallpaper2.png');
+  Background.URL := 'castle-data:/at_oga/wallpaper2.png';
   Background.Stretch := true;
   Background.Proportional := true;
 
@@ -106,9 +106,9 @@ begin
   Background.Width := ContainerWidth;
   Background.Height := ContainerHeight;
 
-  R := Background.Rect;
+  R := Background.EffectiveRect;
 
-  UIFont.Scale := 1.0; // TODO: for some reason, scaling text makes it wrong on buttons
+  UIFont.Size := 20;
 
   PlayButtonLarge.Left := Round(Lerp(0.69, R.Left, R.Right));
   PlayButtonSmall.Left := PlayButtonLarge.Left;

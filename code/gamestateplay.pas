@@ -202,7 +202,7 @@ begin
     GameOverButton.Height := GameOverButtonRect.Height;
   end;
 
-  UIFont.Scale := R.Height / 600;
+  UIFont.Size := 20;
 end;
 
 procedure TStatePlay.Update(const SecondsPassed: Single; var HandleInput: boolean);
