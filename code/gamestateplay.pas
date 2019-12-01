@@ -179,11 +179,15 @@ begin
   inherited;
 
   R := Map.Rect;
-  MapBackground.FRect := R;
   VisualizationSceneManager.Left := R.Left;
   VisualizationSceneManager.Bottom := R.Bottom;
   VisualizationSceneManager.Width := R.Width;
   VisualizationSceneManager.Height := R.Height;
+
+  MapBackground.Left := R.Left;
+  MapBackground.Bottom := R.Bottom;
+  MapBackground.Width := R.Width;
+  MapBackground.Height := R.Height;
 
   Sidebar[ftHumans].Left := R.Left - PlayerSidebarWidth;
   Sidebar[ftHumans].Bottom := R.Bottom;

@@ -26,16 +26,10 @@ uses Classes,
   GameNpcs, GameAbstractMap, GamePath, GameProps, GameUtils;
 
 type
-  { Render map background. On a separate layer, to be place scene manager inside. }
-  TMapBackground = class(TUIControl)
-  strict private
-    GLBackground: TGLImage;
+  { Render map background. }
+  TMapBackground = class(TCastleImageControl)
   public
-    FRect: TFloatRectangle;
-    function Rect: TFloatRectangle; override;
-    procedure Render; override;
     constructor Create(const AName: string); reintroduce;
-    destructor Destroy; override;
   end;
 
   TMap = class(TAbstractMap)
@@ -78,30 +72,11 @@ uses SysUtils,
 { TMapBackground ------------------------------------------------------------- }
 
 constructor TMapBackground.Create(const AName: string);
-var
-  ConfPath: string;
 begin
-  Name := AName;
-  ConfPath := 'maps/' + AName;
   inherited Create(nil);
-  GLBackground := TGLImage.Create(GameConf.GetURL(ConfPath + '/background'));
-end;
-
-function TMapBackground.Rect: TFloatRectangle;
-begin
-  Result := FRect;
-end;
-
-destructor TMapBackground.Destroy;
-begin
-  FreeAndNil(GLBackground);
-  inherited;
-end;
-
-procedure TMapBackground.Render;
-begin
-  inherited;
-  GLBackground.Draw(RenderRect);
+  Name := AName;
+  Url := GameConf.GetURL('maps/' + AName + '/background');
+  Stretch := true;
 end;
 
 { TMap ----------------------------------------------------------------------- }
