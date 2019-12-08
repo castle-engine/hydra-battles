@@ -52,10 +52,6 @@ begin
 
   // disable shortcuts, in particular do not let scene manager to capture clicks
   Input_Interact.MakeClear(true);
-  Input_Attack.MakeClear(true);
-  Input_InventoryPrevious.MakeClear(true);
-  Input_InventoryNext.MakeClear(true);
-  Input_UseItem.MakeClear(true);
 
   Notifications.Anchor(hpMiddle);
   Notifications.Anchor(vpBottom, 10);
