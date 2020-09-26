@@ -67,7 +67,7 @@ implementation
 
 uses SysUtils,
   CastleScene, CastleFilesUtils, CastleGLUtils,
-  CastleUtils, CastleStringUtils, CastleLog;
+  CastleUtils, CastleStringUtils, CastleLog, CastleRenderContext;
 
 { TMapBackground ------------------------------------------------------------- }
 

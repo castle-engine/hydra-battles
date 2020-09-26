@@ -149,7 +149,7 @@ implementation
 
 uses SysUtils,
   CastleScene, CastleFilesUtils, CastleGLUtils,
-  CastleColors, CastleUtils, CastleStringUtils, CastleGameNotifications;
+  CastleColors, CastleUtils, CastleStringUtils, CastleGameNotifications, CastleRenderContext;
 
 const
   PropName: array [TPropType] of string =
