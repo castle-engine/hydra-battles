@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -34,7 +34,6 @@ type
     destructor Destroy; override;
     property Props: TProps read FProps;
     property Faction: TFaction read FFaction;
-    function Rect: TFloatRectangle; override;
     procedure Render; override;
     function StartsDragging(
       const PropInstances: TPropInstanceList;
@@ -50,8 +49,8 @@ uses SysUtils,
 const
   BuildingDragHeight = 0.4;
   FactionColor: array [TFaction] of TCastleColor = (
-    (Data: (0.5, 0.5, 1, 1)),
-    (Data: (1, 0.5, 0.5, 1))
+    (X: 0.5; Y: 0.5; Z: 1  ; W: 1),
+    (X: 1  ; Y: 0.5; Z: 0.5; W: 1)
   );
 
 constructor TPlayerSidebar.Create(const AOwner: TComponent;
@@ -61,11 +60,6 @@ begin
   FFaction := AFaction;
   GLFrame := TGLImage.Create(ApplicationData('gui/button_' + FactionName[Faction] + '.png'));
   FProps := AProps;
-end;
-
-function TPlayerSidebar.Rect: TFloatRectangle;
-begin
-  Result := FloatRectangle(Left, Bottom, PlayerSidebarWidth, Height);
 end;
 
 destructor TPlayerSidebar.Destroy;

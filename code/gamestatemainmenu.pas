@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -68,6 +68,7 @@ begin
   Background.URL := 'castle-data:/at_oga/wallpaper2.png';
   Background.Stretch := true;
   Background.Proportional := true;
+  Background.Anchor(hpMiddle);
 
   PlayButtonSmall := TPlayButton.Create(Self);
   PlayButtonSmall.Caption := 'Small Map';

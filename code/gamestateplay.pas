@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -178,7 +178,7 @@ var
 begin
   inherited;
 
-  R := Map.Rect;
+  R := Map.RenderRect;
   VisualizationSceneManager.Left := R.Left;
   VisualizationSceneManager.Bottom := R.Bottom;
   VisualizationSceneManager.Width := R.Width;
@@ -191,10 +191,12 @@ begin
 
   Sidebar[ftHumans].Left := R.Left - PlayerSidebarWidth;
   Sidebar[ftHumans].Bottom := R.Bottom;
+  Sidebar[ftHumans].Width := PlayerSidebarWidth;
   Sidebar[ftHumans].Height := R.Height;
 
   Sidebar[ftMonsters].Left := R.Right;
   Sidebar[ftMonsters].Bottom := R.Bottom;
+  Sidebar[ftMonsters].Width := PlayerSidebarWidth;
   Sidebar[ftMonsters].Height := R.Height;
 
   if GameOverButton <> nil then
@@ -372,32 +374,32 @@ begin
   begin
     if Event.IsKey(K_Up) then
     begin
-      Map.EditCursor[1] := Map.EditCursor[1] + 1;
+      Map.EditCursor.Y := Map.EditCursor.Y + 1;
       Result := true;
     end;
     if Event.IsKey(K_Down) then
     begin
-      Map.EditCursor[1] := Map.EditCursor[1] - 1;
+      Map.EditCursor.Y := Map.EditCursor.Y - 1;
       Result := true;
     end;
     if Event.IsKey(K_Right) then
     begin
-      Map.EditCursor[0] := Map.EditCursor[0] + 1;
+      Map.EditCursor.X := Map.EditCursor.X + 1;
       Result := true;
     end;
     if Event.IsKey(K_Left) then
     begin
-      Map.EditCursor[0] := Map.EditCursor[0] - 1;
+      Map.EditCursor.X := Map.EditCursor.X - 1;
       Result := true;
     end;
-    Map.EditCursor[0] := Clamped(Map.EditCursor[0], 0, Map.Width - 1);
-    Map.EditCursor[1] := Clamped(Map.EditCursor[1], 0, Map.Height - 1);
+    Map.EditCursor.X := Clamped(Map.EditCursor.X, 0, Map.Width - 1);
+    Map.EditCursor.Y := Clamped(Map.EditCursor.Y, 0, Map.Height - 1);
     for PT := Low(PT) to High(PT) do
     begin
       Prop := Props[PT];
       if Event.IsKey(Prop.EditorShortcut) then
       begin
-        Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
+        Map.SetPropInstance(Map.EditCursor.X, Map.EditCursor.Y, TPropInstance.Create(Prop));
         Result := true;
       end;
     end;
@@ -408,13 +410,13 @@ begin
       begin
         Prop := Props[PT];
         if Prop.EditorShortcut = RandomMountain then
-          Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], TPropInstance.Create(Prop));
+          Map.SetPropInstance(Map.EditCursor.X, Map.EditCursor.Y, TPropInstance.Create(Prop));
       end;
       Result := true;
     end;
     if Event.IsKey(' ') then
     begin
-      Map.SetPropInstance(Map.EditCursor[0], Map.EditCursor[1], nil);
+      Map.SetPropInstance(Map.EditCursor.X, Map.EditCursor.Y, nil);
       Result := true;
     end;
     if Event.IsKey('S') then
@@ -424,7 +426,7 @@ begin
     end;
     if Event.IsKey('N') then
     begin
-      Map.SetNpcInstance(Map.EditCursor[0], Map.EditCursor[1],
+      Map.SetNpcInstance(Map.EditCursor.X, Map.EditCursor.Y,
         TNpcInstance.Create(Npcs.Npcs[RandomFaction, RandomNpcType], RandomDirection));
       Result := true;
     end;
@@ -435,7 +437,7 @@ begin
     if TryDraggingSidebar then
       Exit(true);
 
-    if Map.PositionToTile(Map.Rect, Event.Position, MouseTileX, MouseTileY) then
+    if Map.PositionToTile(Map.RenderRect, Event.Position, MouseTileX, MouseTileY) then
     begin
       if TryNpcDragging(MouseTileX, MouseTileY) then
         Exit(true);
@@ -486,7 +488,7 @@ function TStatePlay.Release(const Event: TInputPressRelease): boolean;
     if CurrentDraggedProps.TryGetValue(Event.FingerIndex, DragProp) then
     begin
       { update DragProp.X, Y for the last time }
-      if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then
+      if not Map.PositionToTile(Map.RenderRect, Event.Position, DragProp.X, DragProp.Y) then
       begin
         DragProp.X := -1;
         DragProp.Y := -1;
@@ -552,11 +554,11 @@ function TStatePlay.Motion(const Event: TInputMotion): boolean;
           and CurrentPaths contains reference to invalid object. }
         CurrentPaths.Remove(Event.FingerIndex) else
       begin
-        MapRect := Map.Rect;
+        MapRect := Map.RenderRect;
         if Map.PositionToTile(MapRect, Event.Position, X, Y) then
         begin
-          Map.EditCursor[0] := X;
-          Map.EditCursor[1] := Y;
+          Map.EditCursor.X := X;
+          Map.EditCursor.Y := Y;
           CurrentPath.Add(X, Y);
         end;
       end;
@@ -572,7 +574,7 @@ function TStatePlay.Motion(const Event: TInputMotion): boolean;
     begin
       { update DragProp.ScreenPosition, X, Y }
       DragProp.ScreenPosition := Event.Position;
-      if not Map.PositionToTile(Map.Rect, Event.Position, DragProp.X, DragProp.Y) then
+      if not Map.PositionToTile(Map.RenderRect, Event.Position, DragProp.X, DragProp.Y) then
       begin
         DragProp.X := -1;
         DragProp.Y := -1;

@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -28,14 +28,13 @@ const
   TileWidthToHeight = 64 / 36;
 
 type
-  TAbstractMap = class(TUIControl)
+  TAbstractMap = class(TCastleUserInterface)
   private
     FWidth, FHeight: Cardinal;
   public
     constructor Create(const AWidth, AHeight: Cardinal); reintroduce;
     property Width: Cardinal read FWidth;
     property Height: Cardinal read FHeight;
-    function Rect: TFloatRectangle; override;
     function ValidCoord(const X, Y: Integer): boolean;
     { Get rectangle of given tile, assuming that map fits given MapRect.
       MapRect must always be equal the return value of @link(Rect) method,
@@ -43,7 +42,7 @@ type
     function GetTileRect(const MapRect: TRectangle; const X, Y: Integer): TRectangle;
     { Convert screen position to tile (returns false if outside the map. }
     function PositionToTile(const MapRect: TFloatRectangle;
-      ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+      ScreenPosition: TVector2; out X, Y: Integer): boolean;
     { Can you place an NPC or a prop on this tile.
       This should be used to test can you place anything on a tile during a game
       (during editing, when placing stuff in editor mode, rules are somewhat
@@ -76,6 +75,9 @@ begin
   inherited Create(nil);
   FWidth := AWidth;
   FHeight := AHeight;
+  FullSize := true;
+  Border.Left := PlayerSidebarWidth;
+  Border.Right := PlayerSidebarWidth;
 end;
 
 function TAbstractMap.GetTileRect(const MapRect: TRectangle; const X, Y: Integer): TRectangle;
@@ -92,37 +94,11 @@ begin
   Result.Height := Ceil(TileH);
 end;
 
-function TAbstractMap.Rect: TFloatRectangle;
-var
-  MapW, MapH: Single;
-  ContainerW, ContainerH: Integer;
-begin
-  MapW := Width - 1.0; { cut off 0.5 margin from left/right side }
-  MapH := Height / 2 - 0.5;
-  MapH /= TileWidthToHeight;
-  ContainerW := ContainerWidth - 2 * PlayerSidebarWidth; // leave some space for controls on screen sides
-  ContainerH := ContainerHeight;
-  if MapW / MapH > ContainerW / ContainerH then
-  begin
-    Result.Left := 0;
-    Result.Width := ContainerW;
-    Result.Height := Result.Width * MapH / MapW; // adjust Result.Height to aspect
-    Result.Bottom := (ContainerH - Result.Height) / 2;
-  end else
-  begin
-    Result.Bottom := 0;
-    Result.Height := ContainerH;
-    Result.Width := Result.Height * MapW / MapH; // adjust Result.Width to aspect
-    Result.Left := (ContainerW - Result.Width) / 2;
-  end;
-  Result.Left += PlayerSidebarWidth;
-end;
-
 function TAbstractMap.PositionToTile(const MapRect: TFloatRectangle;
-  ScreenPosition: TVector2Single; out X, Y: Integer): boolean;
+  ScreenPosition: TVector2; out X, Y: Integer): boolean;
 var
   TileW, TileH: Single;
-  ScreenPositionFrac: TVector2Single;
+  ScreenPositionFrac: TVector2;
   EvenRow: boolean;
 begin
   if not MapRect.Contains(ScreenPosition) then
@@ -131,45 +107,45 @@ begin
   TileW := MapRect.Width / (Width - 1);
   TileH := TileW / TileWidthToHeight;
 
-  ScreenPosition[0] := (ScreenPosition[0] - MapRect.Left  ) / TileW;
-  ScreenPosition[1] := (ScreenPosition[1] - MapRect.Bottom) / TileH;
-  ScreenPositionFrac[0] := Frac(ScreenPosition[0]);
-  ScreenPositionFrac[1] := Frac(ScreenPosition[1]);
-  if ScreenPositionFrac[1] < 0.5 then
+  ScreenPosition.X := (ScreenPosition.X - MapRect.Left  ) / TileW;
+  ScreenPosition.Y := (ScreenPosition.Y - MapRect.Bottom) / TileH;
+  ScreenPositionFrac.X := Frac(ScreenPosition.X);
+  ScreenPositionFrac.Y := Frac(ScreenPosition.Y);
+  if ScreenPositionFrac.Y < 0.5 then
   begin
-    if ScreenPositionFrac[0] < 0.5 then
-      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0, 0)) <
-                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5)) else
-      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(1, 0)) <
-                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5));
+    if ScreenPositionFrac.X < 0.5 then
+      EvenRow := PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0, 0)) <
+                 PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0.5, 0.5)) else
+      EvenRow := PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(1, 0)) <
+                 PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0.5, 0.5));
     if EvenRow then
     begin
-      if ScreenPositionFrac[0] < 0.5 then
-        X := Trunc(ScreenPosition[0]) else
-        X := Trunc(ScreenPosition[0]) + 1;
-      Y := Trunc(ScreenPosition[1]) * 2;
+      if ScreenPositionFrac.X < 0.5 then
+        X := Trunc(ScreenPosition.X) else
+        X := Trunc(ScreenPosition.X) + 1;
+      Y := Trunc(ScreenPosition.Y) * 2;
     end else
     begin
-      X := Trunc(ScreenPosition[0]);
-      Y := Trunc(ScreenPosition[1]) * 2 + 1;
+      X := Trunc(ScreenPosition.X);
+      Y := Trunc(ScreenPosition.Y) * 2 + 1;
     end;
   end else
   begin
-    if ScreenPositionFrac[0] < 0.5 then
-      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0, 1)) <
-                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5)) else
-      EvenRow := PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(1, 1)) <
-                 PointsDistanceSqr(Vector2Single(ScreenPositionFrac[0], ScreenPositionFrac[1]), Vector2Single(0.5, 0.5));
+    if ScreenPositionFrac.X < 0.5 then
+      EvenRow := PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0, 1)) <
+                 PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0.5, 0.5)) else
+      EvenRow := PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(1, 1)) <
+                 PointsDistanceSqr(Vector2(ScreenPositionFrac.X, ScreenPositionFrac.Y), Vector2(0.5, 0.5));
     if EvenRow then
     begin
-      if ScreenPositionFrac[0] < 0.5 then
-        X := Trunc(ScreenPosition[0]) else
-        X := Trunc(ScreenPosition[0]) + 1;
-      Y := Trunc(ScreenPosition[1]) * 2 + 2;
+      if ScreenPositionFrac.X < 0.5 then
+        X := Trunc(ScreenPosition.X) else
+        X := Trunc(ScreenPosition.X) + 1;
+      Y := Trunc(ScreenPosition.Y) * 2 + 2;
     end else
     begin
-      X := Trunc(ScreenPosition[0]);
-      Y := Trunc(ScreenPosition[1]) * 2 + 1;
+      X := Trunc(ScreenPosition.X);
+      Y := Trunc(ScreenPosition.Y) * 2 + 1;
     end;
   end;
 
@@ -213,7 +189,7 @@ end;
 
 function Neighbors(const P1, P2: TVector2SmallInt; out Dir: TDirection): boolean;
 begin
-  Result := Neighbors(P1[0], P1[1], P2[0], P2[1], Dir);
+  Result := Neighbors(P1.X, P1.Y, P2.X, P2.Y, Dir);
 end;
 
 function Neighbors(const X1, Y1, X2, Y2: Cardinal): boolean;

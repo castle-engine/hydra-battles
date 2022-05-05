@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -55,8 +55,8 @@ procedure RenderBar(R: TRectangle; const BgColor, FillColor: TCastleColor;
 
 const
   FactionBarColor: array [TFaction] of TCastleColor = (
-    (Data: (0.1, 0.1, 1, 1)),
-    (Data: (1, 0.1, 0.1, 1))
+    (X: 0.1; Y: 0.1; Z: 1  ; W: 1),
+    (X: 1  ; Y: 0.1; Z: 0.1; W: 1)
   );
 
 function FactionCanMove(const F: TFaction): boolean;

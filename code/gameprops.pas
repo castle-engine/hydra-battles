@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -180,8 +180,8 @@ begin
   FName := PropName[PropType];
   ConfPath := 'props/' + Name;
   FGLImage := TGLImage.Create(GameConf.GetURL(ConfPath + '/url'));
-  FPivot[0] := GameConf.GetValue(ConfPath + '/pivot_x', FGLImage.Width div 2);
-  FPivot[1] := FGLImage.Height - 1 - GameConf.GetValue(ConfPath + '/pivot_y', FGLImage.Height div 2);
+  FPivot.X := GameConf.GetValue(ConfPath + '/pivot_x', FGLImage.Width div 2);
+  FPivot.Y := FGLImage.Height - 1 - GameConf.GetValue(ConfPath + '/pivot_y', FGLImage.Height div 2);
   EditorShortcutStr := GameConf.GetValue(ConfPath + '/editor_shortcut', '');
   FCostWood := GameConf.GetValue(ConfPath + '/cost_wood', 0);
   FInitialLife := GameConf.GetFloat(ConfPath + '/initial_life', 0.0);
@@ -231,8 +231,8 @@ begin
   ScreenRectangle.Bottom -= (NewRectHeight - ScreenRectangle.Height) div 2; // keep centered
   ScreenRectangle.Height := NewRectHeight;
   { apply pivot }
-  ScreenRectangle.Left -= Round((Pivot[0] - FGLImage.Width div 2) * ScreenRectangle.Width / FGLImage.Width);
-  ScreenRectangle.Bottom -= Round((Pivot[1] - FGLImage.Height div 2) * ScreenRectangle.Height / FGLImage.Height);
+  ScreenRectangle.Left -= Round((Pivot.X - FGLImage.Width div 2) * ScreenRectangle.Width / FGLImage.Width);
+  ScreenRectangle.Bottom -= Round((Pivot.Y - FGLImage.Height div 2) * ScreenRectangle.Height / FGLImage.Height);
 
   GLImage.Draw(ScreenRectangle);
 end;
@@ -371,15 +371,13 @@ begin
 
   if (X <> -1) and (Y <> -1) then
   begin
-    // TODO: Should use Map.RenderRect for all rendering, not Map.Rect.
-
-    R := Map.Rect.Round;
+    R := Map.RenderRect.Round;
     RenderContext.ScissorEnable(R);
 
     if Map.ValidTile(X, Y, nil) then
       C := Vector4Single(0, 1, 0, 1) else
       C := Vector4Single(1, 0, 0, 1);
-    C[3] := 0.5;
+    C.W := 0.5;
     Prop.GLImage.Color := C;
 
     Prop.Draw(Map.GetTileRect(R, X, Y));

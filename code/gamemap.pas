@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -145,9 +145,7 @@ begin
   inherited;
   { Map width, height assuming that tile width = 1.0. }
 
-  // TODO: Should use Map.RenderRect for all rendering, not Map.Rect.
-
-  R := Rect.Round;
+  R := RenderRect.Round;
 
   RenderContext.ScissorEnable(R);
 

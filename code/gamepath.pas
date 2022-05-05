@@ -1,5 +1,5 @@
 {
-  Copyright 2015-2017 Michalis Kamburelis.
+  Copyright 2015-2022 Michalis Kamburelis.
 
   This file is part of "Hydra Battles".
 
@@ -53,8 +53,8 @@ constructor TPath.Create(const AMap: TAbstractMap;
   const PathStartX, PathStartY: Integer; const AFaction: TFaction);
 const
   FactionColor: array [TFaction] of TCastleColorRGB = (
-    (Data: (0.1, 0.1, 1)),
-    (Data: (1, 0.1, 0.1))
+    (X: 0.1; Y: 0.1; Z: 1),
+    (X: 1  ; Y: 0.1; Z: 0.1)
   );
 
   procedure CreateVisualization;
@@ -124,7 +124,7 @@ function TPath.Add(const X, Y: SmallInt; const AssumeValid: boolean): boolean;
     Point2D: TVector2SmallInt;
     C: Integer;
   begin
-    MapRect := Map.Rect.Round;
+    MapRect := Map.RenderRect.Round;
     TileRect := Map.GetTileRect(MapRect, X, Y);
     Point2D := Vector2SmallInt(X, Y);
     TileMiddle := TileRect.Center;
@@ -192,8 +192,8 @@ begin
     But it all cancels out when we just need a difference vector. }
   PFrom := Coordinate.FdPoint.Items.Items[FromIndex];
   PTo := Coordinate.FdPoint.Items.Items[ToIndex];
-  Result[0] := PTo[0] - PFrom[0];
-  Result[1] := PTo[1] - PFrom[1];
+  Result.X := PTo.X - PFrom.X;
+  Result.Y := PTo.Y - PFrom.Y;
 end;
 
 end.
