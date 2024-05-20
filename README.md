@@ -1,5 +1,24 @@
-Hydra Battles
+Hydra Battles - (Old Demo) Real-Time Strategy Game Using Castle Game Engine
 =============
+
+Deprecated!
+===========
+
+This project and repository are obsolete -- they use _Castle Game Engine_ in a way we don't advise anymore.
+
+To implement RTS game now, we advise:
+
+- design it (UI, maybe even map) using [Castle Game Engine editor](https://castle-engine.io/editor)
+- possibly design the map using [Tiled](https://castle-engine.io/tiled_maps)
+- move scenes (animations, sprite sheets etc.) in viewport
+
+See examples from [Castle Game Engine](https://castle-engine.io/):
+
+- turn-based strategy game: [examples/tiled/strategy_game_demo](https://github.com/castle-engine/castle-engine/tree/master/examples/tiled/strategy_game_demo)
+- isometric game: [examples/isometric_game](https://github.com/castle-engine/castle-engine/tree/master/examples/isometric_game)
+
+Overview
+========
 
 RTS (real-time strategy) game for 2 players, with some twists. Players gather resources and attack the other player, also drawing lines to hinder the other player movement.
 
