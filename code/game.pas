@@ -13,8 +13,6 @@
   ----------------------------------------------------------------------------
 }
 
-{$mode objfpc}{$H+}
-
 { Implements the game logic, independent from mobile / standalone. }
 unit Game;
 
@@ -24,7 +22,7 @@ implementation
 
 uses SysUtils, CastleWindow, CastleScene, CastleControls,
   CastleFilesUtils, CastleKeysMouse, CastleConfig,
-  CastleLog, CastleProgress, CastleWindowProgress, CastleUtils, CastleSceneManager,
+  CastleLog, CastleUtils, CastleSceneManager, CastleApplicationProperties,
   CastleUIState, CastleGameNotifications, CastleUIControls, CastleColors,
   GameUtils, GameStatePlay, GameStateMainMenu;
 
@@ -57,8 +55,6 @@ begin
   Notifications.Anchor(vpBottom, 10);
   Notifications.Color := Yellow;
 
-  Progress.UserInterface := WindowProgressInterface;
-
   { add window controls on all game states }
   SimpleBackground := TCastleSimpleBackground.Create(Application);
   Window.Controls.InsertFront(SimpleBackground);
@@ -68,31 +64,23 @@ begin
 
   ReadGameConf;
 
-  TUIState.Current := StateMainMenu;
+  Window.Container.View := StateMainMenu;
 end;
 
 procedure WindowPress(Container: TUIContainer; const Event: TInputPressRelease);
 begin
-  if Event.IsKey(K_F5) then
-    Window.SaveScreen(FileNameAutoInc(ApplicationName + '_screen_%d.png'));
-end;
-
-function MyGetApplicationName: string;
-begin
-  Result := 'hydra_battles';
+  if Event.IsKey(keyF5) then
+    Container.SaveScreen(FileNameAutoInc(ApplicationName + '_screen_%d.png'));
 end;
 
 initialization
-  { This sets SysUtils.ApplicationName.
-    It is useful to make sure it is correct (as early as possible)
-    as our log routines use it. }
-  OnGetApplicationName := @MyGetApplicationName;
+  ApplicationProperties.ApplicationName := 'hydra_battles';
 
   { initialize Application callbacks }
   Application.OnInitialize := @ApplicationInitialize;
 
   { create Window and initialize Window callbacks }
-  Window := TCastleWindowCustom.Create(Application);
+  Window := TCastleWindow.Create(Application);
   Application.MainWindow := Window;
   Window.OnPress := @WindowPress;
 end.

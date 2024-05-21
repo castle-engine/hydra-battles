@@ -85,7 +85,7 @@ uses SysUtils,
 procedure TStatePlay.TFadeControl.Render;
 begin
   inherited;
-  GLFadeRectangleDark(Container.Rect, Color, 1);
+  GLFadeRectangleDark(Container.PixelsRect, Color, 1);
 end;
 
 { TStatePlay ----------------------------------------------------------------- }
@@ -124,8 +124,7 @@ begin
   Status.PaddingHorizontal := 5;
   Status.PaddingVertical := 5;
   Status.Color := White;
-  Status.Left := 10;
-  Status.Bottom := 10;
+  Status.Translation := Vector2(10, 10);
   Status.Frame := false;
   Status.Alignment := hpRight;
   InsertFront(Status);
@@ -179,31 +178,26 @@ begin
   inherited;
 
   R := Map.RenderRect;
-  VisualizationSceneManager.Left := R.Left;
-  VisualizationSceneManager.Bottom := R.Bottom;
+  VisualizationSceneManager.Translation := Vector2(R.Left, R.Bottom);
   VisualizationSceneManager.Width := R.Width;
   VisualizationSceneManager.Height := R.Height;
 
-  MapBackground.Left := R.Left;
-  MapBackground.Bottom := R.Bottom;
+  MapBackground.Translation := Vector2(R.Left, R.Bottom);
   MapBackground.Width := R.Width;
   MapBackground.Height := R.Height;
 
-  Sidebar[ftHumans].Left := R.Left - PlayerSidebarWidth;
-  Sidebar[ftHumans].Bottom := R.Bottom;
+  Sidebar[ftHumans].Translation := Vector2(R.Left - PlayerSidebarWidth, R.Bottom);
   Sidebar[ftHumans].Width := PlayerSidebarWidth;
   Sidebar[ftHumans].Height := R.Height;
 
-  Sidebar[ftMonsters].Left := R.Right;
-  Sidebar[ftMonsters].Bottom := R.Bottom;
+  Sidebar[ftMonsters].Translation := Vector2(R.Right, R.Bottom);
   Sidebar[ftMonsters].Width := PlayerSidebarWidth;
   Sidebar[ftMonsters].Height := R.Height;
 
   if GameOverButton <> nil then
   begin
     GameOverButtonRect := R.Grow(-R.Width / 4, -R.Height / 4);
-    GameOverButton.Left := GameOverButtonRect.Left;
-    GameOverButton.Bottom := GameOverButtonRect.Bottom;
+    GameOverButton.Translation := Vector2(GameOverButtonRect.Left, GameOverButtonRect.Bottom);
     GameOverButton.Width := GameOverButtonRect.Width;
     GameOverButton.Height := GameOverButtonRect.Height;
   end;
@@ -239,7 +233,7 @@ var
 begin
   inherited;
 
-  S := Format('FPS: %f real : %f', [Window.Fps.FrameTime, Window.Fps.RealTime]);
+  S := Format('FPS: %s', [Window.Fps.ToString]);
   Status.Text.Text := S;
   Status.Align(hpRight, hpRight);
   Status.Align(vpTop, vpTop);
@@ -372,22 +366,22 @@ begin
 
   if Map.EditMode then
   begin
-    if Event.IsKey(K_Up) then
+    if Event.IsKey(keyArrowUp) then
     begin
       Map.EditCursor.Y := Map.EditCursor.Y + 1;
       Result := true;
     end;
-    if Event.IsKey(K_Down) then
+    if Event.IsKey(keyArrowDown) then
     begin
       Map.EditCursor.Y := Map.EditCursor.Y - 1;
       Result := true;
     end;
-    if Event.IsKey(K_Right) then
+    if Event.IsKey(keyArrowRight) then
     begin
       Map.EditCursor.X := Map.EditCursor.X + 1;
       Result := true;
     end;
-    if Event.IsKey(K_Left) then
+    if Event.IsKey(keyArrowLeft) then
     begin
       Map.EditCursor.X := Map.EditCursor.X - 1;
       Result := true;
@@ -432,7 +426,7 @@ begin
     end;
   end;
 
-  if Event.IsMouseButton(mbLeft) then
+  if Event.IsMouseButton(buttonLeft) then
   begin
     if TryDraggingSidebar then
       Exit(true);
@@ -519,7 +513,7 @@ begin
   Result := inherited;
   if Result then Exit;
 
-  if Event.IsMouseButton(mbLeft) then
+  if Event.IsMouseButton(buttonLeft) then
   begin
     TryDraggingNpc;
     TryDraggingSidebar;
