@@ -71,7 +71,7 @@ end;
 procedure TPlayerSidebar.Render;
 var
   BDH: Integer;
-  R: TFloatRectangle;
+  R, RR: TFloatRectangle;
   ColorBg, ColorText: TCastleColor;
   Timeout: string;
 begin
@@ -85,7 +85,9 @@ begin
         Trunc(FloatModulo(GameTime, FactionExclusiveMovesDuration))) + ']' else
       Timeout := ' [blocked]';
 
-  R := FloatRectangle(Left, Bottom, PlayerSidebarWidth, Height - BDH * 2);
+  RR := RenderRect;
+
+  R := FloatRectangle(RR.Left, RR.Bottom, PlayerSidebarWidth, Height - BDH * 2);
   if FactionCanMove(Faction) then
   begin
     ColorBg := FactionColor[Faction];
@@ -100,13 +102,13 @@ begin
     Format('%s (%d wood)'+ Timeout, [FactionName[Faction], Trunc(Wood[Faction])]),
     0, hpMiddle, vpMiddle);
 
-  R := FloatRectangle(Left, R.Top, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(RR.Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build Barracks (%d wood)', [FProps[Barracks[Faction]].CostWood]),
     0, hpMiddle, vpMiddle);
 
-  R := FloatRectangle(Left, R.Top, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(RR.Left, R.Top, PlayerSidebarWidth, BDH);
   GLFrame.Draw3x3(R, Vector4Integer(2, 2, 2, 2));
   UIFont.PrintBrokenString(R, Black,
     Format('Drag to build HQ (%d wood)', [FProps[Headquarters[Faction]].CostWood]),
@@ -118,19 +120,21 @@ function TPlayerSidebar.StartsDragging(
   const ScreenPosition: TVector2Single; out Prop: TProp): boolean;
 var
   BDH: Integer;
-  R: TFloatRectangle;
+  R, RR: TFloatRectangle;
 begin
   BDH := Round(BuildingDragHeight * Height);
   Result := false;
 
-  R := FloatRectangle(Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
+  RR := RenderRect;
+
+  R := FloatRectangle(RR.Left, Bottom + Height - 2 * BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Props[Barracks[Faction]];
     Result := Prop.CanBuild(PropInstances);
   end;
 
-  R := FloatRectangle(Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
+  R := FloatRectangle(RR.Left, Bottom + Height - BDH, PlayerSidebarWidth, BDH);
   if R.Contains(ScreenPosition) then
   begin
     Prop := Props[Headquarters[Faction]];
