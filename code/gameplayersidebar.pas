@@ -58,7 +58,7 @@ constructor TPlayerSidebar.Create(const AOwner: TComponent;
 begin
   inherited Create(AOwner);
   FFaction := AFaction;
-  GLFrame := TGLImage.Create(ApplicationData('gui/button_' + FactionName[Faction] + '.png'));
+  GLFrame := TGLImage.Create('castle-data:/gui/button_' + FactionName[Faction] + '.png');
   FProps := AProps;
 end;
 

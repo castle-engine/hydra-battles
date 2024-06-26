@@ -40,7 +40,7 @@ procedure ApplicationInitialize;
     GameConf := TCastleConfig.Create(Application);
     GameConf.RootName := 'game';
     GameConf.NotModified; { otherwise changing RootName makes it modified, and saved back at freeing }
-    GameConf.URL := ApplicationData('game.xml');
+    GameConf.URL := 'castle-data:/game.xml';
   end;
 
 begin
